@@ -285,7 +285,7 @@
         let draggingActionIndex = -1;
         let dragStartOffset = { x: 0, y: 0 };
 
-        // 自动存档功能
+        // 自动存档功能 (注意：为了性能，不存巨大的原图 base64，所以刷新后旧任务对比功能会失效，这是正常的)
         function saveHistoryToLocal() {
             const items = [];
             document.querySelectorAll('.history-item').forEach(item => {
@@ -675,7 +675,11 @@
                 const data = await response.json(); const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
                 if (!response.ok) throw new Error(data.error?.message || "请求失败");
                 const results = data.data || (data.url ? [{url: data.url}] : []);
-                if (results.length > 0) { setMainImage(results[0].url, duration, originalRefImage); results.forEach(img => addToHistory(img.url, prompt, duration)); } else { alert("生成成功，但未返回图片链接");
+                if (results.length > 0) { 
+                    setMainImage(results[0].url, duration, originalRefImage); 
+                    // 修复：生成后，立刻把原图绑定到历史记录里，确保能看到对比
+                    results.forEach(img => addToHistory(img.url, prompt, duration, false, originalRefImage)); 
+                } else { alert("生成成功，但未返回图片链接");
                 }
             } catch (err) { console.error(err);
             alert("错误: " + err.message); } 
@@ -698,15 +702,25 @@
         function clearMainPreview() { currentMainImageUrl = "";
         imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); document.getElementById('compare-hint').classList.add('hidden'); }
         
-        function addToHistory(url, prompt, duration, isRestoring = false) {
+        // 修改：现在接受 refImage 参数了
+        function addToHistory(url, prompt, duration, isRestoring = false, refImage = null) {
             const list = document.getElementById('history-list');
             const empty = document.getElementById('history-empty'); if (empty) empty.remove();
             const item = document.createElement('div');
-            // 修改：高度改为 h-full，宽度由比例决定，去掉 w-auto 限制
             item.className = "history-item group relative flex-shrink-0 aspect-[4/3] h-full bg-gray-900 rounded-xl overflow-hidden border border-gray-700 cursor-pointer hover:border-purple-500 transition shadow-lg";
             item.dataset.url = url; item.dataset.prompt = encodeURIComponent(prompt); item.dataset.duration = duration;
-            item.onclick = (e) => { if(!e.target.closest('.task-checkbox') && !e.target.closest('button')) { const decPrompt = decodeURIComponent(item.dataset.prompt);
-            setMainImage(url, duration); document.getElementById('prompt-input').value = decPrompt; } };
+            
+            // 关键：把原图暂存在这个格子的数据属性里
+            if(refImage) item.dataset.ref = refImage;
+
+            item.onclick = (e) => { 
+                if(!e.target.closest('.task-checkbox') && !e.target.closest('button')) { 
+                    const decPrompt = decodeURIComponent(item.dataset.prompt);
+                    // 关键：点击时，如果有原图，就传进去
+                    setMainImage(url, duration, item.dataset.ref || null); 
+                    document.getElementById('prompt-input').value = decPrompt; 
+                } 
+            };
             item.innerHTML = `<img src="${url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 pointer-events-none"><div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div><div class="absolute top-2 left-2 z-20"><input type="checkbox" class="task-checkbox" onchange="updateBatchState()" onclick="event.stopPropagation()"></div><div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition duration-200 z-20"><button onclick="event.stopPropagation(); downloadSingleImage('${url}')" class="w-7 h-7 rounded-full bg-black/40 hover:bg-purple-500 text-white flex items-center justify-center backdrop-blur border border-white/10 transition"><i class="fa-solid fa-download text-xs"></i></button><button onclick="event.stopPropagation(); deleteHistoryItem(this)" class="w-7 h-7 rounded-full bg-black/40 hover:bg-red-500 text-white flex items-center justify-center backdrop-blur border border-white/10 transition"><i class="fa-solid fa-trash text-xs"></i></button></div><div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none"><p class="text-white text-xs font-bold line-clamp-2 leading-tight drop-shadow-md mb-1.5">${prompt.replace(/</g, "&lt;")}</p><div class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-green-400 text-[10px]"></i><span class="text-[9px] text-gray-500 ml-auto bg-white/10 px-1.5 py-0.5 rounded">${duration}</span></div></div>`;
             list.prepend(item);
 
@@ -718,22 +732,18 @@
         function toggleSelectAll() { const mainCb = document.getElementById('select-all');
         document.querySelectorAll('#history-list .task-checkbox').forEach(cb => cb.checked = mainCb.checked); updateBatchState(); }
         
-        // 修改：增加计数显示逻辑
         function updateBatchState() {
             const checkboxes = document.querySelectorAll('#history-list .task-checkbox');
             const checked = Array.from(checkboxes).filter(cb => cb.checked);
             
-            // 1. 显示/隐藏批量操作按钮
             const batchActions = document.getElementById('batch-actions'); 
             if(checked.length > 0) batchActions.classList.remove('hidden'); else batchActions.classList.add('hidden');
             
-            // 2. 更新全选框状态
             const mainCb = document.getElementById('select-all');
             if(checked.length === checkboxes.length && checkboxes.length > 0) mainCb.checked = true; 
             else if(checked.length === 0) mainCb.checked = false;
             else mainCb.indeterminate = true;
 
-            // 3. 更新数量显示文本
             const countSpan = document.getElementById('selection-count');
             if(checked.length > 0) {
                 countSpan.innerText = `(已选 ${checked.length})`;
