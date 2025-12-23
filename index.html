@@ -292,12 +292,12 @@
     <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm"><div class="bg-white dark:bg-[#18181b] p-6 rounded-xl w-96 shadow-2xl border border-gray-200 dark:border-[#27272a]"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-purple-500"></i> API 设置</h3><button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i class="fa-solid fa-xmark"></i></button></div><div class="space-y-4"><div><label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label><input type="password" id="modal-api-key" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500" placeholder="sk-xxxxxxxx"><p class="text-[10px] text-gray-400 mt-1">Key 保存在本地。</p></div><button onclick="saveSettings()" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded transition">保存配置</button></div></div></div>
 
     <script>
-        // === 当前使用的是 柏拉图API (新网站) ===
-const API_URL = "https://api.bltcy.ai/v1/images/edits";
+       
+const API_URL = "https://ai.t8star.cn/v1/images/edits";
 
-// === 备用/旧网站 (贞贞T8工坊) ===
 // 如果要换回去，把上面那行网址替换下面这行
-// const API_URL = "https://ai.t8star.cn/v1/images/edits";
+// const API_URL = "https://ai.t8star.cn/v1/images/edits";(贞贞T8工坊)
+// const API_URL = "https://api.bltcy.ai/v1/images/edits";（柏拉图API）
         const MAX_SLOTS = 9;
         let imageSlots = new Array(MAX_SLOTS).fill(null);
         let currentActiveSlot = -1; 
@@ -739,6 +739,7 @@ const API_URL = "https://api.bltcy.ai/v1/images/edits";
     </script>
 </body>
 </html>
+
 
 
 
