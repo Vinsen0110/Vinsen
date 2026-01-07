@@ -8,13 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1); }
+        
+        /* 简单的淡入动画 */
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-[#fafafa] min-h-screen flex flex-col items-center justify-center p-6 text-gray-800">
+<body class="bg-[#fafafa] min-h-screen flex flex-col items-center justify-center p-6 text-gray-800 relative">
+    
     <div class="absolute top-6 right-6 z-50">
         <div class="relative group">
             <button class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
@@ -36,7 +41,7 @@
         </div>
     </div>
 
-    <div class="text-center mb-16 space-y-4">
+    <div class="text-center mb-16 space-y-4 mt-10">
         <h1 class="text-4xl md:text-5xl font-bold text-[#6366f1] tracking-tight">选择生成模型</h1>
         <p class="text-gray-500 text-lg">探索最先进的AI视频和图片生成技术</p>
     </div>
@@ -91,11 +96,85 @@
 
     </div>
 
-    <footer class="mt-20 text-gray-400 text-xs">
+    <div class="w-full max-w-6xl mx-auto mt-12 mb-4">
+        <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden ring-4 ring-indigo-50/50">
+            
+            <div class="bg-[#6366f1] py-3 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-white opacity-10 transform -skew-x-12 translate-x-1/2"></div>
+                <h3 class="text-white font-black text-lg tracking-wide relative z-10">
+                    <i class="fa-solid fa-tags mr-2 opacity-90"></i>价格公示
+                </h3>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-xs text-gray-900 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                
+                <div class="space-y-4 px-2">
+                    <h4 class="font-extrabold text-indigo-700 text-center text-sm bg-indigo-50 py-2 rounded-lg">【柏拉图】渠道</h4>
+                    <div class="space-y-3 font-mono">
+                        <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">Sora 2 / Pro</span>
+                            <span class="font-extrabold text-black">0.1 / 2.5 ¥</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">Veo 3.1 / Com /  Pro</span>
+                            <span class="font-extrabold text-black">0.3 / 0.3 / 1 ¥</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold">Nanobanana hd / Pro</span>
+                            <span class="font-extrabold text-black">0.12 / 0.2 ¥</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 px-2 pt-6 md:pt-0">
+                    <h4 class="font-extrabold text-purple-700 text-center text-sm bg-purple-50 py-2 rounded-lg">【贞贞】渠道</h4>
+                    <div class="space-y-3 font-mono">
+                         <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">Sora 2 / Pro</span>
+                            <span class="font-extrabold text-black">0.135 / 3.375 ¥</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">Veo 3.1 / Com / Pro</span>
+                            <span class="font-extrabold text-black">0.405 / 0.405 / 1.35 ¥</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold">Nanobanana hd / Pro</span>
+                            <span class="font-extrabold text-black">0.162 / 0.27 ¥</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 px-2 pt-6 md:pt-0">
+                    <h4 class="font-extrabold text-pink-600 text-center text-sm bg-pink-50 py-2 rounded-lg">【其他】渠道</h4>
+                    <div class="space-y-3 font-mono">
+                        <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">待定模型</span>
+                            <span class="font-extrabold text-gray-400">-- ¥</span>
+                        </div>
+                         <div class="flex justify-between items-center border-b border-dashed border-gray-200 pb-1">
+                            <span class="font-bold">待定模型</span>
+                            <span class="font-extrabold text-gray-400">-- ¥</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="font-bold">待定模型</span>
+                            <span class="font-extrabold text-gray-400">-- ¥</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="bg-gray-50 py-2 text-center border-t border-gray-100">
+                <p class="text-[10px] text-gray-500 font-bold">
+                    * 价格仅供参考，实际扣费以API后台为准
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-gray-400 text-xs pb-6">
         &copy; 2025 AI Creative Studio. All rights reserved.
     </footer>
 
 </body>
 </html>
-
-
