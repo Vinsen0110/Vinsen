@@ -633,46 +633,98 @@
         function setBatchSize(num) { batchSize = num; document.querySelectorAll('.batch-btn').forEach(btn => { if(parseInt(btn.dataset.val) === num) btn.className = "batch-btn active-btn flex-1 py-2 text-xs rounded transition"; else btn.className = "batch-btn inactive-btn bg-gray-100 border-gray-300 text-gray-500 dark:bg-[#18181b] dark:border-[#27272a] dark:text-gray-400 flex-1 py-2 text-xs rounded transition"; }); }
 
         // === 修改：并发请求逻辑修复批量生成问题 ===
+       // === 修改后的 submitTask：自动判断文生图/图生图 ===
         async function submitTask() {
             const apiKey = localStorage.getItem('nano_api_key');
             if (!apiKey) { openSettings(); return; }
 
-            let currentApiUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
-            currentApiUrl = currentApiUrl.replace(/\/+$/, "");
-            if (!currentApiUrl.endsWith('/v1/images/edits')) {
-                currentApiUrl += '/v1/images/edits';
-            }
+            // 1. 获取并清洗 Base URL (去掉末尾可能存在的具体路径，只保留域名)
+            let baseUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
+            // 移除可能已经被存入的 /v1/images/edits 或 /generations 以及末尾斜杠
+            baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, "").replace(/\/+$/, "");
 
             const prompt = document.getElementById('prompt-input').value.trim();
-            const ratio = document.getElementById('ratio-select').value; const size = document.getElementById('size-select').value; const modelName = document.getElementById('model-input').value;
+            const ratio = document.getElementById('ratio-select').value; 
+            const size = document.getElementById('size-select').value; 
+            const modelName = document.getElementById('model-input').value;
             const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon');
+            
             if (!prompt) { alert("请输入提示词"); return; }
             
+            // 2. 检查是否有参考图
+            const validImages = imageSlots.filter(item => item !== null);
+            const isTextToImage = validImages.length === 0; // 如果没有图片，则是文生图模式
+            
+            // 3. 根据模式决定 接口地址
+            const endpoint = isTextToImage ? '/v1/images/generations' : '/v1/images/edits';
+            const finalUrl = baseUrl + endpoint;
+
             btn.disabled = true;
             btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden'); 
-            btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`; // 显示进度
+            btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`; 
 
-            const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
-            if (validImages.length > 0) { const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]); }
+            // 如果有参考图，准备一张作为预览时的对比底图
+            originalRefImage = null;
+            if (!isTextToImage) { 
+                const reader = new FileReader(); 
+                reader.onload = (e) => { originalRefImage = e.target.result; }; 
+                reader.readAsDataURL(validImages[0]); 
+            }
+            
             const startTime = Date.now();
 
             // 定义单个请求函数
             const sendRequest = async () => {
-                const formData = new FormData();
-                formData.append('model', modelName); formData.append('prompt', prompt); 
-                formData.append('aspect_ratio', ratio); formData.append('image_size', size); 
-                formData.append('n', 1); // 强制每次只请求1张，通过并发实现多张
-                formData.append('response_format', 'url');
-                validImages.forEach((file) => formData.append('image', file));
+                let response;
+                
+                if (isTextToImage) {
+                    // === 文生图模式 (JSON) ===
+                    const payload = {
+                        model: modelName,
+                        prompt: prompt,
+                        n: 1,
+                        aspect_ratio: ratio, // 你的API支持非标准的aspect_ratio参数
+                        image_size: size,    // 你的API支持非标准的image_size参数
+                        response_format: 'url'
+                    };
 
-                const response = await fetch(currentApiUrl, { method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: formData });
+                    response = await fetch(finalUrl, { 
+                        method: 'POST', 
+                        headers: { 
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json' // 文生图通常用 JSON
+                        }, 
+                        body: JSON.stringify(payload) 
+                    });
+
+                } else {
+                    // === 图生图/编辑模式 (FormData) ===
+                    const formData = new FormData();
+                    formData.append('model', modelName); 
+                    formData.append('prompt', prompt); 
+                    formData.append('aspect_ratio', ratio); 
+                    formData.append('image_size', size); 
+                    formData.append('n', 1);
+                    formData.append('response_format', 'url');
+                    validImages.forEach((file) => formData.append('image', file));
+
+                    response = await fetch(finalUrl, { 
+                        method: 'POST', 
+                        headers: { 
+                            'Authorization': `Bearer ${apiKey}`
+                            // FormData 不需要手动设置 Content-Type，浏览器会自动设置 boundary
+                        }, 
+                        body: formData 
+                    });
+                }
+
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error?.message || "请求失败");
                 return data.data || (data.url ? [{url: data.url}] : []);
             };
 
             try {
-                // 并发发送请求
+                // 并发请求
                 const requestPromises = Array.from({ length: batchSize }, () => sendRequest());
                 const outcomes = await Promise.allSettled(requestPromises);
                 
@@ -691,9 +743,12 @@
                     setMainImage(allResults[0].url, duration, originalRefImage); 
                     allResults.forEach(img => addToHistory(img.url, prompt, duration)); 
                 } else { 
-                    alert("生成失败，请检查设置或重试"); 
+                    alert("生成失败，请检查API Key或参数设置"); 
                 }
-            } catch (err) { console.error(err); alert("错误: " + err.message); } 
+            } catch (err) { 
+                console.error(err); 
+                alert("错误: " + err.message); 
+            } 
             finally { 
                 btn.disabled = false; 
                 btn.classList.remove('opacity-70', 'cursor-not-allowed'); 
@@ -701,8 +756,6 @@
                 btn.querySelector('span').innerText = "✨ 立即生成"; 
             }
         }
-
-        function setMainImage(url, duration = "", refSrc = null) {
             currentMainImageUrl = url;
             const placeholder = document.getElementById('empty-placeholder'); const timeBadge = document.getElementById('time-badge');
             placeholder.classList.add('hidden'); imgWrapper.classList.remove('hidden'); document.getElementById('main-image').src = url;
@@ -819,4 +872,5 @@
     </script>
 </body>
 </html>
+
 
