@@ -277,7 +277,7 @@
         let taskList = []; let currentImageBase64 = null; let currentImageFile = null; let pollingInterval = null; let activeTaskId = null; let currentMode = 'single'; let storyShots = []; 
 
         function initApp() {
-            loadSettings(); loadTheme(); loadHistory(); updateModelLimits(); setupResizers(); storyShots = [{ id: Date.now(), duration: 15, prompt: '', isEditing: false }]; renderStoryboardRows(); checkAllTasksStatus(); startPolling();
+            loadSettings(); loadTheme(); loadHistory(); updateModelLimits(); setupResizers(); storyShots = [{ id: Date.now(), duration: 10, prompt: '', isEditing: false }]; renderStoryboardRows(); checkAllTasksStatus(); startPolling();
             // 初始化移动端视图（默认显示创作）
             if(window.innerWidth < 768) switchMobileTab('create');
             // 移动端Dom同步
@@ -360,7 +360,7 @@
             if(mode === 'single') { tabSingle.classList.add('active'); tabSB.classList.remove('active'); panelSingle.classList.remove('hidden'); panelSB.classList.add('hidden'); document.getElementById('upload-area').style.opacity = '1'; document.getElementById('upload-area').style.pointerEvents = 'auto'; } 
             else { tabSingle.classList.remove('active'); tabSB.classList.add('active'); panelSingle.classList.add('hidden'); panelSB.classList.remove('hidden'); document.getElementById('upload-area').style.opacity = '0.5'; document.getElementById('upload-area').style.pointerEvents = 'none'; }
         }
-        function resetStoryboard() { const maxDuration = parseFloat(document.getElementById('duration-sb').value) || 15; storyShots = [{ id: Date.now(), duration: maxDuration, prompt: '', isEditing: false }]; renderStoryboardRows(); }
+        function resetStoryboard() { const maxDuration = parseFloat(document.getElementById('duration-sb').value) || 10; storyShots = [{ id: Date.now(), duration: maxDuration, prompt: '', isEditing: false }]; renderStoryboardRows(); }
         function addShot() { const maxDuration = parseFloat(document.getElementById('duration-sb').value); const lastShot = storyShots[storyShots.length - 1]; if (lastShot.duration <= 1) return; let newDur = 5; if (lastShot.duration < 6) newDur = lastShot.duration - 1; lastShot.duration -= newDur; const newShot = { id: Date.now(), duration: newDur, prompt: '', isEditing: false }; storyShots.splice(storyShots.length - 1, 0, newShot); renderStoryboardRows(); }
         function deleteShot(index) { if(storyShots.length <= 1) { alert("至少保留一个分镜"); return; } const deletedDuration = storyShots[index].duration; storyShots.splice(index, 1); if (index === storyShots.length) { storyShots[storyShots.length - 1].duration += deletedDuration; } else { storyShots[storyShots.length - 1].duration += deletedDuration; } renderStoryboardRows(); }
         function startEditingTime(index) { storyShots.forEach(s => s.isEditing = false); storyShots[index].isEditing = true; renderStoryboardRows(); }
@@ -403,3 +403,4 @@
     </script>
 </body>
 </html>
+
