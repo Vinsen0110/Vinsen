@@ -21,7 +21,7 @@
         .dropdown-arrow { transition: transform 0.3s ease; }
         .dropdown-open .dropdown-arrow { transform: rotate(180deg); }
         .glow-effect { box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5); border-color: #8b5cf6 !important; color: #8b5cf6 !important; }
-        .model-option .check-icon { transition: opacity 0.2s; }
+        .model-option .check-icon, .custom-option .check-icon { transition: opacity 0.2s; }
 
         /* 拖拽条 (仅电脑端显示) */
         .resizer-x { width: 6px; cursor: col-resize; background-color: #f3f4f6; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; transition: background-color 0.2s; z-index: 50; display: flex; align-items: center; justify-content: center; }
@@ -34,9 +34,6 @@
         .resizer-y:hover, .resizer-y.resizing { background-color: #d8b4fe; }
         .resizer-y::before { content: "•••"; color: #9ca3af; font-size: 10px; letter-spacing: 2px; line-height: 0; }
         
-        .model-selector { appearance: none; background-color: #fff; border: 1px solid #e5e7eb; color: #374151; font-weight: 600; text-align: left; transition: all 0.2s ease-in-out; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3e%3c/path%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1rem; }
-        .dark .model-selector { background-color: #18181b; border-color: #27272a; color: #e5e7eb; }
-        .model-selector:focus { outline: none; border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); color: #7c3aed; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
@@ -64,7 +61,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* 手机端竖屏长滚动样式优化 */
         @media (max-width: 768px) {
             body { height: auto !important; overflow-y: auto !important; overflow-x: hidden; }
             #main-container { flex-direction: column !important; height: auto !important; overflow: visible !important; margin-bottom: 0 !important; }
@@ -73,7 +69,7 @@
             #preview-section { height: 400px !important; min-height: 400px !important; flex: none !important; }
             #list-section { height: 600px !important; min-height: 500px !important; flex: none !important; }
             .resizer-x, .resizer-y { display: none !important; }
-            nav { display: none !important; } /* 隐藏底栏 */
+            nav { display: none !important; } 
         }
     </style>
 </head>
@@ -102,19 +98,19 @@
             <div class="p-5 space-y-5">
                 
                 <div class="flex items-center justify-between relative z-50">
-                    <label class="text-xs text-gray-500 font-bold uppercase tracking-wide">模型选择</label>
+                    <label class="text-xs text-black-500 font-bold uppercase tracking-wide">模型选择</label>
                     <div class="relative w-40" id="custom-model-dropdown">
                         <input type="hidden" id="model-select" value="sora-2">
-                        <div onclick="toggleModelDropdown(event)" id="dropdown-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                        <div onclick="toggleDropdown(event, 'custom-model-dropdown', 'model-options', 'model-trigger')" id="model-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
                             <span id="current-model-text" class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">Sora 2</span>
                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                         </div>
-                        <div id="dropdown-options" class="hidden absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
-                            <div onclick="selectModel('sora-2', 'Sora 2')" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition bg-indigo-50 dark:bg-[#27272a]" data-val="sora-2">
+                        <div id="model-options" class="hidden absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                            <div onclick="selectOption('sora-2', 'Sora 2', 'model-select', 'current-model-text', 'model-options', 'model-trigger', updateModelLimits)" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition bg-indigo-50 dark:bg-[#27272a]" data-val="sora-2">
                                 <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Sora 2</span>
                                 <i class="fa-solid fa-check text-indigo-500 text-xs opacity-100 check-icon"></i>
                             </div>
-                            <div onclick="selectModel('sora-2-pro', 'Sora 2 Pro')" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition" data-val="sora-2-pro">
+                            <div onclick="selectOption('sora-2-pro', 'Sora 2 Pro', 'model-select', 'current-model-text', 'model-options', 'model-trigger', updateModelLimits)" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition" data-val="sora-2-pro">
                                 <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Sora 2 Pro</span>
                                 <i class="fa-solid fa-check text-indigo-500 text-xs opacity-0 check-icon"></i>
                             </div>
@@ -129,7 +125,7 @@
 
                 <div id="panel-single" class="space-y-4 flex flex-col h-full">
                     <div class="space-y-2">
-                        <label class="text-xs text-gray-500 font-bold uppercase tracking-wide">参考图片</label>
+                        <label class="text-xs text-black-500 font-bold uppercase tracking-wide">参考图片</label>
                         <div id="upload-area" class="upload-box relative w-full h-32 rounded-xl cursor-pointer flex flex-col items-center justify-center bg-gray-50 dark:bg-[#18181b] hover:bg-gray-100 dark:hover:bg-[#1f1f22] transition group border border-dashed border-gray-300 dark:border-gray-700" onclick="document.getElementById('file-input').click()">
                             <input type="file" id="file-input" class="hidden" accept="image/*" onchange="handleImageUpload(event)">
                             <div id="upload-placeholder" class="text-center group-hover:scale-105 transition duration-300">
@@ -142,22 +138,43 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs text-gray-500 font-bold uppercase tracking-wide">提示词</label>
+                        <label class="text-xs text-black-500 font-bold uppercase tracking-wide">提示词</label>
                         <textarea id="prompt-input" class="w-full h-36 custom-input rounded-xl p-3 text-sm bg-gray-50 border border-gray-200 text-gray-800 dark:bg-[#18181b] dark:border-[#27272a] dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-700 resize-none font-mono leading-relaxed focus:bg-white dark:focus:bg-black" placeholder="描述你的视频内容..."></textarea>
                     </div>
 
                     <div class="mt-auto space-y-4 pb-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-1">
-                                <label class="text-xs text-gray-500 font-bold uppercase">比例</label>
-                                <select id="ratio-single" class="w-full custom-input rounded-lg px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white cursor-pointer">
-                                    <option value="16:9">16:9 (横屏)</option>
-                                    <option value="9:16">9:16 (竖屏)</option>
-                                </select>
+                                <label class="text-xs text-black-500 font-bold uppercase">比例</label>
+                                <div class="relative w-full" id="custom-ratio-single-dropdown">
+                                    <input type="hidden" id="ratio-single" value="16:9">
+                                    <div onclick="toggleDropdown(event, 'custom-ratio-single-dropdown', 'ratio-single-options', 'ratio-single-trigger')" id="ratio-single-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-2.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                                        <span id="ratio-single-text" class="text-xs font-bold text-gray-700 dark:text-gray-300">16:9 (横屏)</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
+                                    </div>
+                                    <div id="ratio-single-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                                        <div onclick="selectOption('16:9', '16:9 (横屏)', 'ratio-single', 'ratio-single-text', 'ratio-single-options', 'ratio-single-trigger')" class="custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition bg-indigo-50 dark:bg-[#27272a]" data-val="16:9">
+                                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">16:9 (横屏)</span>
+                                            <i class="fa-solid fa-check text-indigo-500 text-xs opacity-100 check-icon"></i>
+                                        </div>
+                                        <div onclick="selectOption('9:16', '9:16 (竖屏)', 'ratio-single', 'ratio-single-text', 'ratio-single-options', 'ratio-single-trigger')" class="custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition" data-val="9:16">
+                                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">9:16 (竖屏)</span>
+                                            <i class="fa-solid fa-check text-indigo-500 text-xs opacity-0 check-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="space-y-1">
-                                <label class="text-xs text-gray-500 font-bold uppercase">时长</label>
-                                <select id="duration-single" class="w-full custom-input rounded-lg px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white cursor-pointer"></select>
+                                <label class="text-xs text-black-500 font-bold uppercase">时长</label>
+                                <div class="relative w-full" id="custom-duration-single-dropdown">
+                                    <input type="hidden" id="duration-single" value="10">
+                                    <div onclick="toggleDropdown(event, 'custom-duration-single-dropdown', 'duration-single-options', 'duration-single-trigger')" id="duration-single-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-2.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                                        <span id="duration-single-text" class="text-xs font-bold text-gray-700 dark:text-gray-300">10 秒</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
+                                    </div>
+                                    <div id="duration-single-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                                        </div>
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a]">
@@ -171,14 +188,43 @@
                 </div>
 
                 <div id="panel-storyboard" class="space-y-3 hidden flex flex-col h-full">
-                
                     <div id="storyboard-container" class="space-y-2"></div>
                     <button id="add-shot-btn" onclick="addShot()" class="w-full py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-xs font-bold text-gray-500 hover:text-violet-500 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/10 transition flex items-center justify-center gap-1"><i class="fa-solid fa-plus"></i> 增加分镜</button>
                     <div class="flex items-center justify-between px-2 py-1"><span class="text-xs font-bold text-gray-500">当前时间轴:</span><span id="sb-total-duration" class="text-xs font-mono font-bold text-gray-800 dark:text-gray-200">0s / 15s</span></div>
                     <div class="mt-auto space-y-4 pb-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1"><label class="text-xs text-gray-500 font-bold uppercase">比例</label><select id="ratio-sb" class="w-full custom-input rounded-lg px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white cursor-pointer"><option value="16:9">16:9 (横屏)</option><option value="9:16">9:16 (竖屏)</option></select></div>
-                            <div class="space-y-1"><label class="text-xs text-gray-500 font-bold uppercase">总时长</label><select id="duration-sb" onchange="resetStoryboard()" class="w-full custom-input rounded-lg px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white cursor-pointer"></select></div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-black-500 font-bold uppercase">比例</label>
+                                <div class="relative w-full" id="custom-ratio-sb-dropdown">
+                                    <input type="hidden" id="ratio-sb" value="16:9">
+                                    <div onclick="toggleDropdown(event, 'custom-ratio-sb-dropdown', 'ratio-sb-options', 'ratio-sb-trigger')" id="ratio-sb-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-2.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                                        <span id="ratio-sb-text" class="text-xs font-bold text-gray-700 dark:text-gray-300">16:9 (横屏)</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
+                                    </div>
+                                    <div id="ratio-sb-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                                        <div onclick="selectOption('16:9', '16:9 (横屏)', 'ratio-sb', 'ratio-sb-text', 'ratio-sb-options', 'ratio-sb-trigger')" class="custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition bg-indigo-50 dark:bg-[#27272a]" data-val="16:9">
+                                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">16:9 (横屏)</span>
+                                            <i class="fa-solid fa-check text-indigo-500 text-xs opacity-100 check-icon"></i>
+                                        </div>
+                                        <div onclick="selectOption('9:16', '9:16 (竖屏)', 'ratio-sb', 'ratio-sb-text', 'ratio-sb-options', 'ratio-sb-trigger')" class="custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition" data-val="9:16">
+                                            <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">9:16 (竖屏)</span>
+                                            <i class="fa-solid fa-check text-indigo-500 text-xs opacity-0 check-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-xs text-black-500 font-bold uppercase">总时长</label>
+                                <div class="relative w-full" id="custom-duration-sb-dropdown">
+                                    <input type="hidden" id="duration-sb" value="10">
+                                    <div onclick="toggleDropdown(event, 'custom-duration-sb-dropdown', 'duration-sb-options', 'duration-sb-trigger')" id="duration-sb-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-2.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                                        <span id="duration-sb-text" class="text-xs font-bold text-gray-700 dark:text-gray-300">10 秒</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
+                                    </div>
+                                    <div id="duration-sb-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                                        </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a]"><div class="flex flex-col"><span class="text-xs font-bold text-gray-700 dark:text-gray-300">HD 高清模式</span><span class="text-[10px] text-gray-400">仅 Pro 可用</span></div><input type="checkbox" id="hd-sb" class="accent-violet-600 w-4 h-4 cursor-pointer" disabled></div>
                         <button onclick="submitTask()" id="generate-btn-sb" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"><span id="btn-text-sb">立即生成</span><i id="loading-icon-sb" class="fa-solid fa-spinner fa-spin hidden"></i></button>
@@ -268,31 +314,51 @@
             loadSettings(); loadTheme(); loadHistory(); updateModelLimits(); setupResizers(); storyShots = [{ id: Date.now(), duration: 10, prompt: '', isEditing: false }]; renderStoryboardRows(); checkAllTasksStatus(); startPolling();
         }
 
-        function toggleModelDropdown(event) {
+        // --- 通用下拉逻辑 ---
+        function toggleDropdown(event, containerId, optionsId, triggerId) {
             if(event) event.stopPropagation();
-            const container = document.getElementById('custom-model-dropdown');
-            const options = document.getElementById('dropdown-options');
-            const trigger = document.getElementById('dropdown-trigger');
+            const container = document.getElementById(containerId);
+            const options = document.getElementById(optionsId);
+            const trigger = document.getElementById(triggerId);
             container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
             if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
             else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
         }
 
-        function selectModel(val, text) {
-            document.getElementById('model-select').value = val;
-            document.getElementById('current-model-text').innerText = text;
-            document.querySelectorAll('.model-option').forEach(opt => {
+        function selectOption(val, text, inputId, textId, optionsId, triggerId, callback) {
+            const input = document.getElementById(inputId);
+            input.value = val;
+            document.getElementById(textId).innerText = text;
+            
+            // 更新选中图标
+            const optionsContainer = document.getElementById(optionsId);
+            optionsContainer.querySelectorAll('.model-option, .custom-option').forEach(opt => {
                 const check = opt.querySelector('.check-icon');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); } 
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                if(opt.dataset.val === val) { check.classList.replace('opacity-0', 'opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); } 
+                else { check.classList.replace('opacity-100', 'opacity-0'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
             });
-            toggleModelDropdown(); updateModelLimits();
+            
+            toggleDropdown(null, document.getElementById(optionsId).parentElement.id, optionsId, triggerId);
+            if(callback) callback();
         }
 
         function closeDropdownOnClickOutside(event) {
-            const container = document.getElementById('custom-model-dropdown');
-            const options = document.getElementById('dropdown-options'); const trigger = document.getElementById('dropdown-trigger');
-            if (container && !container.contains(event.target)) { container.classList.remove('dropdown-open'); options.classList.add('hidden'); trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
+            const dropdownConfigs = [
+                {cont: 'custom-model-dropdown', opt: 'model-options', trig: 'model-trigger'},
+                {cont: 'custom-ratio-single-dropdown', opt: 'ratio-single-options', trig: 'ratio-single-trigger'},
+                {cont: 'custom-duration-single-dropdown', opt: 'duration-single-options', trig: 'duration-single-trigger'},
+                {cont: 'custom-ratio-sb-dropdown', opt: 'ratio-sb-options', trig: 'ratio-sb-trigger'},
+                {cont: 'custom-duration-sb-dropdown', opt: 'duration-sb-options', trig: 'duration-sb-trigger'}
+            ];
+            dropdownConfigs.forEach(cfg => {
+                const container = document.getElementById(cfg.cont);
+                const options = document.getElementById(cfg.opt);
+                const trigger = document.getElementById(cfg.trig);
+                if (container && !container.contains(event.target)) {
+                    container.classList.remove('dropdown-open'); options.classList.add('hidden');
+                    trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]');
+                }
+            });
         }
 
         function switchMode(mode) {
@@ -302,14 +368,45 @@
             else { tabSingle.classList.remove('active'); tabSB.classList.add('active'); panelSingle.classList.add('hidden'); panelSB.classList.remove('hidden'); document.getElementById('upload-area').style.opacity = '0.5'; document.getElementById('upload-area').style.pointerEvents = 'none'; }
         }
         function resetStoryboard() { const maxDuration = parseFloat(document.getElementById('duration-sb').value) || 10; storyShots = [{ id: Date.now(), duration: maxDuration, prompt: '', isEditing: false }]; renderStoryboardRows(); }
-        function addShot() { const maxDuration = parseFloat(document.getElementById('duration-sb').value); const lastShot = storyShots[lastShotIndex = storyShots.length - 1]; if (lastShotIndex < 0) return; let lastS = storyShots[lastShotIndex]; if (lastS.duration <= 1) return; let newDur = 5; if (lastS.duration < 6) newDur = lastS.duration - 1; lastS.duration -= newDur; const newShot = { id: Date.now(), duration: newDur, prompt: '', isEditing: false }; storyShots.splice(storyShots.length - 1, 0, newShot); renderStoryboardRows(); }
+        function addShot() { const maxDuration = parseFloat(document.getElementById('duration-sb').value); const lastShotIndex = storyShots.length - 1; if (lastShotIndex < 0) return; let lastS = storyShots[lastShotIndex]; if (lastS.duration <= 1) return; let newDur = 5; if (lastS.duration < 6) newDur = lastS.duration - 1; lastS.duration -= newDur; const newShot = { id: Date.now(), duration: newDur, prompt: '', isEditing: false }; storyShots.splice(storyShots.length - 1, 0, newShot); renderStoryboardRows(); }
         function deleteShot(index) { if(storyShots.length <= 1) { alert("至少保留一个分镜"); return; } const deletedDuration = storyShots[index].duration; storyShots.splice(index, 1); storyShots[storyShots.length - 1].duration += deletedDuration; renderStoryboardRows(); }
         function startEditingTime(index) { storyShots.forEach(s => s.isEditing = false); storyShots[index].isEditing = true; renderStoryboardRows(); }
         function updateTimePoint(shotIndex, isEndTime, newVal) { const maxDuration = parseFloat(document.getElementById('duration-sb').value); let val = parseFloat(newVal); if(isNaN(val) || val < 0) return; let timePoints = [0]; storyShots.forEach(s => timePoints.push(timePoints[timePoints.length-1] + s.duration)); let pointIndex = isEndTime ? shotIndex + 1 : shotIndex; const minVal = timePoints[pointIndex - 1] + 0.5; const maxVal = timePoints[pointIndex + 1] - 0.5; if (val < minVal) val = minVal; if (val > maxVal) val = maxVal; timePoints[pointIndex] = val; for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoints[i]; storyShots[i].duration = parseFloat(d.toFixed(1)); } storyShots[shotIndex].isEditing = false; renderStoryboardRows(); }
         function updateShotPrompt(index, val) { storyShots[index].prompt = val; }
         function renderStoryboardRows() { const container = document.getElementById('storyboard-container'); container.innerHTML = ''; let currentTime = 0; const maxDuration = parseFloat(document.getElementById('duration-sb').value) || 15; const lastIndex = storyShots.length - 1; storyShots.forEach((shot, index) => { const startTime = parseFloat(currentTime.toFixed(1)); const endTime = parseFloat((currentTime + shot.duration).toFixed(1)); currentTime = endTime; const row = document.createElement('div'); row.className = "storyboard-row group"; let timeComponent = ''; if (shot.isEditing) { const startDisabled = (index === 0) ? 'disabled' : ''; const endDisabled = (index === lastIndex) ? 'disabled' : ''; timeComponent = `<div class="time-edit-mode"><input type="number" value="${startTime}" class="time-input ${startDisabled}" onblur="updateTimePoint(${index}, false, this.value)" onkeydown="if(event.key==='Enter') this.blur()"><span class="time-sep">-</span><input type="number" value="${endTime}" class="time-input ${endDisabled}" onblur="updateTimePoint(${index}, true, this.value)" onkeydown="if(event.key==='Enter') this.blur()"></div>`; } else { timeComponent = `<div class="time-badge" onclick="startEditingTime(${index})"><i class="fa-regular fa-clock mr-1.5 text-xs opacity-70"></i>${startTime}-${endTime}s</div>`; } row.innerHTML = `${timeComponent}<input type="text" class="flex-1 custom-input h-9 rounded-lg px-3 text-xs bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white" placeholder="分镜描述..." value="${shot.prompt}" oninput="updateShotPrompt(${index}, this.value)"><button onclick="deleteShot(${index})" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition"><i class="fa-solid fa-trash text-xs"></i></button>`; container.appendChild(row); }); const display = document.getElementById('sb-total-duration'); display.innerText = `${currentTime.toFixed(1)}s / ${maxDuration}s`; const addBtn = document.getElementById('add-shot-btn'); const lastShot = storyShots[storyShots.length - 1]; if(lastShot && lastShot.duration <= 1) { addBtn.disabled = true; addBtn.classList.add('opacity-50', 'cursor-not-allowed'); addBtn.innerHTML = `<i class="fa-solid fa-ban"></i> 时长已满`; } else { addBtn.disabled = false; addBtn.classList.remove('opacity-50', 'cursor-not-allowed'); addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 增加分镜`; } }
         function getYijiaModel(baseModel, duration, ratio) { const isLandscape = ratio === '16:9'; const dur = parseInt(duration); if (baseModel === 'sora-2-pro') { if (isLandscape) { if (dur === 10) return 'sora-2-pro-landscape-10s-large-yijia'; if (dur === 15) return 'sora-2-pro-landscape-15s-large-yijia'; if (dur === 25) return 'sora-2-pro-landscape-25s-yijia'; return 'sora-2-pro-landscape-15s-large-yijia'; } else { if (dur === 10) return 'sora-2-pro-10s-large-yijia'; if (dur === 15) return 'sora-2-pro-15s-large-yijia'; if (dur === 25) return 'sora-2-pro-25s-yijia'; return 'sora-2-pro-15s-large-yijia'; } } else { if (isLandscape) { if (dur === 15) return 'sora-2-landscape-15s-yijia'; return 'sora-2-landscape-yijia'; } else { if (dur === 15) return 'sora-2-15s-yijia'; return 'sora-2-yijia'; } } return baseModel; }
-        function updateModelLimits() { const model = document.getElementById('model-select').value; const durSelectSingle = document.getElementById('duration-single'); const hdSingle = document.getElementById('hd-single'); const durSelectSb = document.getElementById('duration-sb'); const hdSb = document.getElementById('hd-sb'); const currentDurSingle = durSelectSingle.value; const currentDurSb = durSelectSb.value; durSelectSingle.innerHTML = ''; durSelectSb.innerHTML = ''; if (model === 'sora-2-pro') { const opts = [new Option("10 秒", "10"), new Option("15 秒", "15"), new Option("25 秒", "25")]; opts.forEach(o => durSelectSingle.add(o.cloneNode(true))); opts.forEach(o => durSelectSb.add(o.cloneNode(true))); hdSingle.disabled = false; hdSb.disabled = false; } else { const opts = [new Option("10 秒", "10"), new Option("15 秒", "15")]; opts.forEach(o => durSelectSingle.add(o.cloneNode(true))); opts.forEach(o => durSelectSb.add(o.cloneNode(true))); hdSingle.disabled = true; hdSingle.checked = false; hdSb.disabled = true; hdSb.checked = false; } if(Array.from(durSelectSingle.options).some(o => o.value === currentDurSingle)) durSelectSingle.value = currentDurSingle; if(Array.from(durSelectSb.options).some(o => o.value === currentDurSb)) durSelectSb.value = currentDurSb; resetStoryboard(); }
+        
+        function updateModelLimits() { 
+            const model = document.getElementById('model-select').value; 
+            const hdSingle = document.getElementById('hd-single'); 
+            const hdSb = document.getElementById('hd-sb');
+            
+            const renderDurOptions = (containerId, textId, inputId, triggerId) => {
+                const container = document.getElementById(containerId);
+                const input = document.getElementById(inputId);
+                container.innerHTML = '';
+                const options = (model === 'sora-2-pro') ? [{v:"10",t:"10 秒"},{v:"15",t:"15 秒"},{v:"25",t:"25 秒"}] : [{v:"10",t:"10 秒"},{v:"15",t:"15 秒"}];
+                
+                options.forEach((opt, idx) => {
+                    const isSelected = input.value === opt.v || (idx === 0 && !options.some(o => o.v === input.value));
+                    if (isSelected) { input.value = opt.v; document.getElementById(textId).innerText = opt.t; }
+                    const div = document.createElement('div');
+                    div.className = `custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition ${isSelected ? 'bg-indigo-50 dark:bg-[#27272a]' : ''}`;
+                    div.dataset.val = opt.v;
+                    div.onclick = () => selectOption(opt.v, opt.t, inputId, textId, containerId, triggerId, (inputId.includes('sb') ? resetStoryboard : null));
+                    div.innerHTML = `<span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${opt.t}</span><i class="fa-solid fa-check text-indigo-500 text-xs ${isSelected ? 'opacity-100' : 'opacity-0'} check-icon"></i>`;
+                    container.appendChild(div);
+                });
+            };
+
+            renderDurOptions('duration-single-options', 'duration-single-text', 'duration-single', 'duration-single-trigger');
+            renderDurOptions('duration-sb-options', 'duration-sb-text', 'duration-sb', 'duration-sb-trigger');
+
+            if (model === 'sora-2-pro') { hdSingle.disabled = false; hdSb.disabled = false; } 
+            else { hdSingle.disabled = true; hdSingle.checked = false; hdSb.disabled = true; hdSb.checked = false; } 
+            resetStoryboard(); 
+        }
+
         function fillApiUrl(url) { document.getElementById('setting-url').value = url; const input = document.getElementById('setting-url'); input.classList.add('ring-2', 'ring-violet-500'); setTimeout(() => input.classList.remove('ring-2', 'ring-violet-500'), 200); }
         function updateApiDisplay(url) { try { document.getElementById('current-api-display').innerText = "当前: " + new URL(url).hostname; } catch (e) { document.getElementById('current-api-display').innerText = "当前: Custom"; } }
         function setupResizers() { const resizerX = document.getElementById('resizer-x'); const leftSidebar = document.getElementById('left-sidebar'); let startX = 0, startW = 0; if (resizerX) { resizerX.addEventListener('mousedown', (e) => { startX = e.clientX; startW = leftSidebar.getBoundingClientRect().width; document.body.classList.add('no-select'); resizerX.classList.add('resizing'); document.addEventListener('mousemove', onMouseMoveX); document.addEventListener('mouseup', onMouseUpX); }); } function onMouseMoveX(e) { leftSidebar.style.width = `${Math.max(280, Math.min(600, startW + (e.clientX - startX)))}px`; } function onMouseUpX() { document.body.classList.remove('no-select'); resizerX.classList.remove('resizing'); document.removeEventListener('mousemove', onMouseMoveX); document.removeEventListener('mouseup', onMouseUpX); } const resizerY = document.getElementById('resizer-y'); const previewSection = document.getElementById('preview-section'); const rightContent = document.getElementById('right-content'); let startY = 0, startH = 0, totalH = 0; if (resizerY) { resizerY.addEventListener('mousedown', (e) => { startY = e.clientY; startH = previewSection.getBoundingClientRect().height; totalH = rightContent.getBoundingClientRect().height; document.body.classList.add('no-select'); resizerY.classList.add('resizing'); document.addEventListener('mousemove', onMouseMoveY); document.addEventListener('mouseup', onMouseUpY); }); } function onMouseMoveY(e) { previewSection.style.height = `${Math.max(200, Math.min(totalH - 100, startH + (e.clientY - startY)))}px`; } function onMouseUpY() { document.body.classList.remove('no-select'); resizerY.classList.remove('resizing'); document.removeEventListener('mousemove', onMouseMoveY); document.removeEventListener('mouseup', onMouseUpY); } }
@@ -344,4 +441,3 @@
     </script>
 </body>
 </html>
-
