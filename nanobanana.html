@@ -107,14 +107,14 @@
                 </div>
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
-                        <label class="text-xs text-black-500 font-bold uppercase">参考图片</label>
+                        <label class="text-xs text-gray-500 font-bold uppercase">参考图片</label>
                         <button onclick="clearAllSlots()" class="text-[10px] text-red-500 hover:text-red-400 cursor-pointer ml-auto">清空全部</button>
                     </div>
                     <input type="file" id="slot-file-input" class="hidden" accept="image/*" onchange="handleSlotFile(event)">
                     <div id="slots-grid" class="grid grid-cols-3 gap-2 select-none"></div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-xs text-black-500 font-bold uppercase">提示词</label>
+                    <label class="text-xs text-gray-500 font-bold uppercase">提示词</label>
                     <textarea id="prompt-input" class="w-full h-28 custom-input rounded-lg p-3 text-sm bg-gray-50 border-gray-300 text-gray-800 dark:bg-[#18181b] dark:border-[#27272a] dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-700 resize-none" placeholder="描述你的创意..."></textarea>
                     <p id="prompt-lock-msg" class="text-[10px] text-indigo-500 hidden flex items-center justify-between">
                         <span><i class="fa-solid fa-lock mr-1"></i> 检测到涂鸦，提示词已锁定。</span>
@@ -130,7 +130,7 @@
                             <span id="current-ratio-text" class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">Auto (自动)</span>
                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                         </div>
-                        <div id="ratio-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1 max-h-60 overflow-y-auto">
+                        <div id="ratio-options" class="hidden absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
                             <div onclick="selectRatio('auto', 'Auto (自动)')" class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition" data-val="auto">
                                 <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">Auto (自动)</span>
                                 <i class="fa-solid fa-check text-indigo-500 text-xs opacity-100 check-icon-ratio"></i>
@@ -181,7 +181,7 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-xs text-black-500 font-bold uppercase">数量</label>
+                        <label class="text-xs text-gray-500 font-bold uppercase">数量</label>
                         <div class="flex gap-1">
                             <button onclick="setBatchSize(1)" class="batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition" data-val="1">1</button>
                             <button onclick="setBatchSize(2)" class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition" data-val="2">2</button>
@@ -394,7 +394,7 @@
             updateModelRestrictions();
         });
 
-        // 下拉逻辑 (模型)
+        // 自定义下拉逻辑 (模型) - 向下
         function toggleModelDropdown(event) {
             if(event) event.stopPropagation();
             const container = document.getElementById('custom-model-dropdown');
@@ -417,7 +417,7 @@
             toggleModelDropdown(); renderSlots(); updatePromptLockState();
         }
 
-        // 下拉逻辑 (宽高比)
+        // 自定义下拉逻辑 (宽高比) - 向上
         function toggleRatioDropdown(event) {
             if(event) event.stopPropagation();
             const container = document.getElementById('custom-ratio-dropdown');
@@ -438,7 +438,7 @@
             toggleRatioDropdown();
         }
 
-        // 下拉逻辑 (分辨率)
+        // 自定义下拉逻辑 (分辨率) - 向下
         function toggleSizeDropdown(event) {
             if(event) event.stopPropagation();
             const trigger = document.getElementById('size-trigger');
@@ -658,7 +658,6 @@
         
         zoomContainer.addEventListener('wheel', (e) => { if (imgWrapper.classList.contains('hidden')) return; e.preventDefault(); const delta = -e.deltaY; (delta > 0) ? (scale *= 1.1) : (scale /= 1.1); if (scale < 0.5) scale = 0.5; if (scale > 5) scale = 5; updateTransform(); });
         
-        // 滑块鼠标交互
         zoomContainer.addEventListener('mousedown', (e) => {
             if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
             if (imgWrapper.classList.contains('hidden')) return;
@@ -702,7 +701,6 @@
             if (tapLength < 500 && tapLength > 0) { resetZoom(); e.preventDefault(); } lastTap = currentTime;
         });
 
-        // 数量按钮样式同步逻辑
         function setBatchSize(num) { 
             batchSize = num; 
             document.querySelectorAll('.batch-btn').forEach(btn => { 
@@ -833,47 +831,6 @@
             if(!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
             const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
             try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch(e) { alert("导入失败"); }
-        }
-
-        // 下拉逻辑 JS
-        function toggleRatioDropdown(event) {
-            if(event) event.stopPropagation();
-            const container = document.getElementById('custom-ratio-dropdown');
-            const options = document.getElementById('ratio-options');
-            const trigger = document.getElementById('ratio-trigger');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectRatio(val, text) {
-            document.getElementById('ratio-input').value = val;
-            document.getElementById('current-ratio-text').innerText = text;
-            document.querySelectorAll('.ratio-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon-ratio');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); } 
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleRatioDropdown();
-        }
-        function toggleSizeDropdown(event) {
-            if(event) event.stopPropagation();
-            const trigger = document.getElementById('size-trigger');
-            if (trigger.classList.contains('option-disabled')) return;
-            const container = document.getElementById('custom-size-dropdown');
-            const options = document.getElementById('size-options');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectSize(val, text) {
-            document.getElementById('size-input').value = val;
-            document.getElementById('current-size-text').innerText = text;
-            document.querySelectorAll('.size-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon-size');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); } 
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleSizeDropdown();
         }
     </script>
 </body>
