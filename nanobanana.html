@@ -343,7 +343,7 @@
     <script>
         const DEFAULT_API_URL = "https://api.bltcy.ai";
         const MAX_SLOTS = 9;
-        let imageSlots = new Array(MAX_SLOTS).fill(null);
+        let imageSlots = []; // 改为动态数组
         let currentActiveSlot = -1; 
         let batchSize = 1;
         let currentMainImageUrl = "";
@@ -629,28 +629,62 @@
         function stopResizeTasklist() { document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeTasklist); document.removeEventListener('mouseup', stopResizeTasklist); }
 
         function renderSlots() {
-            const grid = document.getElementById('slots-grid'); const currentModel = document.getElementById('model-input').value; const canDoodle = (currentModel === 'nano-banana-2-4k');
+            const grid = document.getElementById('slots-grid'); 
+            const currentModel = document.getElementById('model-input').value; 
+            const canDoodle = (currentModel === 'nano-banana-2-4k');
             grid.innerHTML = '';
+            
+            // 使用 Blob URL 极速渲染
             imageSlots.forEach((file, index) => {
-                const slotNum = index + 1; const div = document.createElement('div');
-                div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group ${file ? 'border-transparent bg-gray-900' : 'border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-[#18181b] hover:bg-purple-50 dark:hover:bg-[#1f1f22]'}`;
-                if (file) {
-                    const reader = new FileReader(); reader.onload = (e) => {
-                        let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
-                        let editBtn = canDoodle ? `<div onclick="openEditor(${index}, event)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="涂鸦编辑"><i class="fa-solid fa-paintbrush text-[10px]"></i></div>` : "";
-                        div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn} ${doodleBadge}<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div><div onclick="viewOriginal('${e.target.result}')" class="absolute inset-0 z-0"></div>`;
-                    }; reader.readAsDataURL(file);
-                } else {
-                    div.onclick = () => triggerSlotUpload(index);
-                    div.innerHTML = `<i class="fa-solid fa-plus text-gray-300 dark:text-gray-600 text-lg mb-1 group-hover:text-purple-500 transition"></i><span class="text-[10px] text-gray-400 dark:text-gray-500 font-mono group-hover:text-purple-500 transition">图片 ${slotNum}</span>`;
+                if (!file.previewUrl) {
+                    file.previewUrl = URL.createObjectURL(file);
                 }
+                const slotNum = index + 1; 
+                const div = document.createElement('div');
+                div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-transparent bg-gray-900 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group`;
+                
+                let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
+                let editBtn = (index === 0 && canDoodle) ? `<div onclick="openEditor(${index}, event)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="涂鸦编辑"><i class="fa-solid fa-paintbrush text-[10px]"></i></div>` : "";
+                
+                div.innerHTML = `<img src="${file.previewUrl}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn} ${doodleBadge}<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div><div onclick="viewOriginal('${file.previewUrl}')" class="absolute inset-0 z-0"></div>`;
                 grid.appendChild(div);
             });
+
+            // 如果没满9张，显示+号
+            if (imageSlots.length < MAX_SLOTS) {
+                const div = document.createElement('div');
+                div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-[#18181b] hover:bg-purple-50 dark:hover:bg-[#1f1f22]`;
+                div.onclick = () => triggerSlotUpload(imageSlots.length); // 添加到末尾
+                div.innerHTML = `<i class="fa-solid fa-plus text-gray-300 dark:text-gray-600 text-lg mb-1 group-hover:text-purple-500 transition"></i><span class="text-[10px] text-gray-400 dark:text-gray-500 font-mono group-hover:text-purple-500 transition">图片 ${imageSlots.length + 1}</span>`;
+                grid.appendChild(div);
+            }
         }
         function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
-        function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
-        function clearSlot(index, event) { if(event) event.stopPropagation(); imageSlots[index] = null; renderSlots(); updatePromptLockState(); }
-        function clearAllSlots() { imageSlots = new Array(MAX_SLOTS).fill(null); renderSlots(); updatePromptLockState(); }
+        
+        function handleSlotFile(event) { 
+            const file = event.target.files[0]; if (!file) return; 
+            // 如果是替换现有位置
+            if (currentActiveSlot < imageSlots.length) {
+                if(imageSlots[currentActiveSlot].previewUrl) URL.revokeObjectURL(imageSlots[currentActiveSlot].previewUrl);
+                imageSlots[currentActiveSlot] = file;
+            } else {
+                imageSlots.push(file);
+            }
+            renderSlots(); updatePromptLockState(); 
+        }
+        
+        function clearSlot(index, event) { 
+            if(event) event.stopPropagation(); 
+            if(imageSlots[index].previewUrl) URL.revokeObjectURL(imageSlots[index].previewUrl);
+            imageSlots.splice(index, 1);
+            renderSlots(); 
+            updatePromptLockState(); 
+        }
+        function clearAllSlots() { 
+            imageSlots.forEach(f => { if(f.previewUrl) URL.revokeObjectURL(f.previewUrl); });
+            imageSlots = []; 
+            renderSlots(); updatePromptLockState(); 
+        }
 
         const zoomContainer = document.getElementById('zoom-container'), imgWrapper = document.getElementById('img-wrapper'), sliderHandle = document.getElementById('slider-handle'), compareOverlay = document.getElementById('compare-overlay');
         function updateTransform() { imgWrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`; }
@@ -684,14 +718,33 @@
             } else if (e.touches.length === 1) { e.preventDefault(); movePan(e); }
         }, {passive: false});
 
+        // 优化：使用 requestAnimationFrame 解决滑轨卡顿
+        let rafPending = false;
         function movePan(e) { 
             if (isSliding) {
                 const rect = imgWrapper.getBoundingClientRect(); let x = getEvtX(e) - rect.left; 
                 if (x < 0) x = 0; if (x > rect.width) x = rect.width;
-                const percentage = (x / rect.width) * 100; sliderHandle.style.left = percentage + '%'; compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`; return; 
+                const percentage = (x / rect.width) * 100;
+                
+                if (!rafPending) {
+                    rafPending = true;
+                    requestAnimationFrame(() => {
+                        sliderHandle.style.left = percentage + '%'; 
+                        compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+                        rafPending = false;
+                    });
+                }
+                return; 
             } 
             if (!panning) return;
-            pointX = getEvtX(e) - startX; pointY = getEvtY(e) - startY; updateTransform(); 
+            pointX = getEvtX(e) - startX; pointY = getEvtY(e) - startY; 
+            if (!rafPending) {
+                rafPending = true;
+                requestAnimationFrame(() => {
+                    updateTransform();
+                    rafPending = false;
+                });
+            }
         }
 
         zoomContainer.addEventListener('dblclick', resetZoom);
@@ -724,8 +777,13 @@
             if (!prompt) { alert("请输入提示词"); return; }
             btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden');
             btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`; 
-            const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
-            if (validImages.length > 0) { const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]); }
+            
+            const validImages = imageSlots; 
+            originalRefImage = null;
+            if (validImages.length > 0) { 
+                 originalRefImage = validImages[0].previewUrl; 
+            }
+            
             const startTime = Date.now();
             const sendRequest = async () => {
                 const isTxt2Img = validImages.length === 0; let endpoint, body, headers;
@@ -748,8 +806,24 @@
                 const allResults = [];
                 outcomes.forEach(outcome => { if (outcome.status === 'fulfilled') { allResults.push(...outcome.value); } else { console.error("部分请求失败:", outcome.reason); } });
                 const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+                
                 if (allResults.length > 0) { 
-                    setMainImage(allResults[0].url, duration, originalRefImage);
+                    // 优化：预加载第一张图片，防止从上往下慢慢渲染
+                    const mainUrl = allResults[0].url;
+                    btn.querySelector('span').innerText = "下载图片中...";
+                    
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const tempImg = new Image();
+                            tempImg.onload = resolve;
+                            tempImg.onerror = reject;
+                            tempImg.src = mainUrl;
+                        });
+                    } catch (e) {
+                        console.warn("预加载失败，将直接显示图片", e);
+                    }
+
+                    setMainImage(mainUrl, duration, originalRefImage);
                     allResults.forEach(img => addToHistory(img.url, prompt, duration)); 
                     if(window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
                 } else { alert("生成失败，请检查设置或重试"); }
@@ -829,8 +903,10 @@
         async function downloadCurrentImage() { if (!currentMainImageUrl) { alert("当前没有图片"); return; } downloadSingleImage(currentMainImageUrl); }
         async function importCurrentImage() {
             if(!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
-            const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
-            try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch(e) { alert("导入失败"); }
+            if (imageSlots.length >= MAX_SLOTS) { alert("格子已满 (9张)，请先删除一些图片"); return; }
+            try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); 
+                imageSlots.push(f); renderSlots(); 
+            } catch(e) { alert("导入失败"); }
         }
     </script>
 </body>
