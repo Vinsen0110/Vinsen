@@ -130,7 +130,7 @@
                         </div>
                     </div>
                     <button onclick="submitTask()" id="generate-btn" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-90 text-white font-bold py-3.5 rounded-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20">
-                        <span>✨ 立即生成</span><i id="loading-icon" class="fa-solid fa-spinner fa-spin hidden"></i>
+                        <span id="btn-text">✨ 立即生成</span><i id="loading-icon" class="fa-solid fa-spinner fa-spin hidden"></i>
                     </button>
                 </div>
             </div>
@@ -189,25 +189,55 @@
         </main>
     </div>
 
-    <div id="settings-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white dark:bg-[#18181b] p-6 rounded-2xl w-[400px] shadow-2xl border border-gray-200 dark:border-[#27272a]">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-lg font-bold dark:text-white">API 配置</h3><button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white dark:bg-[#18181b] p-6 rounded-2xl w-[420px] shadow-2xl border border-gray-200 dark:border-[#27272a] transform transition-all scale-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold dark:text-white">API 配置</h3>
+                <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-[#27272a] flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#3f3f46] transition"><i class="fa-solid fa-xmark text-gray-500"></i></button>
+            </div>
             <div class="space-y-4">
-                <div><label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 地址</label><input type="text" id="setting-url" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm font-mono focus:border-violet-500 outline-none" placeholder="https://api.bltcy.ai"><div class="flex gap-2 mt-2"><button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex-1 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] font-bold text-pink-600">贞贞 ai.t8star.cn</button><button onclick="fillApiUrl('https://api.bltcy.ai')" class="flex-1 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-[10px] font-bold text-blue-600">柏拉图 api.bltcy.ai</button></div></div>
-                <div><label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label><input type="password" id="setting-key" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm font-mono focus:border-violet-500 outline-none" placeholder="sk-..."></div>
-                <button onclick="saveSettings()" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition mt-4">保存配置</button>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1.5 ml-1">API 网站地址</label>
+                    <input type="text" id="setting-url" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm dark:text-gray-200 font-mono outline-none focus:border-violet-500 transition" placeholder="https://api.bltcy.ai">
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer"><i class="fa-solid fa-spa"></i> 贞贞: ai.t8star.cn</button>
+                        <button onclick="fillApiUrl('https://api.bltcy.ai')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer"><i class="fa-solid fa-landmark"></i> 柏拉图: api.bltcy.ai</button>
+                    </div>
+                </div>
+                <div><label class="block text-xs font-bold text-gray-500 mb-1.5 ml-1">API Key</label><input type="text" id="setting-key" style="-webkit-text-security: disc;" autocomplete="off" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm dark:text-gray-200 font-mono outline-none focus:border-violet-500 transition" placeholder="sk-..."></div>
+                
+                <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-bold text-gray-500 ml-1">ImgBB 图床 Key (可选)</label>
+                        <a href="https://api.imgbb.com/" target="_blank" class="text-[10px] text-violet-500 hover:underline">获取免费Key</a>
+                    </div>
+                    <input type="text" id="setting-imgbb" style="-webkit-text-security: disc;" autocomplete="off" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm dark:text-gray-200 font-mono outline-none focus:border-violet-500 transition" placeholder="解决 422 错误需填...">
+                </div>
+
+                <button onclick="saveSettings()" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-violet-500/20 mt-2">保存配置</button>
             </div>
         </div>
     </div>
 
     <script>
-        let taskList = []; let uploadedImages = {}; let activeTaskId = null; let currentActiveSlot = null; let isResizingX = false, isResizingY = false;
-
+        let taskList = [];
+        let uploadedImages = {}; // 存储 Base64 用于预览
+        let uploadedImageFiles = {}; // 存储原始文件对象用于上传
+        let activeTaskId = null; let currentActiveSlot = null; let isResizingX = false, isResizingY = false;
+        
         function initApp() { loadSettings(); loadHistory(); renderSlots(); setupResizers(); checkAllTasksStatus(); startPolling(); }
 
-        function toggleDropdown(event, containerId, optionsId, triggerId) { if(event) event.stopPropagation(); const options = document.getElementById(optionsId), trigger = document.getElementById(triggerId); document.getElementById(containerId).classList.toggle('dropdown-open'); options.classList.toggle('hidden'); if (!options.classList.contains('hidden')) trigger.classList.add('glow-effect'); else trigger.classList.remove('glow-effect'); }
-        function selectModel(val, text) { document.getElementById('model-input').value = val; document.getElementById('current-model-text').innerText = text; document.querySelectorAll('.model-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon').classList.toggle('opacity-0', !isSelected); opt.classList.toggle('bg-violet-50', isSelected); opt.classList.toggle('dark:bg-[#27272a]', isSelected); }); uploadedImages = {}; renderSlots(); toggleDropdown(null, 'custom-model-dropdown', 'model-options', 'model-trigger'); }
-        function selectRatio(val, text) { document.getElementById('ratio-input').value = val; document.getElementById('current-ratio-text').innerText = text; document.querySelectorAll('.ratio-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon-ratio').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon-ratio').classList.toggle('opacity-0', !isSelected); }); toggleDropdown(null, 'custom-ratio-dropdown', 'ratio-options', 'ratio-trigger'); }
+        function toggleDropdown(event, containerId, optionsId, triggerId) { if(event) event.stopPropagation();
+            const options = document.getElementById(optionsId), trigger = document.getElementById(triggerId); document.getElementById(containerId).classList.toggle('dropdown-open'); options.classList.toggle('hidden'); if (!options.classList.contains('hidden')) trigger.classList.add('glow-effect'); else trigger.classList.remove('glow-effect');
+        }
+        function selectModel(val, text) { document.getElementById('model-input').value = val; document.getElementById('current-model-text').innerText = text;
+            document.querySelectorAll('.model-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon').classList.toggle('opacity-0', !isSelected); opt.classList.toggle('bg-violet-50', isSelected); opt.classList.toggle('dark:bg-[#27272a]', isSelected); });
+            uploadedImages = {}; uploadedImageFiles = {}; renderSlots(); toggleDropdown(null, 'custom-model-dropdown', 'model-options', 'model-trigger'); 
+        }
+        function selectRatio(val, text) { document.getElementById('ratio-input').value = val;
+            document.getElementById('current-ratio-text').innerText = text; document.querySelectorAll('.ratio-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon-ratio').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon-ratio').classList.toggle('opacity-0', !isSelected); });
+            toggleDropdown(null, 'custom-ratio-dropdown', 'ratio-options', 'ratio-trigger'); 
+        }
         function closeDropdownOnClickOutside(event) { ['custom-model-dropdown', 'custom-ratio-dropdown'].forEach(id => { const container = document.getElementById(id); if (container && !container.contains(event.target)) { container.classList.remove('dropdown-open'); const options = container.querySelector('div[id$="-options"]'), trigger = container.querySelector('div[id$="-trigger"]'); if(options) options.classList.add('hidden'); if(trigger) trigger.classList.remove('glow-effect'); } }); }
 
         function renderSlots() {
@@ -219,31 +249,33 @@
                 div.className = "relative aspect-video rounded-xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-[#18181b] cursor-pointer group flex flex-col items-center justify-center overflow-hidden transition-all hover:border-violet-400";
                 div.onclick = () => { currentActiveSlot = slotId; document.getElementById('file-input').click(); };
                 if (uploadedImages[slotId]) { 
-                    div.innerHTML = `
-                        <img src="${uploadedImages[slotId]}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                            <i class="fa-solid fa-rotate text-white"></i>
-                        </div>
-                        <div onclick="removeImage('${slotId}', event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition shadow-sm" title="删除图片">
-                            <i class="fa-solid fa-xmark text-[10px]"></i>
-                        </div>`; 
-                } 
-                else { div.innerHTML = `<i class="fa-solid fa-plus text-gray-300 mb-1"></i><span class="text-[9px] font-bold text-gray-400 uppercase">${label}</span>`; }
+                    div.innerHTML = `<img src="${uploadedImages[slotId]}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><i class="fa-solid fa-rotate text-white"></i></div>
+                        <div onclick="removeImage('${slotId}', event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition shadow-sm" title="删除图片"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
+                } else { div.innerHTML = `<i class="fa-solid fa-plus text-gray-300 mb-1"></i><span class="text-[9px] font-bold text-gray-400 uppercase">${label}</span>`; }
                 container.appendChild(div);
             });
         }
 
-        // 新增删除图片函数
         function removeImage(slotId, e) {
             if (e) e.stopPropagation();
             delete uploadedImages[slotId];
+            delete uploadedImageFiles[slotId];
             renderSlots();
         }
 
-        function handleImageUpload(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (evt) => { uploadedImages[currentActiveSlot] = evt.target.result; renderSlots(); }; reader.readAsDataURL(file); }
+        function handleImageUpload(e) { 
+            const file = e.target.files[0];
+            if (!file) return; 
+            uploadedImageFiles[currentActiveSlot] = file;
+            const reader = new FileReader(); 
+            reader.onload = (evt) => { uploadedImages[currentActiveSlot] = evt.target.result; renderSlots(); }; 
+            reader.readAsDataURL(file);
+        }
 
         function renderTaskList() {
-            const container = document.getElementById('task-list'); if (taskList.length === 0) { container.innerHTML = '<div id="empty-state" class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 pb-10"><i class="fa-solid fa-inbox text-4xl mb-3"></i><p class="text-xs">暂无记录</p></div>'; updateListHeader(); return; }
+            const container = document.getElementById('task-list');
+            if (taskList.length === 0) { container.innerHTML = '<div id="empty-state" class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 pb-10"><i class="fa-solid fa-inbox text-4xl mb-3"></i><p class="text-xs">暂无记录</p></div>'; updateListHeader(); return; }
             container.innerHTML = '';
             taskList.forEach(task => {
                 const isActive = activeTaskId === task.id, div = document.createElement('div');
@@ -263,22 +295,74 @@
         function deleteTask(id) { if(!confirm("删除此任务？")) return; taskList = taskList.filter(t => t.id !== id); saveHistory(); renderTaskList(); if(activeTaskId === id) { activeTaskId = null; updatePreview(null); } }
         function downloadSingleTask(id) { const task = taskList.find(t => t.id === id); if(task && task.videoUrl) downloadCurrentVideo(task.videoUrl, id); else alert("视频未就绪"); }
 
+        // --- 核心修改：ImgBB 上传 (含 7 天自动过期) ---
+        async function uploadImageToImgbb(file) { 
+            const apiKey = localStorage.getItem('veo_imgbb_key');
+            if (!apiKey) { 
+                alert("⚠️ 请先在设置中填写 ImgBB API Key！\n\n图片过大会导致 422 错误，请配置图床自动转换链接。"); 
+                throw new Error("Missing ImgBB API Key");
+            } 
+            const formData = new FormData(); 
+            formData.append("image", file); 
+            // expiration=604800 表示 7 天后自动删除
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}&expiration=604800`, { method: "POST", body: formData });
+            const data = await res.json(); 
+            if (data.success) { return data.data.url; } 
+            else { throw new Error(data.error?.message || "图床上传失败"); } 
+        }
+
         async function submitTask() {
-            const key = localStorage.getItem('veo_api_key'), url = localStorage.getItem('veo_api_url'); if (!key) { openSettings(); return; }
-            const prompt = document.getElementById('prompt-input').value.trim(); if (!prompt) { alert("请输入提示词"); return; }
-            const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon'); btn.disabled = true; icon.classList.remove('hidden');
-            const payload = { model: document.getElementById('model-input').value, prompt, aspect_ratio: document.getElementById('ratio-input').value, images: Object.values(uploadedImages), enhance_prompt: document.getElementById('enhance-prompt').checked, enable_upsample: document.getElementById('upscale-res').checked };
+            const key = localStorage.getItem('veo_api_key'), url = localStorage.getItem('veo_api_url');
+            if (!key) { openSettings(); return; }
+            const prompt = document.getElementById('prompt-input').value.trim();
+            if (!prompt) { alert("请输入提示词"); return; }
+            const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon'), btnText = document.getElementById('btn-text');
+            
+            btn.disabled = true; icon.classList.remove('hidden');
+            
+            let finalImages = [];
+            const sortedSlots = Object.keys(uploadedImages).sort();
+            
             try {
+                const imgbbKey = localStorage.getItem('veo_imgbb_key');
+                if (sortedSlots.length > 0 && imgbbKey) {
+                    btnText.innerText = "正在上传图片...";
+                    const uploadPromises = sortedSlots.map(slot => {
+                        const file = uploadedImageFiles[slot];
+                        return file ? uploadImageToImgbb(file) : Promise.resolve(uploadedImages[slot]);
+                    });
+                    finalImages = await Promise.all(uploadPromises);
+                } else {
+                    finalImages = sortedSlots.map(slot => uploadedImages[slot]);
+                }
+
+                btnText.innerText = "正在提交任务...";
+                const payload = { 
+                    model: document.getElementById('model-input').value, 
+                    prompt, 
+                    aspect_ratio: document.getElementById('ratio-input').value, 
+                    images: finalImages,
+                    enhance_prompt: document.getElementById('enhance-prompt').checked, 
+                    enable_upsample: document.getElementById('upscale-res').checked 
+                };
+
                 const res = await fetch(`${url}/v2/videos/generations`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify(payload) });
-                const data = await res.json(); if (!res.ok) throw new Error(data.error?.message || "提交失败");
+                const data = await res.json(); 
+                if (!res.ok) throw new Error(data.error?.message || "提交失败");
+                
                 const taskId = data.task_id || data.id || (data.data && data.data.id);
                 taskList.unshift({ id: taskId, prompt, model: payload.model, ratio: payload.aspect_ratio, status: 'NOT_START', startTime: Date.now(), progress: "0%" });
                 saveHistory(); renderTaskList(); updatePreview(taskId);
-            } catch (e) { alert("错误: " + e.message); } finally { btn.disabled = false; icon.classList.add('hidden'); }
+            } catch (e) { 
+                alert("错误: " + e.message); 
+            } finally { 
+                btn.disabled = false; icon.classList.add('hidden'); btnText.innerText = "✨ 立即生成";
+            }
         }
 
         async function checkStatus(id) {
-            const task = taskList.find(t => t.id === id); if (!task || ['SUCCESS', 'FAILURE'].includes(task.status)) return;
+            const task = taskList.find(t => t.id === id);
+            if (!task || ['SUCCESS', 'FAILURE'].includes(task.status)) return;
             const key = localStorage.getItem('veo_api_key'), url = localStorage.getItem('veo_api_url');
             try {
                 const res = await fetch(`${url}/v2/videos/generations/${id}`, { headers: { 'Authorization': `Bearer ${key}` } });
@@ -292,21 +376,19 @@
         }
 
         function updatePreview(id) {
-            activeTaskId = id; const task = taskList.find(t => t.id === id), player = document.getElementById('main-player'), placeholder = document.getElementById('preview-placeholder'), loading = document.getElementById('preview-loading'), badge = document.getElementById('status-badge'), dlBtn = document.getElementById('download-btn'), detail = document.getElementById('detail-panel');
+            activeTaskId = id;
+            const task = taskList.find(t => t.id === id), player = document.getElementById('main-player'), placeholder = document.getElementById('preview-placeholder'), loading = document.getElementById('preview-loading'), badge = document.getElementById('status-badge'), dlBtn = document.getElementById('download-btn'), detail = document.getElementById('detail-panel');
             if (!task) { if(detail) detail.classList.add('hidden'); player.classList.add('hidden'); placeholder.classList.remove('hidden'); return; }
             if(detail) detail.classList.remove('hidden'); renderTaskList();
             document.getElementById('detail-id').innerText = task.id;
             document.getElementById('detail-url').innerText = task.videoUrl || "生成中...";
             document.getElementById('detail-prompt').innerText = task.prompt;
             document.getElementById('detail-ratio').innerText = task.ratio;
-            badge.innerText = task.status; badge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase ${task.status === 'SUCCESS' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`;
+            badge.innerText = task.status;
+            badge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase ${task.status === 'SUCCESS' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`;
             if (task.status === 'SUCCESS' && task.videoUrl) { player.src = task.videoUrl; player.classList.remove('hidden'); placeholder.classList.add('hidden'); loading.classList.add('hidden'); document.getElementById('detail-time').innerText = task.finishTime ? Math.floor((task.finishTime - task.startTime)/1000) + 's' : '-'; dlBtn.classList.remove('opacity-50', 'pointer-events-none'); }
             else if (task.status === 'FAILURE') { player.classList.add('hidden'); placeholder.classList.remove('hidden'); loading.classList.add('hidden'); dlBtn.classList.add('opacity-50', 'pointer-events-none'); }
-            else {
-                player.classList.add('hidden'); placeholder.classList.add('hidden'); loading.classList.remove('hidden'); 
-                document.getElementById('loading-percent').innerText = task.progress || "0%"; 
-                document.getElementById('detail-time').innerText = Math.floor((Date.now() - task.startTime)/1000) + 's'; dlBtn.classList.add('opacity-50', 'pointer-events-none');
-            }
+            else { player.classList.add('hidden'); placeholder.classList.add('hidden'); loading.classList.remove('hidden'); document.getElementById('loading-percent').innerText = task.progress || "0%"; document.getElementById('detail-time').innerText = Math.floor((Date.now() - task.startTime)/1000) + 's'; dlBtn.classList.add('opacity-50', 'pointer-events-none'); }
         }
 
         function copyId() { const id = document.getElementById('detail-id').innerText; if(id !== '---') { navigator.clipboard.writeText(id); alert("ID已复制"); } }
@@ -320,8 +402,18 @@
         function fillApiUrl(url) { document.getElementById('setting-url').value = url; }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function saveSettings() { localStorage.setItem('veo_api_url', document.getElementById('setting-url').value.trim()); localStorage.setItem('veo_api_key', document.getElementById('setting-key').value.trim()); updateApiDisplay(localStorage.getItem('veo_api_url')); closeSettings(); }
-        function loadSettings() { document.getElementById('setting-url').value = localStorage.getItem('veo_api_url') || 'https://api.bltcy.ai'; document.getElementById('setting-key').value = localStorage.getItem('veo_api_key') || ''; updateApiDisplay(document.getElementById('setting-url').value); }
+        function saveSettings() { 
+            localStorage.setItem('veo_api_url', document.getElementById('setting-url').value.trim()); 
+            localStorage.setItem('veo_api_key', document.getElementById('setting-key').value.trim()); 
+            localStorage.setItem('veo_imgbb_key', document.getElementById('setting-imgbb').value.trim()); 
+            updateApiDisplay(localStorage.getItem('veo_api_url')); closeSettings();
+        }
+        function loadSettings() { 
+            document.getElementById('setting-url').value = localStorage.getItem('veo_api_url') || 'https://api.bltcy.ai'; 
+            document.getElementById('setting-key').value = localStorage.getItem('veo_api_key') || ''; 
+            document.getElementById('setting-imgbb').value = localStorage.getItem('veo_imgbb_key') || ''; 
+            updateApiDisplay(document.getElementById('setting-url').value); 
+        }
         function updateApiDisplay(url) { try { document.getElementById('current-api-display').innerText = "当前: " + new URL(url).hostname; } catch(e) {} }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); }
         
@@ -340,4 +432,3 @@
     </script>
 </body>
 </html>
-
