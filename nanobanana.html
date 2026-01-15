@@ -634,6 +634,29 @@
             imageSlots.forEach((file, index) => {
                 const slotNum = index + 1; const div = document.createElement('div');
                 div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group ${file ? 'border-transparent bg-gray-900' : 'border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-[#18181b] hover:bg-purple-50 dark:hover:bg-[#1f1f22]'}`;
+                
+                // --- 拖拽上传支持开始 ---
+                div.addEventListener('dragover', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    div.style.borderColor = '#a855f7'; div.style.backgroundColor = 'rgba(168, 85, 247, 0.05)';
+                });
+                div.addEventListener('dragleave', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    div.style.borderColor = ''; div.style.backgroundColor = '';
+                });
+                div.addEventListener('drop', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    div.style.borderColor = ''; div.style.backgroundColor = '';
+                    const dt = e.dataTransfer; const files = dt.files;
+                    if(files && files.length > 0) {
+                        const droppedFile = files[0];
+                        if(droppedFile.type.startsWith('image/')) {
+                            imageSlots[index] = droppedFile; renderSlots(); updatePromptLockState();
+                        }
+                    }
+                });
+                // --- 拖拽上传支持结束 ---
+
                 if (file) {
                     const reader = new FileReader(); reader.onload = (e) => {
                         let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
