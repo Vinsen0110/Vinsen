@@ -70,6 +70,10 @@
                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                         </div>
                         <div id="model-options" class="hidden absolute top-full right-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl z-50 p-1">
+                            <div onclick="selectModel('veo3.1-fast', 'veo3.1-fast')" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-violet-50 dark:hover:bg-[#27272a] group" data-val="veo3.1-fast">
+                                <span class="text-xs font-bold">veo3.1-fast</span>
+                                <i class="fa-solid fa-check text-violet-500 text-xs opacity-0 check-icon"></i>
+                            </div>
                             <div onclick="selectModel('veo3.1', 'veo3.1')" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-violet-50 dark:hover:bg-[#27272a] group bg-violet-50 dark:bg-[#27272a]" data-val="veo3.1">
                                 <span class="text-xs font-bold">veo3.1</span>
                                 <i class="fa-solid fa-check text-violet-500 text-xs opacity-100 check-icon"></i>
@@ -99,12 +103,12 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a]">
-                        <span class="text-[11px] font-bold">优化提示词</span>
-                        <input type="checkbox" id="enhance-prompt" class="accent-violet-600 w-3.5 h-3.5 cursor-pointer">
-                    </div>
-                    <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a]">
                         <span class="text-[11px] font-bold">分辨率提升</span>
                         <input type="checkbox" id="upscale-res" class="accent-violet-600 w-3.5 h-3.5 cursor-pointer">
+                    </div>
+                    <div id="container-4k" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a] transition-opacity">
+                        <span class="text-[11px] font-bold">4K 模式</span>
+                        <input type="checkbox" id="enable-4k" class="accent-violet-600 w-3.5 h-3.5 cursor-pointer">
                     </div>
                 </div>
 
@@ -230,7 +234,24 @@
         function toggleDropdown(event, containerId, optionsId, triggerId) { if(event) event.stopPropagation();
             const options = document.getElementById(optionsId), trigger = document.getElementById(triggerId); document.getElementById(containerId).classList.toggle('dropdown-open'); options.classList.toggle('hidden'); if (!options.classList.contains('hidden')) trigger.classList.add('glow-effect'); else trigger.classList.remove('glow-effect');
         }
-        function selectModel(val, text) { document.getElementById('model-input').value = val; document.getElementById('current-model-text').innerText = text;
+        
+        // 修改部分：选择模型时处理 4K 按钮的互斥逻辑
+        function selectModel(val, text) { 
+            document.getElementById('model-input').value = val; 
+            document.getElementById('current-model-text').innerText = text;
+            
+            // 4K 互斥逻辑
+            const k4Check = document.getElementById('enable-4k');
+            const k4Div = document.getElementById('container-4k');
+            if (val === 'veo3.1-fast') {
+                k4Check.checked = false;
+                k4Check.disabled = true;
+                k4Div.classList.add('opacity-50', 'pointer-events-none', 'cursor-not-allowed');
+            } else {
+                k4Check.disabled = false;
+                k4Div.classList.remove('opacity-50', 'pointer-events-none', 'cursor-not-allowed');
+            }
+
             document.querySelectorAll('.model-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon').classList.toggle('opacity-0', !isSelected); opt.classList.toggle('bg-violet-50', isSelected); opt.classList.toggle('dark:bg-[#27272a]', isSelected); });
             uploadedImages = {}; uploadedImageFiles = {}; renderSlots(); toggleDropdown(null, 'custom-model-dropdown', 'model-options', 'model-trigger'); 
         }
@@ -295,7 +316,6 @@
         function deleteTask(id) { if(!confirm("删除此任务？")) return; taskList = taskList.filter(t => t.id !== id); saveHistory(); renderTaskList(); if(activeTaskId === id) { activeTaskId = null; updatePreview(null); } }
         function downloadSingleTask(id) { const task = taskList.find(t => t.id === id); if(task && task.videoUrl) downloadCurrentVideo(task.videoUrl, id); else alert("视频未就绪"); }
 
-        // --- 核心修改：ImgBB 上传 (含 7 天自动过期) ---
         async function uploadImageToImgbb(file) { 
             const apiKey = localStorage.getItem('veo_imgbb_key');
             if (!apiKey) { 
@@ -304,7 +324,6 @@
             } 
             const formData = new FormData(); 
             formData.append("image", file); 
-            // expiration=604800 表示 7 天后自动删除
             const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}&expiration=604800`, { method: "POST", body: formData });
             const data = await res.json(); 
             if (data.success) { return data.data.url; } 
@@ -337,12 +356,21 @@
                 }
 
                 btnText.innerText = "正在提交任务...";
+                
+                // 修改部分：构建模型参数，处理 4K 逻辑
+                let selectedModel = document.getElementById('model-input').value;
+                const is4K = document.getElementById('enable-4k').checked;
+                // 如果勾选了 4K 且不是 fast 模型，则追加 -4k 后缀
+                if (is4K && selectedModel !== 'veo3.1-fast') {
+                    selectedModel += '-4k';
+                }
+
                 const payload = { 
-                    model: document.getElementById('model-input').value, 
+                    model: selectedModel,
                     prompt, 
                     aspect_ratio: document.getElementById('ratio-input').value, 
                     images: finalImages,
-                    enhance_prompt: document.getElementById('enhance-prompt').checked, 
+                    enhance_prompt: false, // 移除UI后默认关闭
                     enable_upsample: document.getElementById('upscale-res').checked 
                 };
 
@@ -351,6 +379,7 @@
                 if (!res.ok) throw new Error(data.error?.message || "提交失败");
                 
                 const taskId = data.task_id || data.id || (data.data && data.data.id);
+                // 记录历史时保存最终使用的模型名（带4k的）
                 taskList.unshift({ id: taskId, prompt, model: payload.model, ratio: payload.aspect_ratio, status: 'NOT_START', startTime: Date.now(), progress: "0%" });
                 saveHistory(); renderTaskList(); updatePreview(taskId);
             } catch (e) { 
@@ -432,4 +461,3 @@
     </script>
 </body>
 </html>
-
