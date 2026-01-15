@@ -772,6 +772,46 @@
                 outcomes.forEach(outcome => { if (outcome.status === 'fulfilled') { allResults.push(...outcome.value); } else { console.error("部分请求失败:", outcome.reason); } });
                 const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
                 if (allResults.length > 0) { 
+                    // New preloading with timeout safety valve
+                    let progress = 0;
+                    const btnSpan = btn.querySelector('span');
+                    btnSpan.innerText = "图片加载中 0%...";
+                    
+                    await new Promise((resolve) => {
+                        let isResolved = false;
+                        
+                        // Force finish function to clean up and resolve
+                        const finish = () => {
+                            if (isResolved) return;
+                            isResolved = true;
+                            clearInterval(interval);
+                            btnSpan.innerText = "图片加载中 100%...";
+                            setTimeout(resolve, 200);
+                        };
+
+                        const interval = setInterval(() => {
+                            if (progress < 30) progress += 2;
+                            else if (progress < 80) progress += 0.5;
+                            else if (progress < 99) progress += 0.1;
+                            
+                            if (progress >= 99) progress = 99;
+                            btnSpan.innerText = `图片加载中 ${Math.floor(progress)}%...`;
+                        }, 100);
+
+                        // Safety Timeout: If loading takes more than 10 seconds, force show it
+                        setTimeout(() => {
+                            if (!isResolved) {
+                                console.warn("Image load timed out, forcing display");
+                                finish();
+                            }
+                        }, 10000); // 10 seconds timeout
+
+                        const img = new Image();
+                        img.onload = finish;
+                        img.onerror = finish; // Even if error, resolve to let browser try showing broken img icon or cached version
+                        img.src = allResults[0].url;
+                    });
+
                     setMainImage(allResults[0].url, duration, originalRefImage);
                     allResults.forEach(img => addToHistory(img.url, prompt, duration)); 
                     if(window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
