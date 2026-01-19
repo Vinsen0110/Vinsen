@@ -10,9 +10,8 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1); }
-        /* 隐藏滚动条但保留滚动功能 */
+        .card-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -56,83 +55,93 @@
         </div>
     </div>
 
-    <div class="flex-1 flex flex-col items-center p-4 md:p-6 md:justify-center">
+    <div class="flex-1 flex flex-col items-center p-4 md:p-6 md:pt-12">
 
-        <div class="text-center mb-8 md:mb-16 space-y-2 md:space-y-4 md:mt-10">
-            <h1 class="text-2xl md:text-5xl font-bold text-[#6366f1] tracking-tight">选择生成模型</h1>
-            <p class="text-gray-400 text-sm md:text-lg">探索最先进的AI视频和图片生成技术</p>
+        <div class="text-center mb-10 space-y-2 md:space-y-4">
+            <h1 class="text-2xl md:text-5xl font-bold text-[#6366f1] tracking-tight">选择生成的模型</h1>
+            <p class="text-gray-400 text-sm md:text-lg">聚合全球顶尖AI视觉创作引擎</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-6xl w-full">
+        <div class="w-full max-w-6xl space-y-8">
 
-           <a href="sora2.html" class="block bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm flex md:flex-col items-center md:items-start h-24 md:h-80 relative overflow-hidden card-hover cursor-pointer ring-1 md:ring-2 ring-gray-100 hover:ring-indigo-400/50 group">
-                <div class="absolute top-0 left-0 h-full w-1 md:w-full md:h-1 bg-gradient-to-b md:bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+            <section>
+                <div class="flex items-center gap-2 mb-3 px-1">
+                     <div class="w-1 h-5 bg-yellow-500 rounded-full"></div>
+                    <h2 class="text-lg md:text-xl font-bold text-gray-800"><i class="fa-solid fa-palette text-yellow-500 mr-2"></i>AI 绘画设计</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                    <a href="nanobanana.html" class="relative block bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-start gap-4 overflow-hidden card-hover cursor-pointer ring-1 ring-gray-100 hover:ring-yellow-400/50 group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-orange-500"></div>
+                        
+                        <div class="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shrink-0 mt-0.5">
+                            <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/nanobanana.jpg" class="w-full h-full object-cover" alt="Icon" onerror="this.src='kitty.png'">
+                        </div>
+
+                        <div class="flex-1 min-w-0 flex flex-col h-full justify-between gap-2">
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">Nano Banana Pro</h3>
+                                <p class="text-gray-500 text-xs mt-1 leading-relaxed">专业级图片生成与重绘工具。</p>
+                            </div>
+                            <div class="text-yellow-600 font-bold text-xs flex items-center mt-1">
+                                开始生成 <i class="fa-solid fa-arrow-right ml-1.5 transition-transform group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <div class="hidden md:block"></div>
+                    <div class="hidden md:block"></div>
+                </div>
+            </section>
+
+            <section>
+                <div class="flex items-center gap-2 mb-3 px-1">
+                    <div class="w-1 h-5 bg-indigo-500 rounded-full"></div>
+                    <h2 class="text-lg md:text-xl font-bold text-gray-800"><i class="fa-solid fa-film text-indigo-500 mr-2"></i>AI 视频生成</h2>
+                </div>
                 
-                <div class="w-12 h-12 bg-white rounded-xl mr-4 md:mr-0 md:mb-6 overflow-hidden border border-gray-100 shrink-0">
-                    <img src="sora2.png" class="w-full h-full object-cover" alt="Sora 2 Icon">
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
+                    <a href="sora2.html" class="relative block bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-start gap-4 overflow-hidden card-hover cursor-pointer ring-1 ring-gray-100 hover:ring-indigo-400/50 group">
+                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-500"></div>
 
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg md:text-xl font-bold text-gray-900 flex items-center justify-between">
-                        Sora 2
-                        <i class="fa-solid fa-arrow-right md:hidden text-gray-300 group-hover:text-indigo-500 transition"></i>
-                    </h3>
-                    <p class="text-gray-500 text-xs md:text-sm leading-relaxed mt-1 md:mt-3 line-clamp-1 md:line-clamp-none">
-                        OpenAI 最新一代视频生成模型，创造逼真场景。
-                    </p>
-                </div>
-                
-                <div class="hidden md:flex mt-auto items-center text-indigo-600 font-bold text-sm">
-                    开始生成 <i class="fa-solid fa-arrow-right ml-2 transform group-hover:translate-x-1 transition"></i>
-                </div>
-            </a>
+                        <div class="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shrink-0 mt-0.5">
+                            <img src="sora2.png" class="w-full h-full object-cover" alt="Sora 2">
+                        </div>
 
-          <a href="veo3.1.html" class="block bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm flex md:flex-col items-center md:items-start h-24 md:h-80 relative overflow-hidden card-hover cursor-pointer ring-1 md:ring-2 ring-gray-100 hover:ring-purple-400/50 group">
-    <div class="absolute top-0 left-0 h-full w-1 md:w-full md:h-1 bg-gradient-to-b md:bg-gradient-to-r from-purple-400 to-fuchsia-500"></div>
-    
-    <div class="w-12 h-12 bg-white rounded-xl mr-4 md:mr-0 md:mb-6 overflow-hidden border border-gray-100 shrink-0">
-        <img src="veo3.1.png" class="w-full h-full object-cover" alt="Veo 3.1 Icon">
-    </div>
+                        <div class="flex-1 min-w-0 flex flex-col h-full justify-between gap-2">
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Sora 2</h3>
+                                <p class="text-gray-500 text-xs mt-1 leading-relaxed">OpenAI 最新视频生成模型。</p>
+                            </div>
+                            <div class="text-indigo-600 font-bold text-xs flex items-center mt-1">
+                                开始生成 <i class="fa-solid fa-arrow-right ml-1.5 transition-transform group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </a>
 
-    <div class="flex-1 min-w-0">
-        <h3 class="text-lg md:text-xl font-bold text-gray-900 flex items-center justify-between">
-            Veo 3.1
-            <i class="fa-solid fa-arrow-right md:hidden text-gray-300 group-hover:text-purple-500 transition"></i>
-        </h3>
-        <p class="text-gray-500 text-xs md:text-sm leading-relaxed mt-1 md:mt-3 line-clamp-1 md:line-clamp-none">
-            Google DeepMind 视频生成技术，电影级创作。
-        </p>
-    </div>
-    
-    <div class="hidden md:flex mt-auto items-center text-purple-600 font-bold text-sm">
-        开始生成 <i class="fa-solid fa-arrow-right ml-2 transform group-hover:translate-x-1 transition"></i>
-    </div>
-</a>
+                    <a href="veo3.1.html" class="relative block bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex items-start gap-4 overflow-hidden card-hover cursor-pointer ring-1 ring-gray-100 hover:ring-purple-400/50 group">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-400 to-fuchsia-500"></div>
 
-            <a href="nanobanana.html" class="block bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm flex md:flex-col items-center md:items-start h-24 md:h-80 relative overflow-hidden card-hover cursor-pointer ring-1 md:ring-2 ring-gray-100 hover:ring-yellow-400/50 group">
-                <div class="absolute top-0 left-0 h-full w-1 md:w-full md:h-1 bg-gradient-to-b md:bg-gradient-to-r from-yellow-400 to-orange-500"></div>
-                
-                <div class="w-12 h-12 bg-white rounded-xl mr-4 md:mr-0 md:mb-6 overflow-hidden border border-gray-100 shrink-0">
-                    <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/nanobanana.jpg" class="w-full h-full object-cover" alt="Icon" onerror="this.src='kitty.png'">
-                </div>
+                        <div class="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shrink-0 mt-0.5">
+                            <img src="veo3.1.png" class="w-full h-full object-cover" alt="Veo 3.1">
+                        </div>
 
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg md:text-xl font-bold text-gray-900 flex items-center justify-between">
-                        Nano Banana Pro
-                        <i class="fa-solid fa-arrow-right md:hidden text-gray-300 group-hover:text-yellow-500 transition"></i>
-                    </h3>
-                    <p class="text-gray-500 text-xs md:text-sm leading-relaxed mt-1 md:mt-3 line-clamp-1 md:line-clamp-none">
-                        专业级图片生成工具，支持重绘与扩图。
-                    </p>
+                        <div class="flex-1 min-w-0 flex flex-col h-full justify-between gap-2">
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900 group-hover:text-purple-600 transition-colors">Veo 3.1</h3>
+                                <p class="text-gray-500 text-xs mt-1 leading-relaxed">DeepMind 电影级创作。</p>
+                            </div>
+                            <div class="text-purple-600 font-bold text-xs flex items-center mt-1">
+                                开始生成 <i class="fa-solid fa-arrow-right ml-1.5 transition-transform group-hover:translate-x-1"></i>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-                <div class="hidden md:flex mt-auto items-center text-yellow-600 font-bold text-sm">
-                    开始生成 <i class="fa-solid fa-arrow-right ml-2 transform group-hover:translate-x-1 transition"></i>
-                </div>
-            </a>
+            </section>
 
         </div>
 
-        <div class="w-full max-w-6xl mx-auto mt-8 md:mt-12 mb-4">
+        <div class="w-full max-w-6xl mx-auto mt-12 md:mt-20 mb-4">
             <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden ring-4 ring-indigo-50/50">
                 
                 <div class="bg-[#6366f1] py-2 md:py-3 text-center relative overflow-hidden cursor-pointer md:cursor-default" onclick="document.getElementById('price-content').classList.toggle('hidden')">
@@ -183,13 +192,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
