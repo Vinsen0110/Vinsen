@@ -138,7 +138,7 @@ min-height: 500px !important; flex: none !important; }
    <header class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-20 sticky top-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 shadow-sm shrink-0">
-                <img src="sora2.png" class="w-full h-full object-cover" alt="Logo">
+                <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/sora2.png" class="w-full h-full object-cover" alt="Logo" onerror="this.src='kitty.png'">
         
     </div>
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Sora 2</span>
@@ -274,7 +274,7 @@ id="custom-ratio-single-dropdown">
                 
         </div>
                         <button onclick="submitTask()" id="generate-btn-single" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-                            <span id="btn-text-single">立即生成</span><i id="loading-icon-single" class="fa-solid fa-spinner fa-spin hidden"></i>
+                            <span id="btn-text-single">✨ 立即生成</span><i id="loading-icon-single" class="fa-solid fa-spinner fa-spin hidden"></i>
              
            </button>
                     </div>
@@ -350,7 +350,7 @@ id="custom-ratio-single-dropdown">
                         </div>
    
                      <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a]"><div class="flex flex-col"><span class="text-xs font-bold text-gray-700 dark:text-gray-300">HD 高清模式</span><span class="text-[10px] text-gray-400">仅 Pro 可用</span></div><input type="checkbox" id="hd-sb" class="accent-violet-600 w-4 h-4 cursor-pointer" disabled></div>
-                        <button onclick="submitTask()" id="generate-btn-sb" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"><span id="btn-text-sb">立即生成</span><i id="loading-icon-sb" class="fa-solid fa-spinner fa-spin 
+                        <button onclick="submitTask()" id="generate-btn-sb" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"><span id="btn-text-sb">✨ 立即生成</span><i id="loading-icon-sb" class="fa-solid fa-spinner fa-spin 
 hidden"></i></button>
                     </div>
                 </div>
@@ -452,42 +452,50 @@ autocomplete="off" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray
 
     <script>
         const DEFAULT_API_URL = "https://api.bltcy.ai";
-let taskList = []; let currentImageBase64 = null; let currentImageFile = null; let pollingInterval = null; let activeTaskId = null;
-let currentMode = 'single'; let storyShots = []; 
-// 新增：故事板全局图片变量
-let currentSbImageFile = null; let currentSbImageBase64 = null;
+        let taskList = []; let currentImageBase64 = null; let currentImageFile = null; let pollingInterval = null; let activeTaskId = null;
+        let currentMode = 'single'; let storyShots = []; 
+        let currentSbImageFile = null; let currentSbImageBase64 = null;
 
         function initApp() {
             loadSettings();
-loadTheme(); loadHistory(); updateModelLimits(); setupResizers(); storyShots = [{ id: Date.now(), duration: 10, prompt: '', isEditing: false }]; renderStoryboardRows(); checkAllTasksStatus(); startPolling();
-}
+            loadTheme(); 
+            loadHistory(); 
+            updateModelLimits(); 
+            setupResizers(); 
+            storyShots = [{ id: Date.now(), duration: 10, prompt: '', isEditing: false }]; 
+            renderStoryboardRows(); 
+            checkAllTasksStatus(); 
+            startPolling();
+            updateGenerateButtonPrice(); // 强制初始化调用一次价格计算
+        }
 
         // --- 通用下拉逻辑 ---
         function toggleDropdown(event, containerId, optionsId, triggerId) {
             if(event) event.stopPropagation();
-const container = document.getElementById(containerId);
+            const container = document.getElementById(containerId);
             const options = document.getElementById(optionsId);
             const trigger = document.getElementById(triggerId);
             container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
             if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]');
-} 
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]');
-}
+            } else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
         }
 
         function selectOption(val, text, inputId, textId, optionsId, triggerId, callback) {
             const input = document.getElementById(inputId);
-input.value = val;
+            input.value = val;
             document.getElementById(textId).innerText = text;
             
             // 更新选中图标
             const optionsContainer = document.getElementById(optionsId);
-optionsContainer.querySelectorAll('.model-option, .custom-option').forEach(opt => {
+            optionsContainer.querySelectorAll('.model-option, .custom-option').forEach(opt => {
                 const check = opt.querySelector('.check-icon');
                 if(opt.dataset.val === val) { check.classList.replace('opacity-0', 'opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); } 
                 else { check.classList.replace('opacity-100', 'opacity-0'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
             });
-toggleDropdown(null, document.getElementById(optionsId).parentElement.id, optionsId, triggerId);
+            toggleDropdown(null, document.getElementById(optionsId).parentElement.id, optionsId, triggerId);
+            
+            // 重要：任何选项改变后，都重新计算价格
+            updateGenerateButtonPrice();
             if(callback) callback();
         }
 
@@ -496,52 +504,46 @@ toggleDropdown(null, document.getElementById(optionsId).parentElement.id, option
                 {cont: 'custom-model-dropdown', opt: 'model-options', trig: 'model-trigger'},
                 {cont: 'custom-ratio-single-dropdown', opt: 'ratio-single-options', trig: 'ratio-single-trigger'},
                 {cont: 'custom-duration-single-dropdown', opt: 'duration-single-options', trig: 'duration-single-trigger'},
-      
-          {cont: 'custom-ratio-sb-dropdown', opt: 'ratio-sb-options', trig: 'ratio-sb-trigger'},
+                {cont: 'custom-ratio-sb-dropdown', opt: 'ratio-sb-options', trig: 'ratio-sb-trigger'},
                 {cont: 'custom-duration-sb-dropdown', opt: 'duration-sb-options', trig: 'duration-sb-trigger'}
             ];
-dropdownConfigs.forEach(cfg => {
+            dropdownConfigs.forEach(cfg => {
                 const container = document.getElementById(cfg.cont);
                 const options = document.getElementById(cfg.opt);
                 const trigger = document.getElementById(cfg.trig);
                 if (container && !container.contains(event.target)) {
                     container.classList.remove('dropdown-open'); 
-options.classList.add('hidden');
+                    options.classList.add('hidden');
                     trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]');
                 }
             });
-}
+        }
 
         function switchMode(mode) {
             currentMode = mode;
-const tabSingle = document.getElementById('tab-single'); const tabSB = document.getElementById('tab-storyboard'); const panelSingle = document.getElementById('panel-single'); const panelSB = document.getElementById('panel-storyboard');
-if(mode === 'single') { tabSingle.classList.add('active'); tabSB.classList.remove('active'); panelSingle.classList.remove('hidden'); panelSB.classList.add('hidden'); document.getElementById('upload-area').style.opacity = '1'; document.getElementById('upload-area').style.pointerEvents = 'auto';
-} 
-            else { tabSingle.classList.remove('active'); tabSB.classList.add('active'); panelSingle.classList.add('hidden'); panelSB.classList.remove('hidden');
-document.getElementById('upload-area').style.opacity = '0.5'; document.getElementById('upload-area').style.pointerEvents = 'none'; }
+            const tabSingle = document.getElementById('tab-single'); const tabSB = document.getElementById('tab-storyboard'); const panelSingle = document.getElementById('panel-single'); const panelSB = document.getElementById('panel-storyboard');
+            if(mode === 'single') { tabSingle.classList.add('active'); tabSB.classList.remove('active'); panelSingle.classList.remove('hidden'); panelSB.classList.add('hidden'); document.getElementById('upload-area').style.opacity = '1'; document.getElementById('upload-area').style.pointerEvents = 'auto'; } 
+            else { tabSingle.classList.remove('active'); tabSB.classList.add('active'); panelSingle.classList.add('hidden'); panelSB.classList.remove('hidden'); document.getElementById('upload-area').style.opacity = '0.5'; document.getElementById('upload-area').style.pointerEvents = 'none'; }
+            
+            // 切换模式后，更新价格（因为不同模式读取不同的时长设置）
+            updateGenerateButtonPrice();
         }
-        function resetStoryboard() { const maxDuration = parseFloat(document.getElementById('duration-sb').value) ||
-10; storyShots = [{ id: Date.now(), duration: maxDuration, prompt: '', isEditing: false }]; renderStoryboardRows();
-}
+
+        function resetStoryboard() { const maxDuration = parseFloat(document.getElementById('duration-sb').value) || 10; storyShots = [{ id: Date.now(), duration: maxDuration, prompt: '', isEditing: false }]; renderStoryboardRows(); updateGenerateButtonPrice(); }
         function addShot() { const maxDuration = parseFloat(document.getElementById('duration-sb').value);
-const lastShotIndex = storyShots.length - 1; if (lastShotIndex < 0) return; let lastS = storyShots[lastShotIndex]; if (lastS.duration <= 1) return;
-let newDur = 5; if (lastS.duration < 6) newDur = lastS.duration - 1; lastS.duration -= newDur;
-const newShot = { id: Date.now(), duration: newDur, prompt: '', isEditing: false }; storyShots.splice(storyShots.length - 1, 0, newShot); renderStoryboardRows();
-}
-        function deleteShot(index) { if(storyShots.length <= 1) { alert("至少保留一个分镜"); return;
-} const deletedDuration = storyShots[index].duration; storyShots.splice(index, 1); storyShots[storyShots.length - 1].duration += deletedDuration; renderStoryboardRows();
-}
-        function startEditingTime(index) { storyShots.forEach(s => s.isEditing = false); storyShots[index].isEditing = true; renderStoryboardRows();
-}
+            const lastShotIndex = storyShots.length - 1; if (lastShotIndex < 0) return; let lastS = storyShots[lastShotIndex]; if (lastS.duration <= 1) return;
+            let newDur = 5; if (lastS.duration < 6) newDur = lastS.duration - 1; lastS.duration -= newDur;
+            const newShot = { id: Date.now(), duration: newDur, prompt: '', isEditing: false }; storyShots.splice(storyShots.length - 1, 0, newShot); renderStoryboardRows();
+        }
+        function deleteShot(index) { if(storyShots.length <= 1) { alert("至少保留一个分镜"); return; } const deletedDuration = storyShots[index].duration; storyShots.splice(index, 1); storyShots[storyShots.length - 1].duration += deletedDuration; renderStoryboardRows(); }
+        function startEditingTime(index) { storyShots.forEach(s => s.isEditing = false); storyShots[index].isEditing = true; renderStoryboardRows(); }
         function updateTimePoint(shotIndex, isEndTime, newVal) { const maxDuration = parseFloat(document.getElementById('duration-sb').value);
-let val = parseFloat(newVal); if(isNaN(val) || val < 0) return; let timePoints = [0]; storyShots.forEach(s => timePoints.push(timePoints[timePoints.length-1] + s.duration));
-let pointIndex = isEndTime ? shotIndex + 1 : shotIndex; const minVal = timePoints[pointIndex - 1] + 0.5;
-const maxVal = timePoints[pointIndex + 1] - 0.5; if (val < minVal) val = minVal;
-if (val > maxVal) val = maxVal; timePoints[pointIndex] = val;
-for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoints[i]; storyShots[i].duration = parseFloat(d.toFixed(1));
-} storyShots[shotIndex].isEditing = false; renderStoryboardRows(); }
-        function updateShotPrompt(index, val) { storyShots[index].prompt = val;
-}
+            let val = parseFloat(newVal); if(isNaN(val) || val < 0) return; let timePoints = [0]; storyShots.forEach(s => timePoints.push(timePoints[timePoints.length-1] + s.duration));
+            let pointIndex = isEndTime ? shotIndex + 1 : shotIndex; const minVal = timePoints[pointIndex - 1] + 0.5;
+            const maxVal = timePoints[pointIndex + 1] - 0.5; if (val < minVal) val = minVal;
+            if (val > maxVal) val = maxVal; timePoints[pointIndex] = val;
+            for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoints[i]; storyShots[i].duration = parseFloat(d.toFixed(1)); } storyShots[shotIndex].isEditing = false; renderStoryboardRows(); }
+        function updateShotPrompt(index, val) { storyShots[index].prompt = val; }
         
         function renderStoryboardRows() { 
             const container = document.getElementById('storyboard-container'); 
@@ -555,7 +557,6 @@ for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoin
                 const endTime = parseFloat((currentTime + shot.duration).toFixed(1)); 
                 currentTime = endTime; 
                 
-                // 回归简洁的单行布局
                 const row = document.createElement('div'); 
                 row.className = "storyboard-row group"; 
                 
@@ -568,7 +569,6 @@ for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoin
                     timeComponent = `<div class="time-badge" onclick="startEditingTime(${index})"><i class="fa-regular fa-clock mr-1.5 text-xs opacity-70"></i>${startTime}-${endTime}s</div>`;
                 } 
 
-                // 简单的单行结构：时间 | 输入框 | 删除按钮
                 row.innerHTML = `${timeComponent}
                                  <input type="text" class="flex-1 min-w-0 custom-input h-9 rounded-lg px-3 text-xs bg-gray-50 border border-gray-200 dark:bg-[#18181b] dark:border-[#27272a] dark:text-white" placeholder="分镜描述..." value="${shot.prompt}" oninput="updateShotPrompt(${index}, this.value)">
                                  <button onclick="deleteShot(${index})" class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition"><i class="fa-solid fa-trash text-xs"></i></button>`;
@@ -589,35 +589,37 @@ for (let i = 0; i < storyShots.length; i++) { let d = timePoints[i+1] - timePoin
         }
 
         function getYijiaModel(baseModel, duration, ratio) { const isLandscape = ratio === '16:9';
-const dur = parseInt(duration); if (baseModel === 'sora-2-pro') { if (isLandscape) { if (dur === 10) return 'sora-2-pro-landscape-10s-large-yijia';
-if (dur === 15) return 'sora-2-pro-landscape-15s-large-yijia'; if (dur === 25) return 'sora-2-pro-landscape-25s-yijia'; return 'sora-2-pro-landscape-15s-large-yijia';
-} else { if (dur === 10) return 'sora-2-pro-10s-large-yijia'; if (dur === 15) return 'sora-2-pro-15s-large-yijia';
-if (dur === 25) return 'sora-2-pro-25s-yijia'; return 'sora-2-pro-15s-large-yijia'; } } else { if (isLandscape) { if (dur === 15) return 'sora-2-landscape-15s-yijia';
-return 'sora-2-landscape-yijia'; } else { if (dur === 15) return 'sora-2-15s-yijia'; return 'sora-2-yijia'; } } return baseModel;
-}
+            const dur = parseInt(duration); if (baseModel === 'sora-2-pro') { if (isLandscape) { if (dur === 10) return 'sora-2-pro-landscape-10s-large-yijia';
+            if (dur === 15) return 'sora-2-pro-landscape-15s-large-yijia'; if (dur === 25) return 'sora-2-pro-landscape-25s-yijia'; return 'sora-2-pro-landscape-15s-large-yijia';
+            } else { if (dur === 10) return 'sora-2-pro-10s-large-yijia'; if (dur === 15) return 'sora-2-pro-15s-large-yijia';
+            if (dur === 25) return 'sora-2-pro-25s-yijia'; return 'sora-2-pro-15s-large-yijia'; } } else { if (isLandscape) { if (dur === 15) return 'sora-2-landscape-15s-yijia';
+            return 'sora-2-landscape-yijia'; } else { if (dur === 15) return 'sora-2-15s-yijia'; return 'sora-2-yijia'; } } return baseModel;
+        }
         
         function updateModelLimits() { 
             const model = document.getElementById('model-select').value;
-const hdSingle = document.getElementById('hd-single'); 
+            const hdSingle = document.getElementById('hd-single'); 
             const hdSb = document.getElementById('hd-sb');
             
             const renderDurOptions = (containerId, textId, inputId, triggerId) => {
                 const container = document.getElementById(containerId);
-const input = document.getElementById(inputId);
+                const input = document.getElementById(inputId);
                 container.innerHTML = '';
-                const options = (model === 'sora-2-pro') ?
-[{v:"10",t:"10 秒"},{v:"15",t:"15 秒"},{v:"25",t:"25 秒"}] : [{v:"10",t:"10 秒"},{v:"15",t:"15 秒"}];
+                // 确保时长选项正确：Pro版有25s，普通版只有10s/15s(部分渠道支持)或5s/10s(标准)
+                // 为兼容各渠道，这里列出通用项，实际扣费在计算逻辑中处理
+                const options = (model === 'sora-2-pro') ? [{v:"10",t:"10 秒"},{v:"15",t:"15 秒"},{v:"25",t:"25 秒"}] : [{v:"10",t:"10 秒"},{v:"15",t:"15 秒"}];
                 
                 options.forEach((opt, idx) => {
+                    // 默认选中第一个或者当前值
                     const isSelected = input.value === opt.v || (idx === 0 && !options.some(o => o.v === input.value));
                     if (isSelected) { input.value = opt.v; document.getElementById(textId).innerText = opt.t; }
                     const div = document.createElement('div');
   
-                  div.className = `custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition ${isSelected ? 'bg-indigo-50 dark:bg-[#27272a]' : ''}`;
+                    div.className = `custom-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-[#27272a] group transition ${isSelected ? 'bg-indigo-50 dark:bg-[#27272a]' : ''}`;
                     div.dataset.val = opt.v;
                     div.onclick = () => selectOption(opt.v, opt.t, inputId, textId, containerId, triggerId, (inputId.includes('sb') ? resetStoryboard : null));
        
-             div.innerHTML = `<span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${opt.t}</span><i class="fa-solid fa-check text-indigo-500 text-xs ${isSelected ?
+                    div.innerHTML = `<span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${opt.t}</span><i class="fa-solid fa-check text-indigo-500 text-xs ${isSelected ?
 'opacity-100' : 'opacity-0'} check-icon"></i>`;
                     container.appendChild(div);
                 });
@@ -626,10 +628,68 @@ const input = document.getElementById(inputId);
             renderDurOptions('duration-single-options', 'duration-single-text', 'duration-single', 'duration-single-trigger');
             renderDurOptions('duration-sb-options', 'duration-sb-text', 'duration-sb', 'duration-sb-trigger');
 
-            if (model === 'sora-2-pro') { hdSingle.disabled = 
-false; hdSb.disabled = false; } 
+            if (model === 'sora-2-pro') { hdSingle.disabled = false; hdSb.disabled = false; } 
             else { hdSingle.disabled = true; hdSingle.checked = false; hdSb.disabled = true; hdSb.checked = false; } 
+            
             resetStoryboard(); 
+            // 确保更新选项后，价格也更新
+            updateGenerateButtonPrice();
+        }
+
+        // --- 核心新增：价格计算逻辑 ---
+        function updateGenerateButtonPrice() {
+            let url = (localStorage.getItem('sora_api_url') || DEFAULT_API_URL).trim();
+            const model = document.getElementById('model-select').value;
+            
+            // 确定当前活跃的时长值
+            let durationVal = 5;
+            if (currentMode === 'single') {
+                durationVal = document.getElementById('duration-single').value;
+            } else {
+                durationVal = document.getElementById('duration-sb').value;
+            }
+            durationVal = parseInt(durationVal);
+
+            let price = 0;
+
+            if (url.includes('bltcy.ai')) {
+                // 柏拉图渠道
+                if (model === 'sora-2') price = 0.1;
+                if (model === 'sora-2-pro') price = 2.5;
+            } else if (url.includes('t8star.cn')) {
+                // 贞贞渠道
+                if (model === 'sora-2') price = 0.135;
+                if (model === 'sora-2-pro') price = 3.375;
+            } else if (url.includes('yijia') || url.includes('oneplus')) {
+                // 一加渠道 (区分时长)
+                if (model === 'sora-2') {
+                    // 5s/10s -> 0.19, 15s -> 0.24
+                    if (durationVal <= 10) price = 0.19;
+                    else price = 0.24;
+                } else if (model === 'sora-2-pro') {
+                    // 10s -> 1.15, 15s -> 1.8, 25s -> 2.2
+                    if (durationVal === 10) price = 1.15;
+                    else if (durationVal === 15) price = 1.8;
+                    else if (durationVal === 25) price = 2.2;
+                    else price = 1.15; // 默认
+                }
+            }
+
+            // 更新两个按钮的文本（单图/故事板）
+            const btnTextSingle = document.getElementById('btn-text-single');
+            const btnTextSb = document.getElementById('btn-text-sb');
+            const iconSingle = document.getElementById('loading-icon-single');
+            const iconSb = document.getElementById('loading-icon-sb');
+
+            const text = price > 0 ? `✨ 立即生成 - ${parseFloat(price.toFixed(3))}¥` : `✨ 立即生成`;
+
+            // 仅在非加载状态下更新
+            if (iconSingle && iconSingle.classList.contains('hidden')) {
+                if (btnTextSingle) btnTextSingle.innerText = text;
+            }
+            if (iconSb && iconSb.classList.contains('hidden')) {
+                if (btnTextSb) btnTextSb.innerText = text;
+            }
         }
 
         function fillApiUrl(url) { document.getElementById('setting-url').value = url; const input = document.getElementById('setting-url'); input.classList.add('ring-2', 'ring-violet-500'); setTimeout(() => input.classList.remove('ring-2', 'ring-violet-500'), 200); }
@@ -701,6 +761,8 @@ document.getElementById('theme-icon').className = 'fa-solid fa-sun text-purple-5
 }
         function saveSettings() { let url = document.getElementById('setting-url').value.trim(); if(url.endsWith('/')) url = url.slice(0, -1);
 localStorage.setItem('sora_api_key', document.getElementById('setting-key').value.trim()); localStorage.setItem('sora_api_url', url || DEFAULT_API_URL); localStorage.setItem('sora_imgbb_key', document.getElementById('setting-imgbb').value.trim()); updateApiDisplay(url || DEFAULT_API_URL); closeSettings();
+// 保存后立刻刷新价格
+updateGenerateButtonPrice();
 }
         function handleImageUpload(e) { const file = e.target.files[0]; if(!file) return; currentImageFile = file;
 const reader = new FileReader(); reader.onload = (evt) => { const img = new Image();
@@ -774,7 +836,10 @@ try {
     const data = await res.json(); if(!res.ok) throw new Error(data.error?.message || "提交失败"); const taskId = data.task_id || data.id ||
     (data.data && data.data.id); if(taskId) { addTaskToList(taskId, prompt, modelToSend, payload.duration, payload.aspect_ratio, url, key); updatePreview(taskId); checkTaskStatus(taskId);
     } else { alert("无 Task ID 返回"); } } catch(e) { alert("错误: " + e.message);
-    } finally { btn.disabled = false; btn.classList.remove('opacity-75'); icon.classList.add('hidden'); txt.innerText = "立即生成";
+    } finally { 
+        btn.disabled = false; btn.classList.remove('opacity-75'); icon.classList.add('hidden'); 
+        // 恢复价格显示
+        updateGenerateButtonPrice();
     } }
         function startPolling() { if(pollingInterval) clearInterval(pollingInterval);
 pollingInterval = setInterval(() => { const pending = taskList.some(t => t.status !== 'SUCCESS' && t.status !== 'FAILURE'); if(pending) checkAllTasksStatus(); }, 4000);
@@ -806,4 +871,3 @@ activeTaskId=null; document.getElementById('preview-placeholder').classList.remo
     </script>
 </body>
 </html>
-
