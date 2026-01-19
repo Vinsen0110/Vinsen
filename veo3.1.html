@@ -44,7 +44,7 @@
     <header class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50 sticky top-0">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 shadow-sm shrink-0">
-                <img src="veo3.1.png" class="w-full h-full object-cover" alt="Logo">
+                <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/veo3.1.png" class="w-full h-full object-cover" alt="Logo" onerror="this.src='kitty.png'">
             </div>
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Veo 3.1</span>
         </div>
@@ -108,7 +108,7 @@
                     </div>
                     <div id="container-4k" class="flex items-center justify-between p-2 bg-gray-50 dark:bg-[#18181b] rounded-xl border border-gray-200 dark:border-[#27272a] transition-opacity">
                         <span class="text-[11px] font-bold">4K 模式</span>
-                        <input type="checkbox" id="enable-4k" class="accent-violet-600 w-3.5 h-3.5 cursor-pointer">
+                        <input type="checkbox" id="enable-4k" class="accent-violet-600 w-3.5 h-3.5 cursor-pointer" onchange="updateGenerateButtonPrice()">
                     </div>
                 </div>
 
@@ -224,12 +224,21 @@
     </div>
 
     <script>
+        const DEFAULT_API_URL = "https://api.bltcy.ai";
         let taskList = [];
         let uploadedImages = {}; // 存储 Base64 用于预览
         let uploadedImageFiles = {}; // 存储原始文件对象用于上传
         let activeTaskId = null; let currentActiveSlot = null; let isResizingX = false, isResizingY = false;
         
-        function initApp() { loadSettings(); loadHistory(); renderSlots(); setupResizers(); checkAllTasksStatus(); startPolling(); }
+        function initApp() { 
+            loadSettings(); 
+            loadHistory(); 
+            renderSlots(); 
+            setupResizers(); 
+            checkAllTasksStatus(); 
+            startPolling(); 
+            updateGenerateButtonPrice(); // 初始化时计算一次价格
+        }
 
         function toggleDropdown(event, containerId, optionsId, triggerId) { if(event) event.stopPropagation();
             const options = document.getElementById(optionsId), trigger = document.getElementById(triggerId); document.getElementById(containerId).classList.toggle('dropdown-open'); options.classList.toggle('hidden'); if (!options.classList.contains('hidden')) trigger.classList.add('glow-effect'); else trigger.classList.remove('glow-effect');
@@ -254,6 +263,9 @@
 
             document.querySelectorAll('.model-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon').classList.toggle('opacity-0', !isSelected); opt.classList.toggle('bg-violet-50', isSelected); opt.classList.toggle('dark:bg-[#27272a]', isSelected); });
             uploadedImages = {}; uploadedImageFiles = {}; renderSlots(); toggleDropdown(null, 'custom-model-dropdown', 'model-options', 'model-trigger'); 
+            
+            // 模型变化后，立即更新价格
+            updateGenerateButtonPrice();
         }
         function selectRatio(val, text) { document.getElementById('ratio-input').value = val;
             document.getElementById('current-ratio-text').innerText = text; document.querySelectorAll('.ratio-option').forEach(opt => { const isSelected = opt.dataset.val === val; opt.querySelector('.check-icon-ratio').classList.toggle('opacity-100', isSelected); opt.querySelector('.check-icon-ratio').classList.toggle('opacity-0', !isSelected); });
@@ -315,6 +327,50 @@
         function batchDelete() { const checked = document.querySelectorAll('.task-checkbox:checked'); if(checked.length === 0) return; if(!confirm(`删除选中的 ${checked.length} 项？`)) return; const ids = Array.from(checked).map(cb => cb.value); taskList = taskList.filter(t => !ids.includes(t.id)); saveHistory(); renderTaskList(); if(ids.includes(activeTaskId)) { activeTaskId = null; updatePreview(null); } }
         function deleteTask(id) { if(!confirm("删除此任务？")) return; taskList = taskList.filter(t => t.id !== id); saveHistory(); renderTaskList(); if(activeTaskId === id) { activeTaskId = null; updatePreview(null); } }
         function downloadSingleTask(id) { const task = taskList.find(t => t.id === id); if(task && task.videoUrl) downloadCurrentVideo(task.videoUrl, id); else alert("视频未就绪"); }
+
+        // --- 核心新增：价格计算逻辑 ---
+        function updateGenerateButtonPrice() {
+            // 获取当前 API 地址，去除空白
+            let url = (localStorage.getItem('veo_api_url') || DEFAULT_API_URL).trim();
+            const model = document.getElementById('model-input').value;
+            const is4K = document.getElementById('enable-4k').checked;
+            
+            let price = 0;
+
+            if (url.includes('bltcy.ai')) { 
+                // --- 柏拉图渠道定价 ---
+                if (model === 'veo3.1-fast') {
+                    price = 0.2;
+                } else if (model === 'veo3.1-pro') {
+                    price = is4K ? 2.0 : 1.0;
+                } else {
+                    // veo3.1 和 veo3.1-components
+                    price = is4K ? 0.5 : 0.3;
+                }
+            } else if (url.includes('t8star.cn')) {
+                // --- 贞贞渠道定价 ---
+                if (model === 'veo3.1-fast') {
+                    price = 0.27;
+                } else if (model === 'veo3.1-pro') {
+                    price = is4K ? 2.7 : 1.35;
+                } else {
+                    // veo3.1 和 veo3.1-components
+                    price = is4K ? 0.675 : 0.405;
+                }
+            }
+
+            const btnText = document.getElementById('btn-text');
+            const loadingIcon = document.getElementById('loading-icon');
+
+            // 仅在非加载状态下更新
+            if (loadingIcon && loadingIcon.classList.contains('hidden')) {
+                if (price > 0) {
+                    btnText.innerText = `✨ 立即生成 - ${parseFloat(price.toFixed(3))}¥`;
+                } else {
+                    btnText.innerText = `✨ 立即生成`;
+                }
+            }
+        }
 
         async function uploadImageToImgbb(file) { 
             const apiKey = localStorage.getItem('veo_imgbb_key');
@@ -385,7 +441,9 @@
             } catch (e) { 
                 alert("错误: " + e.message); 
             } finally { 
-                btn.disabled = false; icon.classList.add('hidden'); btnText.innerText = "✨ 立即生成";
+                btn.disabled = false; icon.classList.add('hidden'); 
+                // 任务结束后恢复价格显示
+                updateGenerateButtonPrice();
             }
         }
 
@@ -435,10 +493,12 @@
             localStorage.setItem('veo_api_url', document.getElementById('setting-url').value.trim()); 
             localStorage.setItem('veo_api_key', document.getElementById('setting-key').value.trim()); 
             localStorage.setItem('veo_imgbb_key', document.getElementById('setting-imgbb').value.trim()); 
-            updateApiDisplay(localStorage.getItem('veo_api_url')); closeSettings();
+            updateApiDisplay(localStorage.getItem('veo_api_url')); 
+            closeSettings();
+            updateGenerateButtonPrice(); // 设置保存后更新价格
         }
         function loadSettings() { 
-            document.getElementById('setting-url').value = localStorage.getItem('veo_api_url') || 'https://api.bltcy.ai'; 
+            document.getElementById('setting-url').value = localStorage.getItem('veo_api_url') || DEFAULT_API_URL; 
             document.getElementById('setting-key').value = localStorage.getItem('veo_api_key') || ''; 
             document.getElementById('setting-imgbb').value = localStorage.getItem('veo_imgbb_key') || ''; 
             updateApiDisplay(document.getElementById('setting-url').value); 
