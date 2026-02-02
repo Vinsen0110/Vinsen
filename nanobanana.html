@@ -54,7 +54,17 @@
         .agent-expanded { width: 400px; height: 650px; border-radius: 1rem; }
         .agent-collapsed { width: 48px; height: 48px; border-radius: 9999px; overflow: hidden; }
         @media (max-width: 640px) {
-            .agent-expanded { width: 100vw; height: 100vh; bottom: 0 !important; right: 0 !important; top: auto !important; transform: none !important; border-radius: 0; }
+            /* 修改部分：手机端不再全屏，改为屏幕 96% 宽，80% 高，底部留空 */
+            .agent-expanded { 
+                width: 96vw; 
+                height: 80vh; 
+                bottom: 2vh !important; 
+                right: 2vw !important; 
+                top: auto !important; 
+                transform: none !important; 
+                border-radius: 1rem; 
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            }
         }
         
         @media (max-width: 768px) {
