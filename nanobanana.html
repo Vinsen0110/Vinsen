@@ -443,14 +443,11 @@
                      <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (自动追加 /v1/images/edits)</label>
                     <input type="text" id="modal-api-url" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500" placeholder="https://api.bltcy.ai">
                     <div class="flex gap-2 mt-2 flex-wrap">
-                         <button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-spa"></i> 贞贞
-                        </button>
                          <button onclick="fillApiUrl('https://api.bltcy.ai')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
                             <i class="fa-solid fa-landmark"></i> 柏拉图
                         </button>
-                         <button onclick="fillApiUrl('https://api.mnapi.com')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-xs font-bold text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-bolt"></i> MnAPI
+                         <button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
+                            <i class="fa-solid fa-spa"></i> 贞贞
                         </button>
                      </div>
                 </div>
@@ -622,16 +619,15 @@
             catch (e) { document.getElementById('current-api-display').innerText = "当前: Custom"; }
         }
         
-        // --- 核心修改：模型限制逻辑 (支持 MnAPI 禁用 HD) ---
+        // --- 核心修改：模型限制逻辑 ---
         function updateModelRestrictions() {
             const currentUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
             const isPlato = currentUrl.includes('bltcy.ai');
-            const isMnapi = currentUrl.includes('mnapi.com'); // MnAPI 检测
             const hdOption = document.querySelector('.model-option[data-val="nano-banana-hd"]');
             
             if (!hdOption) return;
             
-            if (isPlato || isMnapi) { // 柏拉图或MnAPI都禁用HD (Nano Banana)
+            if (isPlato) { // 柏拉图禁用HD (Nano Banana)
                 hdOption.classList.add('option-disabled');
                 const currentModel = document.getElementById('model-input').value;
                 if (currentModel === 'nano-banana-hd') selectModel('nano-banana-2-4k', 'Nano Banana Pro');
@@ -962,9 +958,6 @@
             } else if (url.includes('t8star.cn')) { 
                 if (model === 'nano-banana-2-4k') unitPrice = 0.27; 
                 if (model === 'nano-banana-hd') unitPrice = 0.162; 
-            } else if (url.includes('mnapi.com')) { 
-                // 新增 MN API 计费逻辑
-                if (model === 'nano-banana-2-4k') unitPrice = 0.15;
             }
             const total = unitPrice * batchSize;
             const btnSpan = document.querySelector('#generate-btn span');
@@ -1049,13 +1042,7 @@
                 const isTxt2Img = compressedImages.length === 0; let endpoint, body, headers;
                 headers = { 'Authorization': `Bearer ${apiKey}` };
                 
-                // --- 智能映射核心逻辑 ---
-                // 如果是 MnAPI 且选了 Nano Banana Pro (内部值: nano-banana-2-4k)，则自动映射为 gemini-3-pro-image-preview-4k
                 let requestModelName = modelName;
-                if (baseUrl.includes('mnapi.com') && modelName === 'nano-banana-2-4k') {
-                    requestModelName = 'gemini-3-pro-image-preview-4k';
-                    console.log("检测到 MnAPI，模型已自动映射为:", requestModelName);
-                }
                 
                 try {
                     if (isTxt2Img) {
@@ -1115,7 +1102,7 @@
             } else { compareOverlay.classList.add('hidden'); sliderHandle.classList.add('hidden'); }
             resetZoom(); if(duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
         }
-        function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
+        function clearMainPreview() { currentMainImageUrl = url; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
         function addToHistory(url, prompt, duration) { historyData.unshift({ url: url, prompt: prompt, duration: duration }); saveHistoryToLocal(); renderHistoryItem(url, prompt, duration); }
 
         function renderHistoryItem(url, prompt, duration) {
