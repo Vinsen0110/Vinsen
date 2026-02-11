@@ -394,7 +394,7 @@
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
             if (hashHex === ENCRYPTED_PASS) {
-                sessionStorage.setItem('site_auth', 'true');
+                localStorage.setItem('site_auth', 'true');
                 overlay.style.display = 'none';
                 content.style.visibility = 'visible';
             } else {
@@ -404,7 +404,7 @@
         }
 
         window.onload = function () {
-            if (sessionStorage.getItem('site_auth') === 'true') {
+            if (localStorage.getItem('site_auth') === 'true') {
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('main-content').style.visibility = 'visible';
             }
