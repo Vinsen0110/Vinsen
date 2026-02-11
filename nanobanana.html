@@ -108,17 +108,18 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             background: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: black;
+            color: #06b6d4;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
             pointer-events: auto;
             z-index: 50;
+            border: 2px solid #06b6d4;
         }
 
         .task-checkbox {
@@ -129,17 +130,66 @@
         }
 
         .resizer-x {
-            width: 4px;
+            width: 6px;
             cursor: col-resize;
-            background: transparent;
+            background-color: #f3f4f6;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
             z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark .resizer-x {
+            background-color: #18181b;
+            border-color: #27272a;
+        }
+
+        .resizer-x:hover,
+        .resizer-x.resizing {
+            background-color: #d8b4fe;
+        }
+
+        .resizer-x::after {
+            content: "";
+            width: 2px;
+            height: 20px;
+            background-color: #d1d5db;
+            border-radius: 2px;
         }
 
         .resizer-y {
-            height: 4px;
+            height: 8px;
             cursor: row-resize;
-            background: transparent;
+            background-color: #f3f4f6;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
             z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .dark .resizer-y {
+            background-color: #18181b;
+            border-color: #27272a;
+        }
+
+        .resizer-y:hover,
+        .resizer-y.resizing {
+            background-color: #d8b4fe;
+        }
+
+        .resizer-y::before {
+            content: "•••";
+            color: #9ca3af;
+            font-size: 10px;
+            letter-spacing: 2px;
+            line-height: 0;
         }
 
         .no-select {
@@ -649,7 +699,7 @@
                 </div>
             </div>
         </aside>
-        <div id="resizer-sidebar" class="resizer-x bg-gray-200 dark:bg-[#1f1f22]"></div>
+        <div id="resizer-x" class="resizer-x shrink-0" title="左右拖拽"></div>
         <main id="right-panel"
             class="w-full md:flex-1 flex flex-col bg-gray-100 dark:bg-black transition-colors md:h-full md:overflow-hidden">
             <div id="preview-section-wrapper"
@@ -706,7 +756,7 @@
                     </div>
                 </div>
             </div>
-            <div id="resizer-tasklist" class="resizer-y bg-gray-200 dark:bg-[#1f1f22]"></div>
+            <div id="resizer-y" class="resizer-y shrink-0" title="上下拖拽"></div>
             <div id="task-panel"
                 class="w-full bg-white dark:bg-[#0c0c0e] flex flex-col shrink-0 z-20 transition-colors md:h-[220px]">
                 <div
@@ -816,7 +866,10 @@
                     <div class="relative">
                         <textarea id="agent-user-input"
                             class="w-full h-24 custom-input rounded-lg p-2 text-xs bg-white dark:bg-[#18181b] border-gray-200 dark:border-[#27272a] resize-none pr-8"
-                            placeholder="输入文字内容... "></textarea>
+                            placeholder="输入文字内容... 
+
+# 用户可以固定化自己的提示词，比如图片的宣传片风格开头，统一的风格化等。
+# 也可以让输入自己的分镜脚本，视频反推，人设师等，自定义的元提示词。"></textarea>
                         <div class="absolute bottom-2 right-2 flex gap-1">
                             <button onclick="document.getElementById('agent-img-upload').click()"
                                 class="w-6 h-6 rounded-md bg-gray-100 dark:bg-[#27272a] hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-500 hover:text-purple-500 flex items-center justify-center transition"
@@ -1278,14 +1331,68 @@
             else { alert("请输入API Key"); }
         }
 
-        const leftPanel = document.getElementById('left-panel'), resizerSidebar = document.getElementById('resizer-sidebar');
-        const taskPanel = document.getElementById('task-panel'), resizerTasklist = document.getElementById('resizer-tasklist');
-        resizerSidebar.addEventListener('mousedown', (e) => { e.preventDefault(); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeSidebar); document.addEventListener('mouseup', stopResizeSidebar); });
-        function resizeSidebar(e) { const w = e.clientX; if (w > 280 && w < 600) leftPanel.style.width = w + 'px'; }
-        function stopResizeSidebar() { document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeSidebar); document.removeEventListener('mouseup', stopResizeSidebar); }
-        resizerTasklist.addEventListener('mousedown', (e) => { e.preventDefault(); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeTasklist); document.addEventListener('mouseup', stopResizeTasklist); });
-        function resizeTasklist(e) { const h = window.innerHeight - e.clientY; if (h > 120 && h < 600) taskPanel.style.height = h + 'px'; }
-        function stopResizeTasklist() { document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeTasklist); document.removeEventListener('mouseup', stopResizeTasklist); }
+        function setupResizers() {
+            const resizerX = document.getElementById('resizer-x');
+            const leftPanel = document.getElementById('left-panel');
+            let startX = 0, startW = 0;
+
+            if (resizerX) {
+                resizerX.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startX = e.clientX;
+                    startW = leftPanel.getBoundingClientRect().width;
+                    document.body.classList.add('no-select');
+                    resizerX.classList.add('resizing');
+                    document.addEventListener('mousemove', onMouseMoveX);
+                    document.addEventListener('mouseup', onMouseUpX);
+                });
+            }
+
+            function onMouseMoveX(e) {
+                const newW = startW + (e.clientX - startX);
+                if (newW >= 280 && newW <= 600) {
+                    leftPanel.style.width = newW + 'px';
+                }
+            }
+
+            function onMouseUpX() {
+                document.body.classList.remove('no-select');
+                resizerX.classList.remove('resizing');
+                document.removeEventListener('mousemove', onMouseMoveX);
+                document.removeEventListener('mouseup', onMouseUpX);
+            }
+
+            const resizerY = document.getElementById('resizer-y');
+            const taskPanel = document.getElementById('task-panel');
+            let startY = 0, startH = 0;
+
+            if (resizerY) {
+                resizerY.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startY = e.clientY;
+                    startH = taskPanel.getBoundingClientRect().height;
+                    document.body.classList.add('no-select');
+                    resizerY.classList.add('resizing');
+                    document.addEventListener('mousemove', onMouseMoveY);
+                    document.addEventListener('mouseup', onMouseUpY);
+                });
+            }
+
+            function onMouseMoveY(e) {
+                const newH = startH + (startY - e.clientY);
+                if (newH > 120 && newH < 600) {
+                    taskPanel.style.height = newH + 'px';
+                }
+            }
+
+            function onMouseUpY() {
+                document.body.classList.remove('no-select');
+                resizerY.classList.remove('resizing');
+                document.removeEventListener('mousemove', onMouseMoveY);
+                document.removeEventListener('mouseup', onMouseUpY);
+            }
+        }
+        setupResizers();
 
         function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
         function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
@@ -2032,4 +2139,3 @@
 </body>
 
 </html>
-
