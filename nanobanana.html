@@ -1053,14 +1053,14 @@
                 <div class="color-btn bg-white" onclick="setDrawColor('#ffffff', this)"></div>
             </div>
             <div class="flex gap-2 items-center">
-                <div class="tool-btn active" id="tool-brush" onclick="setTool('brush')" title="画笔"><i
+                <div class="tool-btn active" id="tool-crop" onclick="setTool('crop')" title="裁剪"><i
+                        class="fa-solid fa-crop-simple"></i></div>
+                <div class="tool-btn" id="tool-brush" onclick="setTool('brush')" title="画笔"><i
                         class="fa-solid fa-paintbrush"></i></div>
                 <div class="tool-btn" id="tool-text" onclick="setTool('text')" title="文字"><i
                         class="fa-solid fa-font"></i></div>
                 <div class="tool-btn" id="tool-move" onclick="setTool('move')" title="移动文字"><i
                         class="fa-solid fa-arrows-up-down-left-right"></i></div>
-                <div class="tool-btn" id="tool-crop" onclick="setTool('crop')" title="裁剪"><i
-                        class="fa-solid fa-crop-simple"></i></div>
                 <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
                 <div class="tool-btn hover:text-indigo-500" onclick="undo()" title="撤回上一步"><i
                         class="fa-solid fa-rotate-left"></i></div>
@@ -1077,8 +1077,8 @@
             style="max-width: 90vw; max-height: 80vh;">
             <canvas id="paint-canvas" class="cursor-crosshair shadow-2xl"></canvas>
             <input type="text" id="text-tool-input"
-                class="absolute hidden bg-transparent border border-dashed border-white text-white text-lg p-1 outline-none font-bold"
-                placeholder="输入文字..." draggable="false">
+                class="absolute hidden bg-transparent border border-dashed border-white text-white p-1 outline-none"
+                style="font: bold 24px Arial;" placeholder="输入文字..." draggable="false">
             <div id="crop-overlay" class="hidden">
                 <div id="crop-box">
                     <div class="crop-handle tl" data-handle="tl"></div>
@@ -1102,9 +1102,14 @@
 
     <div id="lightbox-modal"
         class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center cursor-pointer"
-        onclick="closeLightbox()">
-        <img id="lightbox-img" class="max-w-[95%] max-h-[95%] object-contain rounded shadow-2xl" src="">
-        <div class="absolute bottom-10 text-white text-sm bg-black/50 px-4 py-1 rounded-full">点击任意位置关闭</div>
+        onclick="if(event.target===this)closeLightbox()">
+        <div id="lightbox-container"
+            style="position:relative;overflow:hidden;width:95%;height:95%;display:flex;align-items:center;justify-content:center;">
+            <img id="lightbox-img" style="transform-origin:center center;transition:none;cursor:grab;"
+                class="max-w-full max-h-full object-contain rounded shadow-2xl" src="" draggable="false">
+        </div>
+        <div class="absolute bottom-10 text-white text-sm bg-black/50 px-4 py-1 rounded-full">滚轮缩放 · 拖拽平移 · 双击重置 · 点背景关闭
+        </div>
     </div>
 
     <div id="settings-modal"
@@ -1377,6 +1382,7 @@
                     canvas.width = w * ratio; canvas.height = h * ratio;
                     wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
                     redrawCanvas(); document.getElementById('editor-modal').classList.remove('hidden');
+                    setTool('crop'); // 默认打开裁剪工具
                 };
                 img.src = e.target.result;
             };
@@ -1455,7 +1461,7 @@
         }
         function finalizeText() {
             const input = document.getElementById('text-tool-input'); if (input.classList.contains('hidden') || !input.value.trim()) { input.classList.add('hidden'); return; }
-            const x = parseFloat(input.style.left), y = parseFloat(input.style.top) + 22;
+            const x = parseFloat(input.style.left), y = parseFloat(input.style.top) + 24;
             hasDoodleInSession = true;
             drawActions.push({ type: 'text', text: input.value, color: currentColor, x: x, y: y }); input.classList.add('hidden'); redrawCanvas();
         }
@@ -1614,22 +1620,51 @@
             if (!input.classList.contains('hidden')) finalizeText();
             redrawCanvas();
 
-            // 从画布中提取裁剪区域
-            const ratio = baseImage ? (baseImage.width / canvas.width) : 1;
-            const sx = cropBox.x * ratio;
-            const sy = cropBox.y * ratio;
-            const sw = cropBox.w * ratio;
-            const sh = cropBox.h * ratio;
+            // 计算原图到画布的缩放比
+            const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
+            // 原图上的裁剪坐标
+            const sx = Math.round(cropBox.x * scaleRatio);
+            const sy = Math.round(cropBox.y * scaleRatio);
+            const sw = Math.round(cropBox.w * scaleRatio);
+            const sh = Math.round(cropBox.h * scaleRatio);
 
-            // 创建临时画布用于裁剪
+            // 创建原始分辨率的临时画布
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = cropBox.w;
-            tempCanvas.height = cropBox.h;
+            tempCanvas.width = sw;
+            tempCanvas.height = sh;
             const tempCtx = tempCanvas.getContext('2d');
-            // 从当前画布（包含涂鸦）提取裁剪区域
-            tempCtx.drawImage(canvas, cropBox.x, cropBox.y, cropBox.w, cropBox.h, 0, 0, cropBox.w, cropBox.h);
 
-            // 用裁剪后的图像更新 baseImage 和画布
+            // 先在原始分辨率上绘制 baseImage 的裁剪区域
+            if (baseImage) {
+                tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
+            }
+
+            // 如果有涂鸦，按比例绘制到裁剪后的高清画布上
+            if (drawActions.length > 0) {
+                tempCtx.save();
+                tempCtx.scale(scaleRatio, scaleRatio);
+                tempCtx.translate(-cropBox.x, -cropBox.y);
+                drawActions.forEach(action => {
+                    tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
+                    tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
+                    if (action.type === 'path') {
+                        tempCtx.beginPath();
+                        if (action.points.length > 0) {
+                            tempCtx.moveTo(action.points[0].x, action.points[0].y);
+                            for (let i = 1; i < action.points.length; i++) {
+                                tempCtx.lineTo(action.points[i].x, action.points[i].y);
+                            }
+                        }
+                        tempCtx.stroke();
+                    } else if (action.type === 'text') {
+                        tempCtx.font = 'bold 24px Arial';
+                        tempCtx.fillText(action.text, action.x, action.y);
+                    }
+                });
+                tempCtx.restore();
+            }
+
+            // 用裁剪后的高清图像更新 baseImage 和画布
             const croppedImg = new Image();
             croppedImg.onload = () => {
                 baseImage = croppedImg;
@@ -1651,16 +1686,52 @@
         }
 
         function applyCropThenSave() {
-            // applyCrop 后自动保存
+            // applyCrop 后自动保存（原始分辨率）
             const input = document.getElementById('text-tool-input');
             if (!input.classList.contains('hidden')) finalizeText();
             redrawCanvas();
 
+            // 计算原图到画布的缩放比
+            const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
+            const sx = Math.round(cropBox.x * scaleRatio);
+            const sy = Math.round(cropBox.y * scaleRatio);
+            const sw = Math.round(cropBox.w * scaleRatio);
+            const sh = Math.round(cropBox.h * scaleRatio);
+
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = cropBox.w;
-            tempCanvas.height = cropBox.h;
+            tempCanvas.width = sw;
+            tempCanvas.height = sh;
             const tempCtx = tempCanvas.getContext('2d');
-            tempCtx.drawImage(canvas, cropBox.x, cropBox.y, cropBox.w, cropBox.h, 0, 0, cropBox.w, cropBox.h);
+
+            // 原图分辨率裁剪
+            if (baseImage) {
+                tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
+            }
+
+            // 如果有涂鸦，按比例绘制
+            if (drawActions.length > 0) {
+                tempCtx.save();
+                tempCtx.scale(scaleRatio, scaleRatio);
+                tempCtx.translate(-cropBox.x, -cropBox.y);
+                drawActions.forEach(action => {
+                    tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
+                    tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
+                    if (action.type === 'path') {
+                        tempCtx.beginPath();
+                        if (action.points.length > 0) {
+                            tempCtx.moveTo(action.points[0].x, action.points[0].y);
+                            for (let i = 1; i < action.points.length; i++) {
+                                tempCtx.lineTo(action.points[i].x, action.points[i].y);
+                            }
+                        }
+                        tempCtx.stroke();
+                    } else if (action.type === 'text') {
+                        tempCtx.font = 'bold 24px Arial';
+                        tempCtx.fillText(action.text, action.x, action.y);
+                    }
+                });
+                tempCtx.restore();
+            }
 
             tempCanvas.toBlob((blob) => {
                 const newFile = new File([blob], `crop_${Date.now()}.png`, { type: 'image/png' });
@@ -2067,16 +2138,15 @@
 
             const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
 
-            // 1. 压缩流程
+            // 1. 图片准备（已关闭自动压缩）
             const compressedImages = [];
             if (validImages.length > 0) {
                 const loaderStatus = document.getElementById('loader-status');
                 const loaderDetail = document.getElementById('loader-detail');
-                loaderStatus.innerText = "智能优化中"; loaderDetail.innerText = "正在压缩大图以防超时...";
+                loaderStatus.innerText = "准备图片中"; loaderDetail.innerText = "正在准备图片...";
                 const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]);
                 for (let img of validImages) {
-                    const compressed = await compressImage(img);
-                    compressedImages.push(compressed);
+                    compressedImages.push(img); // 直接使用原图，不压缩
                 }
             }
 
@@ -2199,8 +2269,74 @@
             saveHistoryToLocal(); updateBatchState();
             if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
         }
-        function viewOriginal(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox-modal').classList.remove('hidden'); }
-        function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); }
+        function viewOriginal(src) {
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+            lbScale = 1; lbPanX = 0; lbPanY = 0;
+        }
+
+        // --- Lightbox zoom/pan ---
+        let lbScale = 1, lbPanX = 0, lbPanY = 0, lbPanning = false, lbStartX = 0, lbStartY = 0;
+        function updateLightboxTransform() {
+            document.getElementById('lightbox-img').style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbScale})`;
+        }
+        (function initLightboxZoom() {
+            const container = document.getElementById('lightbox-container');
+            const img = document.getElementById('lightbox-img');
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                const delta = -e.deltaY;
+                (delta > 0) ? (lbScale *= 1.15) : (lbScale /= 1.15);
+                if (lbScale < 0.5) lbScale = 0.5;
+                if (lbScale > 10) lbScale = 10;
+                updateLightboxTransform();
+            }, { passive: false });
+
+            img.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                lbPanning = true; lbStartX = e.clientX - lbPanX; lbStartY = e.clientY - lbPanY;
+                img.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!lbPanning) return;
+                lbPanX = e.clientX - lbStartX; lbPanY = e.clientY - lbStartY;
+                updateLightboxTransform();
+            });
+            window.addEventListener('mouseup', () => {
+                if (lbPanning) { lbPanning = false; img.style.cursor = 'grab'; }
+            });
+
+            // Touch support
+            img.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    e.preventDefault();
+                    lbPanning = true; lbStartX = e.touches[0].clientX - lbPanX; lbStartY = e.touches[0].clientY - lbPanY;
+                }
+            }, { passive: false });
+            window.addEventListener('touchmove', (e) => {
+                if (!lbPanning || e.touches.length !== 1) return;
+                lbPanX = e.touches[0].clientX - lbStartX; lbPanY = e.touches[0].clientY - lbStartY;
+                updateLightboxTransform();
+            });
+            window.addEventListener('touchend', () => { lbPanning = false; });
+
+            // Double-click to reset
+            container.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
+            });
+
+            // Click container background (not img) to close
+            container.addEventListener('click', (e) => {
+                if (e.target === container) closeLightbox();
+            });
+        })();
         async function downloadSingleImage(url) { try { const r = await fetch(url); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `nano_${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(u); } catch (e) { window.open(url, '_blank'); } }
         function deleteHistoryItem(btn) {
             const item = btn.closest('.history-item'); if (item) {
