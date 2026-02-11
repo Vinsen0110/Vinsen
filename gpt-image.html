@@ -1,94 +1,355 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xs的工具箱</title> <link rel="icon" href="kitty.png">
+    <title>Xs的工具箱</title>
+    <link rel="icon" href="kitty.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .custom-input { transition: all 0.2s; }
-        .custom-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
-        .custom-input:read-only { background-color: #f3f4f6; color: #9ca3af; cursor: not-allowed; border-color: #e5e7eb; }
-        .dark .custom-input:read-only { background-color: #27272a; color: #71717a; border-color: #3f3f46; }
-        select { cursor: pointer !important; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #71717a; }
-        .active-btn { background: linear-gradient(to right, #06b6d4, #10b981); color: white; border: none; font-weight: bold; }
-        #zoom-container { overflow: hidden; cursor: grab; position: relative; }
-        #zoom-container:active { cursor: grabbing; }
-        .task-checkbox { width: 16px; height: 16px; accent-color: #06b6d4; cursor: pointer; }
-        .resizer-x { width: 4px; cursor: col-resize; background: transparent; z-index: 50; }
-        .resizer-y { height: 4px; cursor: row-resize; background: transparent; z-index: 50; }
-        .no-select { user-select: none; }
-        .dropdown-arrow { transition: transform 0.3s ease; }
-        .dropdown-open .dropdown-arrow { transform: rotate(180deg); }
-        .glow-effect { box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5); border-color: #06b6d4 !important; color: #06b6d4 !important; }
-        .group:hover .group-hover\:block { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .option-disabled { opacity: 0.5 !important; pointer-events: none !important; cursor: not-allowed !important; background-color: #f3f4f6 !important; border-color: #e5e7eb !important; }
-        .dark .option-disabled { background-color: #27272a !important; border-color: #3f3f46 !important; }
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .custom-input {
+            transition: all 0.2s;
+        }
+
+        .custom-input:focus {
+            border-color: #06b6d4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+        }
+
+        .custom-input:read-only {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
+            border-color: #e5e7eb;
+        }
+
+        .dark .custom-input:read-only {
+            background-color: #27272a;
+            color: #71717a;
+            border-color: #3f3f46;
+        }
+
+        select {
+            cursor: pointer !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #52525b;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #71717a;
+        }
+
+        .active-btn {
+            background: linear-gradient(to right, #06b6d4, #10b981);
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+
+        #zoom-container {
+            overflow: hidden;
+            cursor: grab;
+            position: relative;
+        }
+
+        #zoom-container:active {
+            cursor: grabbing;
+        }
+
+        .task-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #06b6d4;
+            cursor: pointer;
+        }
+
+        .resizer-x {
+            width: 6px;
+            cursor: col-resize;
+            background-color: #f3f4f6;
+            border-left: 1px solid #e5e7eb;
+            border-right: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark .resizer-x {
+            background-color: #18181b;
+            border-color: #27272a;
+        }
+
+        .resizer-x:hover,
+        .resizer-x.resizing {
+            background-color: #d8b4fe;
+        }
+
+        .resizer-x::after {
+            content: "";
+            width: 2px;
+            height: 20px;
+            background-color: #d1d5db;
+            border-radius: 2px;
+        }
+
+        .resizer-y {
+            height: 8px;
+            cursor: row-resize;
+            background-color: #f3f4f6;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .dark .resizer-y {
+            background-color: #18181b;
+            border-color: #27272a;
+        }
+
+        .resizer-y:hover,
+        .resizer-y.resizing {
+            background-color: #d8b4fe;
+        }
+
+        .resizer-y::before {
+            content: "•••";
+            color: #9ca3af;
+            font-size: 10px;
+            letter-spacing: 2px;
+            line-height: 0;
+        }
+
+        .no-select {
+            user-select: none;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
+            border-color: #06b6d4 !important;
+            color: #06b6d4 !important;
+        }
+
+        .group:hover .group-hover\:block {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .option-disabled {
+            opacity: 0.5 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+            background-color: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        .dark .option-disabled {
+            background-color: #27272a !important;
+            border-color: #3f3f46 !important;
+        }
 
         /* 滑块相关样式 (新增) */
-        .compare-slider { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(255, 255, 255, 0.8); z-index: 40; cursor: ew-resize; box-shadow: 0 0 10px rgba(0,0,0,0.5); touch-action: none; }
-        .compare-handle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #06b6d4; box-shadow: 0 4px 10px rgba(0,0,0,0.5); pointer-events: auto; z-index: 50; border: 2px solid #06b6d4; }
+        .compare-slider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 40;
+            cursor: ew-resize;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            touch-action: none;
+        }
+
+        .compare-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #06b6d4;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            z-index: 50;
+            border: 2px solid #06b6d4;
+        }
 
         @media (max-width: 768px) {
-            .resizer-x, .resizer-y { display: none; }
-            #main-container { height: auto !important; overflow: visible !important; }
-            #left-panel { width: 100% !important; height: auto !important; max-width: none !important; overflow: visible !important; border-right: none; border-bottom: 1px solid #e5e7eb; }
-            .dark #left-panel { border-bottom-color: #27272a; }
-            #right-panel { width: 100% !important; height: auto !important; overflow: visible !important; display: flex !important; flex-direction: column !important; }
-            #preview-section-wrapper { height: 500px !important; flex: none !important; border-bottom: 1px solid #e5e7eb; }
-            .dark #preview-section-wrapper { border-bottom-color: #27272a; }
-            #task-panel { height: auto !important; min-height: 300px !important; max-height: none !important; }
-            #history-list { flex-direction: column; overflow-x: hidden; overflow-y: visible; gap: 1rem; padding-bottom: 3rem; }
-            .history-item { width: 100% !important; height: auto !important; aspect-ratio: 16/9; margin-right: 0; }
+
+            .resizer-x,
+            .resizer-y {
+                display: none;
+            }
+
+            #main-container {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            #left-panel {
+                width: 100% !important;
+                height: auto !important;
+                max-width: none !important;
+                overflow: visible !important;
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .dark #left-panel {
+                border-bottom-color: #27272a;
+            }
+
+            #right-panel {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            #preview-section-wrapper {
+                height: 500px !important;
+                flex: none !important;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .dark #preview-section-wrapper {
+                border-bottom-color: #27272a;
+            }
+
+            #task-panel {
+                height: auto !important;
+                min-height: 300px !important;
+                max-height: none !important;
+            }
+
+            #history-list {
+                flex-direction: column;
+                overflow-x: hidden;
+                overflow-y: visible;
+                gap: 1rem;
+                padding-bottom: 3rem;
+            }
+
+            .history-item {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 16/9;
+                margin-right: 0;
+            }
         }
     </style>
 </head>
-<body class="md:h-screen md:overflow-hidden min-h-screen overflow-y-auto bg-gray-50 text-gray-800 dark:bg-[#09090b] dark:text-[#e4e4e7]" onclick="closeDropdownOnClickOutside(event)">
-    <header class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50 sticky top-0 md:relative">
+
+<body
+    class="md:h-screen md:overflow-hidden min-h-screen overflow-y-auto bg-gray-50 text-gray-800 dark:bg-[#09090b] dark:text-[#e4e4e7]"
+    onclick="closeDropdownOnClickOutside(event)">
+    <header
+        class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50 sticky top-0 md:relative">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-white rounded-lg border border-gray-200 shadow-sm shrink-0 overflow-hidden">
-                <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/gpt.png" class="w-full h-full object-cover" alt="GPT Icon" onerror="this.src='kitty.png'">
+                <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/gpt.png"
+                    class="w-full h-full object-cover" alt="GPT Icon" onerror="this.src='kitty.png'">
             </div>
-            <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">GPT-image</span> 
+            <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">GPT-image</span>
         </div>
         <div class="flex items-center gap-3 text-sm">
-            <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2" title="当前使用的API接口域名">
+            <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2"
+                title="当前使用的API接口域名">
                 <div class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></div>
                 <span id="current-api-display">检测中...</span>
             </div>
             <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
-            <button onclick="toggleTheme()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i id="theme-icon" class="fa-solid fa-moon"></i></button>
-            <button onclick="openSettings()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i class="fa-solid fa-gear"></i></button>
+            <button onclick="toggleTheme()"
+                class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i
+                    id="theme-icon" class="fa-solid fa-moon"></i></button>
+            <button onclick="openSettings()"
+                class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i
+                    class="fa-solid fa-gear"></i></button>
         </div>
     </header>
 
     <div id="main-container" class="flex flex-col md:flex-row md:h-[calc(100vh-3.5rem)] w-full">
-        <aside id="left-panel" class="w-full md:w-[360px] min-w-[280px] max-w-[600px] shrink-0 bg-white dark:bg-[#0c0c0e] flex flex-col md:border-r border-gray-200 dark:border-[#27272a] z-10 transition-colors md:overflow-y-auto">
+        <aside id="left-panel"
+            class="w-full md:w-[360px] min-w-[280px] max-w-[600px] shrink-0 bg-white dark:bg-[#0c0c0e] flex flex-col md:border-r border-gray-200 dark:border-[#27272a] z-10 transition-colors md:overflow-y-auto">
             <div class="p-5 space-y-4">
-                
+
                 <div class="flex items-center justify-between relative z-50">
-                    <div class="flex items-center gap-2 text-cyan-600 dark:text-cyan-500 font-bold text-sm uppercase tracking-wider">
-    <i class="fa-solid fa-sliders"></i> 生成设置
-</div>
+                    <div
+                        class="flex items-center gap-2 text-cyan-600 dark:text-cyan-500 font-bold text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-sliders"></i> 生成设置
+                    </div>
                     <div class="relative w-40" id="custom-model-dropdown">
                         <input type="hidden" id="model-input" value="gpt-image-1.5">
-                        <div onclick="toggleModelDropdown(event)" id="dropdown-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
-                            <span id="current-model-text" class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">gpt-image-1.5</span>
-                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
+                        <div onclick="toggleModelDropdown(event)" id="dropdown-trigger"
+                            class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                            <span id="current-model-text"
+                                class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">gpt-image-1.5</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                         </div>
-                        <div id="dropdown-options" class="hidden absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
-                            <div onclick="selectModel('gpt-image-1.5', 'gpt-image-1.5')" class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="gpt-image-1.5">
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">gpt-image-1.5</span>
+                        <div id="dropdown-options"
+                            class="hidden absolute top-full right-0 mt-2 w-48 bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                            <div onclick="selectModel('gpt-image-1.5', 'gpt-image-1.5')"
+                                class="model-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                data-val="gpt-image-1.5">
+                                <span
+                                    class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">gpt-image-1.5</span>
                                 <i class="fa-solid fa-check text-cyan-500 text-xs opacity-100 check-icon"></i>
                             </div>
                         </div>
@@ -98,38 +359,57 @@
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
                         <label class="text-xs text-balck-500 font-bold uppercase">参考图片</label>
-                        <button onclick="clearAllSlots()" class="text-[10px] text-red-500 hover:text-red-400 cursor-pointer ml-auto">清空</button>
+                        <button onclick="clearAllSlots()"
+                            class="text-[10px] text-red-500 hover:text-red-400 cursor-pointer ml-auto">清空</button>
                     </div>
-                    <input type="file" id="slot-file-input" class="hidden" accept="image/*" onchange="handleSlotFile(event)">
+                    <input type="file" id="slot-file-input" class="hidden" accept="image/*"
+                        onchange="handleSlotFile(event)">
                     <div id="slots-grid" class="grid grid-cols-3 gap-2 select-none">
-                        </div>
-                  
+                    </div>
+
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-xs text-black-500 font-bold uppercase">提示词</label>
-                    <textarea id="prompt-input" class="w-full h-32 custom-input rounded-lg p-3 text-sm bg-gray-50 border-gray-300 text-gray-800 dark:bg-[#18181b] dark:border-[#27272a] dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-700 resize-none" placeholder="描述你想要生成的画面..."></textarea>
+                    <textarea id="prompt-input"
+                        class="w-full h-32 custom-input rounded-lg p-3 text-sm bg-gray-50 border-gray-300 text-gray-800 dark:bg-[#18181b] dark:border-[#27272a] dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-700 resize-none"
+                        placeholder="描述你想要生成的画面..."></textarea>
                 </div>
-                
+
                 <div class="space-y-2">
                     <label class="text-xs text-black dark:text-gray-200 font-bold uppercase">宽高比</label>
                     <div class="relative" id="custom-ratio-dropdown">
                         <input type="hidden" id="ratio-input" value="1:1">
-                        <div onclick="toggleRatioDropdown(event)" id="ratio-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
-                            <span id="current-ratio-text" class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">1:1 (正方形)</span>
+                        <div onclick="toggleRatioDropdown(event)" id="ratio-trigger"
+                            class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                            <span id="current-ratio-text"
+                                class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">1:1 (正方形)</span>
                             <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                         </div>
-                        <div id="ratio-options" class="hidden absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
-                            <div onclick="selectRatio('1:1', '1:1 (正方形)')" class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="1:1">
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">1:1 (正方形)</span>
+                        <div id="ratio-options"
+                            class="hidden absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                            <div onclick="selectRatio('1:1', '1:1 (正方形)')"
+                                class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                data-val="1:1">
+                                <span
+                                    class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">1:1
+                                    (正方形)</span>
                                 <i class="fa-solid fa-check text-cyan-500 text-xs opacity-100 check-icon-ratio"></i>
                             </div>
-                            <div onclick="selectRatio('2:3', '2:3 (竖屏)')" class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="2:3">
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">2:3 (竖屏)</span>
+                            <div onclick="selectRatio('2:3', '2:3 (竖屏)')"
+                                class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                data-val="2:3">
+                                <span
+                                    class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">2:3
+                                    (竖屏)</span>
                                 <i class="fa-solid fa-check text-cyan-500 text-xs opacity-0 check-icon-ratio"></i>
                             </div>
-                            <div onclick="selectRatio('3:2', '3:2 (横屏)')" class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="3:2">
-                                <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">3:2 (横屏)</span>
+                            <div onclick="selectRatio('3:2', '3:2 (横屏)')"
+                                class="ratio-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                data-val="3:2">
+                                <span
+                                    class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">3:2
+                                    (横屏)</span>
                                 <i class="fa-solid fa-check text-cyan-500 text-xs opacity-0 check-icon-ratio"></i>
                             </div>
                         </div>
@@ -140,81 +420,123 @@
                     <div class="space-y-2">
                         <label class="text-xs text-black-500 font-bold uppercase">数量</label>
                         <div class="flex gap-1">
-                            <button onclick="setBatchSize(1)" class="batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition" data-val="1">1</button>
-                            <button onclick="setBatchSize(2)" class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition" data-val="2">2</button>
-                            <button onclick="setBatchSize(3)" class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition" data-val="3">3</button>
-                            <button onclick="setBatchSize(4)" class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition" data-val="4">4</button>
+                            <button onclick="setBatchSize(1)"
+                                class="batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition"
+                                data-val="1">1</button>
+                            <button onclick="setBatchSize(2)"
+                                class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition"
+                                data-val="2">2</button>
+                            <button onclick="setBatchSize(3)"
+                                class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition"
+                                data-val="3">3</button>
+                            <button onclick="setBatchSize(4)"
+                                class="batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition"
+                                data-val="4">4</button>
                         </div>
                     </div>
-                    
+
                     <div class="space-y-2">
                         <label class="text-xs text-black dark:text-gray-200 font-bold">Quality</label>
                         <div class="relative" id="custom-quality-dropdown">
                             <input type="hidden" id="quality-input" value="auto">
-                            <div onclick="toggleQualityDropdown(event)" id="quality-trigger" class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
-                                <span id="current-quality-text" class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">Auto</span>
+                            <div onclick="toggleQualityDropdown(event)" id="quality-trigger"
+                                class="w-full flex justify-between items-center bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] rounded-lg px-3 py-1.5 cursor-pointer transition-all hover:bg-gray-200 dark:hover:bg-[#27272a]">
+                                <span id="current-quality-text"
+                                    class="text-xs font-bold font-mono text-gray-700 dark:text-gray-300">Auto</span>
                                 <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 dropdown-arrow"></i>
                             </div>
-                            <div id="quality-options" class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
-                                <div onclick="selectQuality('auto', 'Auto')" class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="auto">
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Auto</span>
-                                    <i class="fa-solid fa-check text-cyan-500 text-xs opacity-100 check-icon-quality"></i>
+                            <div id="quality-options"
+                                class="hidden absolute top-full left-0 mt-2 w-full bg-white dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-xl shadow-xl overflow-hidden z-50 p-1">
+                                <div onclick="selectQuality('auto', 'Auto')"
+                                    class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                    data-val="auto">
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Auto</span>
+                                    <i
+                                        class="fa-solid fa-check text-cyan-500 text-xs opacity-100 check-icon-quality"></i>
                                 </div>
-                                <div onclick="selectQuality('high', 'High')" class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="high">
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">High</span>
+                                <div onclick="selectQuality('high', 'High')"
+                                    class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                    data-val="high">
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">High</span>
                                     <i class="fa-solid fa-check text-cyan-500 text-xs opacity-0 check-icon-quality"></i>
                                 </div>
-                                <div onclick="selectQuality('medium', 'Medium')" class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="medium">
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Medium</span>
+                                <div onclick="selectQuality('medium', 'Medium')"
+                                    class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                    data-val="medium">
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Medium</span>
                                     <i class="fa-solid fa-check text-cyan-500 text-xs opacity-0 check-icon-quality"></i>
                                 </div>
-                                <div onclick="selectQuality('low', 'Low')" class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition" data-val="low">
-                                    <span class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Low</span>
+                                <div onclick="selectQuality('low', 'Low')"
+                                    class="quality-option flex justify-between items-center px-3 py-2 rounded-lg cursor-pointer hover:bg-cyan-50 dark:hover:bg-[#27272a] group transition"
+                                    data-val="low">
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-400">Low</span>
                                     <i class="fa-solid fa-check text-cyan-500 text-xs opacity-0 check-icon-quality"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="pt-4 pb-10 md:pb-5">
-                    <button onclick="submitTask()" id="generate-btn" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:opacity-90 text-white font-bold py-3.5 rounded-lg transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
-                        <span class="text-base">🚀 立即生成</span><i id="loading-icon" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+                    <button onclick="submitTask()" id="generate-btn"
+                        class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 hover:opacity-90 text-white font-bold py-3.5 rounded-lg transition transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
+                        <span class="text-base">🚀 立即生成</span><i id="loading-icon"
+                            class="fa-solid fa-circle-notch fa-spin hidden"></i>
                     </button>
                 </div>
             </div>
         </aside>
 
-        <div id="resizer-sidebar" class="resizer-x bg-gray-200 dark:bg-[#1f1f22]"></div>
+        <div id="resizer-x" class="resizer-x shrink-0" title="左右拖拽"></div>
 
-        <main id="right-panel" class="w-full md:flex-1 flex flex-col bg-gray-100 dark:bg-black transition-colors md:h-full md:overflow-hidden">
-            <div id="preview-section-wrapper" class="relative w-full md:flex-1 bg-gray-200 dark:bg-black transition-colors flex flex-col overflow-hidden">
-                 <div class="h-12 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#0c0c0e] flex items-center justify-between px-4 shrink-0 z-20 transition-colors">
-                    <button onclick="importCurrentImage()" class="text-xs text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white flex items-center gap-2 transition" title="将当前图作为参考图">
+        <main id="right-panel"
+            class="w-full md:flex-1 flex flex-col bg-gray-100 dark:bg-black transition-colors md:h-full md:overflow-hidden">
+            <div id="preview-section-wrapper"
+                class="relative w-full md:flex-1 bg-gray-200 dark:bg-black transition-colors flex flex-col overflow-hidden">
+                <div
+                    class="h-12 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#0c0c0e] flex items-center justify-between px-4 shrink-0 z-20 transition-colors">
+                    <button onclick="importCurrentImage()"
+                        class="text-xs text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white flex items-center gap-2 transition"
+                        title="将当前图作为参考图">
                         <i class="fa-solid fa-arrow-left"></i> <span class="hidden md:inline">导入</span>
-                     </button>
+                    </button>
                     <div class="flex items-center gap-4">
-                        <button onclick="downloadCurrentImage()" class="text-xs text-gray-500 dark:text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-500 flex items-center gap-2 transition">下载图片 <i class="fa-solid fa-download"></i></button>
+                        <button onclick="downloadCurrentImage()"
+                            class="text-xs text-gray-500 dark:text-gray-400 hover:text-cyan-500 dark:hover:text-cyan-500 flex items-center gap-2 transition">下载图片
+                            <i class="fa-solid fa-download"></i></button>
                     </div>
-                 </div>
-                <div class="flex-1 relative flex flex-col overflow-hidden select-none bg-gray-200 dark:bg-black transition-colors" id="preview-area">
-                    <div class="absolute top-4 left-4 z-30 flex items-center gap-4 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur rounded-lg px-3 py-1.5 border border-gray-200 dark:border-[#27272a] shadow-sm">
+                </div>
+                <div class="flex-1 relative flex flex-col overflow-hidden select-none bg-gray-200 dark:bg-black transition-colors"
+                    id="preview-area">
+                    <div
+                        class="absolute top-4 left-4 z-30 flex items-center gap-4 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur rounded-lg px-3 py-1.5 border border-gray-200 dark:border-[#27272a] shadow-sm">
                         <span class="text-xs font-bold text-gray-800 dark:text-white">Preview</span>
                         <div class="w-[1px] h-3 bg-gray-300 dark:bg-gray-600"></div>
-                        <span class="hidden md:inline text-[10px] text-gray-500 dark:text-gray-400">滚轮缩放 / 拖拽 / 双击复位</span>
+                        <span class="hidden md:inline text-[10px] text-gray-500 dark:text-gray-400">滚轮缩放 / 拖拽 /
+                            双击复位</span>
                         <div class="w-[1px] h-3 bg-gray-300 dark:bg-gray-600"></div>
-                        <button onclick="clearMainPreview()" class="text-gray-400 hover:text-red-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="clearMainPreview()" class="text-gray-400 hover:text-red-500 text-xs"><i
+                                class="fa-solid fa-trash"></i></button>
                     </div>
-                    <div id="time-badge" class="absolute top-4 right-4 z-30 hidden bg-cyan-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">
+                    <div id="time-badge"
+                        class="absolute top-4 right-4 z-30 hidden bg-cyan-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">
                         <i class="fa-solid fa-stopwatch mr-1"></i><span id="time-val">0s</span>
                     </div>
                     <div id="zoom-container" class="w-full h-full flex items-center justify-center relative touch-none">
                         <div id="empty-placeholder" class="text-center absolute pointer-events-none">
-                            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] flex items-center justify-center"><i class="fa-solid fa-image text-3xl text-gray-300 dark:text-[#333]"></i></div>
+                            <div
+                                class="w-24 h-24 mx-auto mb-4 rounded-full bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] flex items-center justify-center">
+                                <i class="fa-solid fa-image text-3xl text-gray-300 dark:text-[#333]"></i></div>
                             <p class="text-gray-500 dark:text-gray-600 text-sm">图片预览区</p>
                         </div>
-                        <div id="img-wrapper" class="relative hidden shadow-2xl transition-transform duration-100 ease-out origin-center">
-                            <img id="main-image" class="max-h-[85vh] max-w-[85vw] object-contain block" draggable="false">
+                        <div id="img-wrapper"
+                            class="relative hidden shadow-2xl transition-transform duration-100 ease-out origin-center">
+                            <img id="main-image" class="max-h-[85vh] max-w-[85vw] object-contain block"
+                                draggable="false">
                             <div id="compare-overlay" class="absolute inset-0 hidden">
                                 <img id="ref-image" class="w-full h-full object-contain block" draggable="false">
                             </div>
@@ -225,64 +547,86 @@
                     </div>
                 </div>
             </div>
-            
-            <div id="resizer-tasklist" class="resizer-y bg-gray-200 dark:bg-[#1f1f22]"></div>
-            
-            <div id="task-panel" class="w-full bg-white dark:bg-[#0c0c0e] flex flex-col shrink-0 z-20 transition-colors md:h-[220px]">
-                <div class="px-4 py-2 flex items-center justify-between bg-gray-50 dark:bg-[#121214] border-b border-gray-100 dark:border-none sticky top-0 z-10">
+
+            <div id="resizer-y" class="resizer-y shrink-0" title="上下拖拽"></div>
+
+            <div id="task-panel"
+                class="w-full bg-white dark:bg-[#0c0c0e] flex flex-col shrink-0 z-20 transition-colors md:h-[220px]">
+                <div
+                    class="px-4 py-2 flex items-center justify-between bg-gray-50 dark:bg-[#121214] border-b border-gray-100 dark:border-none sticky top-0 z-10">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="select-all" class="task-checkbox" onchange="toggleSelectAll()">
-                        <span id="task-list-title" class="text-xs font-bold text-gray-600 dark:text-gray-300 transition-colors">任务列表</span>
+                        <span id="task-list-title"
+                            class="text-xs font-bold text-gray-600 dark:text-gray-300 transition-colors">任务列表</span>
                     </div>
                     <div id="batch-actions" class="hidden flex gap-2">
-                        <button onclick="batchDownload()" class="text-[10px] bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500 hover:text-white px-2 py-1 rounded transition border border-cyan-500/30">下载选中</button>
-                        <button onclick="batchDelete()" class="text-[10px] bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white px-2 py-1 rounded transition border border-red-500/30">删除选中</button>
+                        <button onclick="batchDownload()"
+                            class="text-[10px] bg-cyan-500/20 text-cyan-500 hover:bg-cyan-500 hover:text-white px-2 py-1 rounded transition border border-cyan-500/30">下载选中</button>
+                        <button onclick="batchDelete()"
+                            class="text-[10px] bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white px-2 py-1 rounded transition border border-red-500/30">删除选中</button>
                     </div>
                 </div>
-                <div id="history-list" class="flex-1 p-4 overflow-x-auto flex gap-4 items-center flex-nowrap md:flex-row flex-col md:overflow-y-hidden overflow-y-auto w-full">
+                <div id="history-list"
+                    class="flex-1 p-4 overflow-x-auto flex gap-4 items-center flex-nowrap md:flex-row flex-col md:overflow-y-hidden overflow-y-auto w-full">
                     <div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>
                 </div>
             </div>
         </main>
     </div>
-    
-    <div id="lightbox-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center cursor-pointer" onclick="closeLightbox()">
+
+    <div id="lightbox-modal"
+        class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center cursor-pointer"
+        onclick="closeLightbox()">
         <img id="lightbox-img" class="max-w-[95%] max-h-[95%] object-contain rounded shadow-2xl" src="">
         <div class="absolute bottom-10 text-white text-sm bg-black/50 px-4 py-1 rounded-full">点击任意位置关闭</div>
     </div>
-    
-    <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
-        <div class="bg-white dark:bg-[#18181b] p-6 rounded-xl w-96 shadow-2xl border border-gray-200 dark:border-[#27272a]">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold dark:text-white flex items-center gap-2"><i class="fa-solid fa-gear text-cyan-500"></i> API 设置</h3><button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i class="fa-solid fa-xmark"></i></button></div>
+
+    <div id="settings-modal"
+        class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-[#18181b] p-6 rounded-xl w-96 shadow-2xl border border-gray-200 dark:border-[#27272a]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold dark:text-white flex items-center gap-2"><i
+                        class="fa-solid fa-gear text-cyan-500"></i> API 设置</h3><button onclick="closeSettings()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
             <div class="space-y-4">
                 <div>
-                     <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (BaseURL)</label>
-                    <input type="text" id="modal-api-url" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500" placeholder="https://api.bltcy.ai">
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (BaseURL)</label>
+                    <input type="text" id="modal-api-url"
+                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500"
+                        placeholder="https://api.bltcy.ai">
                     <div class="flex gap-2 mt-2">
-                         <button onclick="fillApiUrl('https://ai.t8star.cn')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
+                        <button onclick="fillApiUrl('https://ai.t8star.cn')"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
                             <i class="fa-solid fa-spa"></i> 贞贞: ai.t8star.cn
                         </button>
-                         <button onclick="fillApiUrl('https://api.bltcy.ai')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
+                        <button onclick="fillApiUrl('https://api.bltcy.ai')"
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
                             <i class="fa-solid fa-landmark"></i> 柏拉图: api.bltcy.ai
                         </button>
-                     </div>
-                     <p class="text-[10px] text-gray-400 mt-1">系统会自动调用 /v1/chat/completions</p>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1">系统会自动调用 /v1/chat/completions</p>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label>
-                    <input type="password" id="modal-api-key" class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500" placeholder="sk-xxxxxxxx">
+                    <input type="password" id="modal-api-key"
+                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500"
+                        placeholder="sk-xxxxxxxx">
                     <p class="text-[10px] text-gray-400 mt-1">Key 和 URL 配置保存在本地。</p>
                 </div>
-                <button onclick="saveSettings()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 rounded transition">保存配置</button>
+                <button onclick="saveSettings()"
+                    class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 rounded transition">保存配置</button>
             </div>
         </div>
     </div>
 
     <script>
         const DEFAULT_API_URL = "https://api.bltcy.ai";
-        const MAX_SLOTS = 3; 
+        const MAX_SLOTS = 3;
         let imageSlots = new Array(MAX_SLOTS).fill(null);
-        let currentActiveSlot = -1; 
+        let currentActiveSlot = -1;
         let batchSize = 1;
         let currentMainImageUrl = "";
         let scale = 1, panning = false, pointX = 0, pointY = 0, startX = 0, startY = 0;
@@ -292,12 +636,12 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('gpt_api_key');
-            if (savedKey) document.getElementById('modal-api-key').value = savedKey; 
+            if (savedKey) document.getElementById('modal-api-key').value = savedKey;
             const savedUrl = localStorage.getItem('gpt_api_url');
             document.getElementById('modal-api-url').value = savedUrl || DEFAULT_API_URL;
             updateApiDisplay(savedUrl || DEFAULT_API_URL);
             if (!savedKey) openSettings();
-      
+
             const savedTheme = localStorage.getItem('gpt_theme');
             const icon = document.getElementById('theme-icon');
             if (savedTheme === 'light') { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-sun text-cyan-500'; }
@@ -317,12 +661,12 @@
 
         // Dropdown Logic (Model)
         function toggleModelDropdown(event) {
-            if(event) event.stopPropagation();
+            if (event) event.stopPropagation();
             const container = document.getElementById('custom-model-dropdown');
             const options = document.getElementById('dropdown-options');
             const trigger = document.getElementById('dropdown-trigger');
             container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
+            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
             else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
         }
         function selectModel(val, text) {
@@ -330,7 +674,7 @@
             document.getElementById('current-model-text').innerText = text;
             document.querySelectorAll('.model-option').forEach(opt => {
                 const check = opt.querySelector('.check-icon');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); } 
+                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); }
                 else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-cyan-50', 'dark:bg-[#27272a]'); }
             });
             toggleModelDropdown();
@@ -339,12 +683,12 @@
 
         // Dropdown Logic (Ratio)
         function toggleRatioDropdown(event) {
-            if(event) event.stopPropagation();
+            if (event) event.stopPropagation();
             const container = document.getElementById('custom-ratio-dropdown');
             const options = document.getElementById('ratio-options');
             const trigger = document.getElementById('ratio-trigger');
             container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
+            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
             else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
         }
         function selectRatio(val, text) {
@@ -352,7 +696,7 @@
             document.getElementById('current-ratio-text').innerText = text;
             document.querySelectorAll('.ratio-option').forEach(opt => {
                 const check = opt.querySelector('.check-icon-ratio');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); } 
+                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); }
                 else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-cyan-50', 'dark:bg-[#27272a]'); }
             });
             toggleRatioDropdown();
@@ -360,12 +704,12 @@
 
         // Dropdown Logic (Quality) - Replaces Resolution
         function toggleQualityDropdown(event) {
-            if(event) event.stopPropagation();
+            if (event) event.stopPropagation();
             const container = document.getElementById('custom-quality-dropdown');
             const options = document.getElementById('quality-options');
             const trigger = document.getElementById('quality-trigger');
             container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); } 
+            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
             else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
         }
         function selectQuality(val, text) {
@@ -373,7 +717,7 @@
             document.getElementById('current-quality-text').innerText = text;
             document.querySelectorAll('.quality-option').forEach(opt => {
                 const check = opt.querySelector('.check-icon-quality');
-                if(opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); } 
+                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-cyan-50', 'dark:bg-[#27272a]'); }
                 else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-cyan-50', 'dark:bg-[#27272a]'); }
             });
             toggleQualityDropdown();
@@ -381,9 +725,9 @@
 
         function closeDropdownOnClickOutside(event) {
             const dropdowns = [
-                {id: 'custom-model-dropdown', opt: 'dropdown-options', trig: 'dropdown-trigger'},
-                {id: 'custom-ratio-dropdown', opt: 'ratio-options', trig: 'ratio-trigger'},
-                {id: 'custom-quality-dropdown', opt: 'quality-options', trig: 'quality-trigger'}
+                { id: 'custom-model-dropdown', opt: 'dropdown-options', trig: 'dropdown-trigger' },
+                { id: 'custom-ratio-dropdown', opt: 'ratio-options', trig: 'ratio-trigger' },
+                { id: 'custom-quality-dropdown', opt: 'quality-options', trig: 'quality-trigger' }
             ];
             dropdowns.forEach(d => {
                 const container = document.getElementById(d.id);
@@ -403,10 +747,10 @@
             setTimeout(() => input.classList.remove('ring-2', 'ring-cyan-500'), 200);
         }
         function updateApiDisplay(url) {
-            try { const hostname = new URL(url).hostname; document.getElementById('current-api-display').innerText = "当前: " + hostname; } 
+            try { const hostname = new URL(url).hostname; document.getElementById('current-api-display').innerText = "当前: " + hostname; }
             catch (e) { document.getElementById('current-api-display').innerText = "当前: Custom"; }
         }
-        
+
         function saveHistoryToLocal() { if (historyData.length > 50) historyData = historyData.slice(0, 50); localStorage.setItem('gpt_history_data', JSON.stringify(historyData)); }
         function getEvtX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
         function getEvtY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
@@ -418,38 +762,81 @@
         }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function saveSettings() { 
+        function saveSettings() {
             const key = document.getElementById('modal-api-key').value.trim(), url = document.getElementById('modal-api-url').value.trim();
-            if (key) { 
-                localStorage.setItem('gpt_api_key', key); 
-                localStorage.setItem('gpt_api_url', url || DEFAULT_API_URL); 
-                updateApiDisplay(url || DEFAULT_API_URL); 
-                closeSettings(); 
+            if (key) {
+                localStorage.setItem('gpt_api_key', key);
+                localStorage.setItem('gpt_api_url', url || DEFAULT_API_URL);
+                updateApiDisplay(url || DEFAULT_API_URL);
+                closeSettings();
                 updateGenerateButtonPrice(); // 设置保存后更新价格
-            } 
-            else { alert("请输入API Key"); } 
+            }
+            else { alert("请输入API Key"); }
         }
 
-        const leftPanel = document.getElementById('left-panel'), resizerSidebar = document.getElementById('resizer-sidebar');
-        const taskPanel = document.getElementById('task-panel'), resizerTasklist = document.getElementById('resizer-tasklist');
-        resizerSidebar.addEventListener('mousedown', (e) => { e.preventDefault(); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeSidebar); document.addEventListener('mouseup', stopResizeSidebar); });
-        function resizeSidebar(e) { const w = e.clientX; if (w > 280 && w < 600) leftPanel.style.width = w + 'px'; }
-        function stopResizeSidebar() { document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeSidebar); document.removeEventListener('mouseup', stopResizeSidebar); }
-        resizerTasklist.addEventListener('mousedown', (e) => { e.preventDefault(); document.body.classList.add('no-select'); document.addEventListener('mousemove', resizeTasklist); document.addEventListener('mouseup', stopResizeTasklist); });
-        function resizeTasklist(e) { const h = window.innerHeight - e.clientY; if (h > 120 && h < 600) taskPanel.style.height = h + 'px'; }
-        function stopResizeTasklist() { document.body.classList.remove('no-select'); document.removeEventListener('mousemove', resizeTasklist); document.removeEventListener('mouseup', stopResizeTasklist); }
+        function setupResizers() {
+            const resizerX = document.getElementById('resizer-x');
+            const leftPanel = document.getElementById('left-panel');
+            let startX = 0, startW = 0;
+            if (resizerX) {
+                resizerX.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startX = e.clientX;
+                    startW = leftPanel.getBoundingClientRect().width;
+                    document.body.classList.add('no-select');
+                    resizerX.classList.add('resizing');
+                    document.addEventListener('mousemove', onMouseMoveX);
+                    document.addEventListener('mouseup', onMouseUpX);
+                });
+            }
+            function onMouseMoveX(e) {
+                const newW = startW + (e.clientX - startX);
+                if (newW >= 280 && newW <= 600) leftPanel.style.width = newW + 'px';
+            }
+            function onMouseUpX() {
+                document.body.classList.remove('no-select');
+                resizerX.classList.remove('resizing');
+                document.removeEventListener('mousemove', onMouseMoveX);
+                document.removeEventListener('mouseup', onMouseUpX);
+            }
+            const resizerY = document.getElementById('resizer-y');
+            const taskPanel = document.getElementById('task-panel');
+            let startY = 0, startH = 0;
+            if (resizerY) {
+                resizerY.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    startY = e.clientY;
+                    startH = taskPanel.getBoundingClientRect().height;
+                    document.body.classList.add('no-select');
+                    resizerY.classList.add('resizing');
+                    document.addEventListener('mousemove', onMouseMoveY);
+                    document.addEventListener('mouseup', onMouseUpY);
+                });
+            }
+            function onMouseMoveY(e) {
+                const newH = startH + (startY - e.clientY);
+                if (newH > 120 && newH < 600) taskPanel.style.height = newH + 'px';
+            }
+            function onMouseUpY() {
+                document.body.classList.remove('no-select');
+                resizerY.classList.remove('resizing');
+                document.removeEventListener('mousemove', onMouseMoveY);
+                document.removeEventListener('mouseup', onMouseUpY);
+            }
+        }
+        setupResizers();
 
         function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
         function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); }
-        function clearSlot(index, event) { if(event) event.stopPropagation(); imageSlots[index] = null; renderSlots(); }
+        function clearSlot(index, event) { if (event) event.stopPropagation(); imageSlots[index] = null; renderSlots(); }
         function clearAllSlots() { imageSlots = new Array(MAX_SLOTS).fill(null); renderSlots(); }
 
         const zoomContainer = document.getElementById('zoom-container'), imgWrapper = document.getElementById('img-wrapper'), sliderHandle = document.getElementById('slider-handle'), compareOverlay = document.getElementById('compare-overlay');
         function updateTransform() { imgWrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`; }
         function resetZoom() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
-        
+
         zoomContainer.addEventListener('wheel', (e) => { if (imgWrapper.classList.contains('hidden')) return; e.preventDefault(); const delta = -e.deltaY; (delta > 0) ? (scale *= 1.1) : (scale /= 1.1); if (scale < 0.5) scale = 0.5; if (scale > 5) scale = 5; updateTransform(); });
-        
+
         // 修改后的事件监听，支持滑块拖动
         zoomContainer.addEventListener('mousedown', (e) => {
             if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
@@ -461,48 +848,48 @@
             if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
             if (imgWrapper.classList.contains('hidden')) return;
             if (e.touches.length === 1) { e.preventDefault(); startPan(e); }
-        }, {passive: false});
+        }, { passive: false });
 
         function startPan(e) { startX = getEvtX(e) - pointX; startY = getEvtY(e) - pointY; panning = true; }
         window.addEventListener('mouseup', () => { panning = false; isSliding = false; });
         window.addEventListener('touchend', () => { panning = false; isSliding = false; });
-        
+
         zoomContainer.addEventListener('mousemove', movePan);
         zoomContainer.addEventListener('touchmove', (e) => {
             if (e.touches.length === 1) { e.preventDefault(); movePan(e); }
-        }, {passive: false});
+        }, { passive: false });
 
-        function movePan(e) { 
+        function movePan(e) {
             // 滑块逻辑
             if (isSliding) {
-                const rect = imgWrapper.getBoundingClientRect(); 
-                let x = getEvtX(e) - rect.left; 
+                const rect = imgWrapper.getBoundingClientRect();
+                let x = getEvtX(e) - rect.left;
                 // 边界限制
-                if (x < 0) x = 0; 
+                if (x < 0) x = 0;
                 if (x > rect.width) x = rect.width;
-                
-                const percentage = (x / rect.width) * 100; 
-                sliderHandle.style.left = percentage + '%'; 
-                compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`; 
-                return; 
-            } 
-            
+
+                const percentage = (x / rect.width) * 100;
+                sliderHandle.style.left = percentage + '%';
+                compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+                return;
+            }
+
             // 拖拽逻辑
-            if (!panning) return; 
-            pointX = getEvtX(e) - startX; 
-            pointY = getEvtY(e) - startY; 
-            updateTransform(); 
+            if (!panning) return;
+            pointX = getEvtX(e) - startX;
+            pointY = getEvtY(e) - startY;
+            updateTransform();
         }
 
         zoomContainer.addEventListener('dblclick', resetZoom);
 
-        function setBatchSize(num) { 
-            batchSize = num; 
-            document.querySelectorAll('.batch-btn').forEach(btn => { 
-                if(parseInt(btn.dataset.val) === num) {
-                    btn.className = "batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition"; 
+        function setBatchSize(num) {
+            batchSize = num;
+            document.querySelectorAll('.batch-btn').forEach(btn => {
+                if (parseInt(btn.dataset.val) === num) {
+                    btn.className = "batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition";
                 } else {
-                    btn.className = "batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition"; 
+                    btn.className = "batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition";
                 }
             });
             updateGenerateButtonPrice(); // 数量变化更新价格
@@ -519,10 +906,10 @@
             if (model === 'gpt-image-1.5') {
                 // 如果 API 地址包含 t8star (贞贞)，价格为 0.0675
                 if (apiUrl.indexOf('t8star') !== -1) {
-                     unitPrice = 0.0675;
+                    unitPrice = 0.0675;
                 } else {
-                     // 默认为 0.05
-                     unitPrice = 0.05;
+                    // 默认为 0.05
+                    unitPrice = 0.05;
                 }
             }
 
@@ -571,12 +958,12 @@
             const loader = document.getElementById('custom-loader');
             const percentText = document.getElementById('loader-percent');
             const bar = document.getElementById('loader-bar');
-            
+
             loader.classList.remove('hidden');
-            if(!document.getElementById('img-wrapper').classList.contains('hidden')) {
+            if (!document.getElementById('img-wrapper').classList.contains('hidden')) {
                 document.getElementById('main-image').style.filter = 'blur(10px) grayscale(100%)';
             }
-            
+
             percentText.innerText = '0%';
             bar.style.width = '0%';
 
@@ -613,14 +1000,14 @@
         }
 
         function renderSlots() {
-            const grid = document.getElementById('slots-grid'); 
+            const grid = document.getElementById('slots-grid');
             grid.innerHTML = '';
 
             imageSlots.forEach((file, index) => {
-                const slotNum = index + 1; 
+                const slotNum = index + 1;
                 const div = document.createElement('div');
                 div.className = `relative w-full aspect-[1/1] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group ${file ? 'border-transparent bg-gray-900' : 'border-gray-300 dark:border-[#27272a] hover:border-cyan-500 dark:hover:border-cyan-500 bg-gray-50 dark:bg-[#18181b] hover:bg-cyan-50 dark:hover:bg-[#1f1f22]'}`;
-                
+
                 div.ondragover = (e) => { e.preventDefault(); if (!file) div.classList.add('border-cyan-500', 'bg-cyan-100', 'dark:bg-[#27272a]', 'scale-95'); };
                 div.ondragleave = (e) => { e.preventDefault(); div.classList.remove('border-cyan-500', 'bg-cyan-100', 'dark:bg-[#27272a]', 'scale-95'); };
                 div.ondrop = (e) => {
@@ -660,30 +1047,30 @@
             const endpoint = `${baseUrl}/v1/chat/completions`;
 
             const prompt = document.getElementById('prompt-input').value.trim();
-            const ratio = document.getElementById('ratio-input').value; 
+            const ratio = document.getElementById('ratio-input').value;
             const quality = document.getElementById('quality-input').value;
             const modelName = document.getElementById('model-input').value;
             const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon');
-            
+
             if (!prompt) { alert("请输入提示词"); return; }
-            
+
             ensureLoaderExists();
 
             btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden');
-            btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`; 
-            
+            btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`;
+
             const validImages = imageSlots.filter(item => item !== null);
-            
+
             // 缓存第一张图作为参考图（对比用）
             originalRefImage = null;
             if (validImages.length > 0) {
-                 try {
+                try {
                     const reader = new FileReader();
                     reader.onload = (e) => { originalRefImage = e.target.result; };
                     reader.readAsDataURL(validImages[0]);
-                 } catch(e) { console.error("Ref Image Load Error", e); }
+                } catch (e) { console.error("Ref Image Load Error", e); }
             }
-            
+
             let messageContent = [];
             let finalPrompt = `${prompt} --ar ${ratio} --quality ${quality}`;
             messageContent.push({ type: "text", text: finalPrompt });
@@ -707,15 +1094,15 @@
                     stream: false
                 };
 
-                const response = await fetch(endpoint, { 
-                    method: 'POST', 
-                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(body) 
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
                 });
-                
-                const data = await response.json(); 
+
+                const data = await response.json();
                 if (!response.ok) throw new Error(data.error?.message || "请求失败");
-                
+
                 const content = data.choices[0]?.message?.content || "";
                 const mdMatch = content.match(/\!\[.*?\]\((.*?)\)/);
                 if (mdMatch && mdMatch[1]) return { url: mdMatch[1] };
@@ -727,27 +1114,27 @@
 
                 throw new Error("未能从响应中解析出图片链接: " + content.substring(0, 50) + "...");
             };
-            
+
             const startTime = Date.now();
             try {
                 const requestPromises = Array.from({ length: batchSize }, () => sendRequest());
                 const outcomes = await Promise.allSettled(requestPromises);
                 const allResults = [];
                 outcomes.forEach(outcome => { if (outcome.status === 'fulfilled') { allResults.push(outcome.value); } else { console.error("部分请求失败:", outcome.reason); } });
-                
+
                 const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
-                
-                if (allResults.length > 0) { 
+
+                if (allResults.length > 0) {
                     // 传递 originalRefImage 给显示函数
                     preloadImageAndDisplay(allResults[0].url, duration, originalRefImage);
-                    allResults.forEach(img => addToHistory(img.url, prompt, duration)); 
-                    if(window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
+                    allResults.forEach(img => addToHistory(img.url, prompt, duration));
+                    if (window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
                 } else { alert("生成失败，API未返回有效图片"); }
-            } catch (err) { console.error(err); alert("错误: " + err.message); } 
-            finally { 
-                btn.disabled = false; 
-                btn.classList.remove('opacity-70', 'cursor-not-allowed'); 
-                icon.classList.add('hidden'); 
+            } catch (err) { console.error(err); alert("错误: " + err.message); }
+            finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                icon.classList.add('hidden');
                 // 恢复价格显示
                 updateGenerateButtonPrice();
             }
@@ -756,20 +1143,20 @@
         function setMainImage(url, duration = "", refSrc = null) {
             currentMainImageUrl = url; const placeholder = document.getElementById('empty-placeholder'), timeBadge = document.getElementById('time-badge');
             placeholder.classList.add('hidden'); imgWrapper.classList.remove('hidden'); document.getElementById('main-image').src = url;
-            
+
             // 设置对比图层
-            if (refSrc) { 
-                document.getElementById('ref-image').src = refSrc; 
-                compareOverlay.classList.remove('hidden'); 
-                sliderHandle.classList.remove('hidden'); 
-                sliderHandle.style.left = '50%'; 
-                compareOverlay.style.clipPath = 'inset(0 50% 0 0)'; 
-            } else { 
-                compareOverlay.classList.add('hidden'); 
-                sliderHandle.classList.add('hidden'); 
+            if (refSrc) {
+                document.getElementById('ref-image').src = refSrc;
+                compareOverlay.classList.remove('hidden');
+                sliderHandle.classList.remove('hidden');
+                sliderHandle.style.left = '50%';
+                compareOverlay.style.clipPath = 'inset(0 50% 0 0)';
+            } else {
+                compareOverlay.classList.add('hidden');
+                sliderHandle.classList.add('hidden');
             }
 
-            resetZoom(); if(duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
+            resetZoom(); if (duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
         }
         function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
         function addToHistory(url, prompt, duration) { historyData.unshift({ url: url, prompt: prompt, duration: duration }); saveHistoryToLocal(); renderHistoryItem(url, prompt, duration); }
@@ -779,12 +1166,12 @@
             const item = document.createElement('div');
             item.className = "history-item group relative flex-shrink-0 bg-gray-900 rounded-xl overflow-hidden border border-gray-700 cursor-pointer hover:border-cyan-500 transition shadow-lg md:w-auto md:h-full md:aspect-[1/1] w-full aspect-[16/9]";
             item.dataset.url = url; item.dataset.prompt = encodeURIComponent(prompt); item.dataset.duration = duration;
-            item.onclick = (e) => { 
-                if(!e.target.closest('.task-checkbox') && !e.target.closest('button')) { 
-                    const decPrompt = decodeURIComponent(item.dataset.prompt); setMainImage(url, duration); 
+            item.onclick = (e) => {
+                if (!e.target.closest('.task-checkbox') && !e.target.closest('button')) {
+                    const decPrompt = decodeURIComponent(item.dataset.prompt); setMainImage(url, duration);
                     document.getElementById('prompt-input').value = decPrompt;
-                    if(window.innerWidth < 768) { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }
-                } 
+                    if (window.innerWidth < 768) { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }
+                }
             };
             item.innerHTML = `<img src="${url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 pointer-events-none">
                 <div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
@@ -804,38 +1191,38 @@
         function updateBatchState() {
             const checkboxes = document.querySelectorAll('#history-list .task-checkbox'), checked = Array.from(checkboxes).filter(cb => cb.checked);
             const batchActions = document.getElementById('batch-actions'), titleLabel = document.getElementById('task-list-title');
-            if(checked.length > 0) { batchActions.classList.remove('hidden'); titleLabel.innerHTML = `已选 <span class="text-cyan-500">${checked.length}</span> 项`; titleLabel.classList.add('text-gray-900', 'dark:text-white'); } 
+            if (checked.length > 0) { batchActions.classList.remove('hidden'); titleLabel.innerHTML = `已选 <span class="text-cyan-500">${checked.length}</span> 项`; titleLabel.classList.add('text-gray-900', 'dark:text-white'); }
             else { batchActions.classList.add('hidden'); titleLabel.innerHTML = '任务列表'; titleLabel.classList.remove('text-gray-900', 'dark:text-white'); }
-            const mainCb = document.getElementById('select-all'); if(checked.length === checkboxes.length && checkboxes.length > 0) mainCb.checked = true; else if(checked.length === 0) mainCb.checked = false; else mainCb.indeterminate = true;
+            const mainCb = document.getElementById('select-all'); if (checked.length === checkboxes.length && checkboxes.length > 0) mainCb.checked = true; else if (checked.length === 0) mainCb.checked = false; else mainCb.indeterminate = true;
         }
 
         async function batchDownload() {
-            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if(checked.length === 0) return;
-            if(!confirm(`确认下载选中的 ${checked.length} 张图片吗？`)) return;
-            for(let cb of checked) { const item = cb.closest('.history-item'); downloadSingleImage(item.dataset.url); await new Promise(r => setTimeout(r, 500)); }
+            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
+            if (!confirm(`确认下载选中的 ${checked.length} 张图片吗？`)) return;
+            for (let cb of checked) { const item = cb.closest('.history-item'); downloadSingleImage(item.dataset.url); await new Promise(r => setTimeout(r, 500)); }
         }
         function batchDelete() {
-            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if(checked.length === 0) return;
-            if(!confirm(`确认删除选中的 ${checked.length} 张任务吗？`)) return;
+            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
+            if (!confirm(`确认删除选中的 ${checked.length} 张任务吗？`)) return;
             checked.forEach(cb => { const item = cb.closest('.history-item'); const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove); item.remove(); });
             saveHistoryToLocal(); updateBatchState();
-            if(document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
+            if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
         }
         function viewOriginal(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox-modal').classList.remove('hidden'); }
         function closeLightbox() { document.getElementById('lightbox-modal').classList.add('hidden'); }
         async function downloadSingleImage(url) { try { const r = await fetch(url); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `gpt_img_${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(u); } catch (e) { window.open(url, '_blank'); } }
-        function deleteHistoryItem(btn) { 
-            const item = btn.closest('.history-item'); if(item) { 
+        function deleteHistoryItem(btn) {
+            const item = btn.closest('.history-item'); if (item) {
                 const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove);
                 saveHistoryToLocal(); item.remove(); updateBatchState();
-                if(document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
-            } 
+                if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
+            }
         }
         async function downloadCurrentImage() { if (!currentMainImageUrl) { alert("当前没有图片"); return; } downloadSingleImage(currentMainImageUrl); }
         async function importCurrentImage() {
-            if(!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
+            if (!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
             const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (3张)，请先删除一些图片"); return; }
-            try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch(e) { alert("导入失败"); }
+            try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch (e) { alert("导入失败"); }
         }
     </script>
 </body>
