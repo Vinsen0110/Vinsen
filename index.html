@@ -339,23 +339,28 @@
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Sora 2 / Pro</span><span
-                                        class="font-bold text-black">0.1 / 2.5 ¥</span></div>
+                                        class="font-bold text-black">0.1 / 2.5 ¥</span>
+                                </div>
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Veo 3.1 Fast</span><span
-                                        class="font-bold text-black">0.2 ¥</span></div>
+                                        class="font-bold text-black">0.2 ¥</span>
+                                </div>
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Veo 3.1 / Com / Pro</span><span
-                                        class="font-bold text-black">0.3 / 0.3 / 1 ¥</span></div>
+                                        class="font-bold text-black">0.3 / 0.3 / 1 ¥</span>
+                                </div>
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Veo 3.1 / Com / Pro (4K)</span><span
-                                        class="font-bold text-black">0.5 / 0.5 / 2 ¥</span></div>
+                                        class="font-bold text-black">0.5 / 0.5 / 2 ¥</span>
+                                </div>
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Nanobanana Pro</span><span
-                                        class="font-bold text-black">0.2 ¥</span></div>
+                                        class="font-bold text-black">0.2 ¥</span>
+                                </div>
                                 <div class="flex justify-between items-center whitespace-nowrap"><span
                                         class="font-extrabold text-black">GPT-image</span><span
                                         class="font-bold text-black">0.05 ¥</span></div>
@@ -373,15 +378,22 @@
     </div>
 
     <script>
-        const ENCRYPTED_PASS = "MjAxOTA5";
+        // 201909 的 SHA-256 哈希值
+        const ENCRYPTED_PASS = "ae76001ef0a5ab80aa2ae7bd28ff87fb5bb4ed027aa129536c015d55e809e179";
 
-        function verifyPassword() {
+        async function verifyPassword() {
             const input = document.getElementById('access-password').value;
             const errorMsg = document.getElementById('error-msg');
             const overlay = document.getElementById('auth-overlay');
             const content = document.getElementById('main-content');
 
-            if (btoa(input) === ENCRYPTED_PASS) {
+            // 计算输入密码的 SHA-256
+            const msgBuffer = new TextEncoder().encode(input);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (hashHex === ENCRYPTED_PASS) {
                 sessionStorage.setItem('site_auth', 'true');
                 overlay.style.display = 'none';
                 content.style.visibility = 'visible';
