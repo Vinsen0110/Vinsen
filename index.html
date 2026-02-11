@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,16 +10,45 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .modal-enter { animation: modalIn 0.3s ease-out forwards; }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+
+        body {
+            font-family: 'Inter', sans-serif;
         }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .modal-enter {
+            animation: modalIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         /* 密码拦截层样式 */
         #auth-overlay {
             position: fixed;
@@ -29,23 +59,43 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* 交互式背景画布 */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        #main-content {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
+
 <body class="bg-[#fafafa] min-h-screen flex flex-col text-gray-800 relative">
-    
+    <canvas id="bg-canvas"></canvas>
+
     <div id="auth-overlay">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl border border-gray-100 text-center max-w-sm w-full mx-4 modal-enter">
-            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div
+            class="bg-white p-8 rounded-2xl shadow-2xl border border-gray-100 text-center max-w-sm w-full mx-4 modal-enter">
+            <div
+                class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fa-solid fa-shield-halved text-2xl"></i>
             </div>
             <h2 class="text-xl font-bold text-gray-800 mb-2">访问受限</h2>
             <p class="text-gray-500 text-sm mb-6">请输入 6 位身份验证码以继续</p>
-            
+
             <input type="password" id="access-password" maxlength="6" autofocus
                 class="w-full text-center text-2xl tracking-[1em] font-bold border-2 border-gray-100 rounded-xl py-3 focus:border-indigo-500 focus:outline-none transition-all mb-4"
                 placeholder="••••••">
-            
-            <button onclick="verifyPassword()" 
+
+            <button onclick="verifyPassword()"
                 class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-200">
                 验证并进入
             </button>
@@ -54,31 +104,50 @@
     </div>
 
     <div id="main-content" style="visibility: hidden;">
-        <div class="md:hidden bg-white border-b border-gray-100 p-4 sticky top-0 z-40 shadow-sm flex justify-between items-center">
+        <div
+            class="md:hidden bg-white border-b border-gray-100 p-4 sticky top-0 z-40 shadow-sm flex justify-between items-center">
             <div class="font-bold text-lg text-indigo-600 flex items-center gap-2">
                 <img src="kitty.png" class="w-6 h-6 rounded-md" onerror="this.style.display='none'"> Xs的工具箱
             </div>
-            <div class="relative group">
-                <button class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-key"></i> 注册/Key <i class="fa-solid fa-chevron-down text-[10px]"></i>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleModal(true)"
+                    class="bg-amber-50 text-amber-600 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5 hover:bg-amber-100 cursor-pointer">
+                    <i class="fa-solid fa-tags"></i> 价格表
                 </button>
-                <div class="absolute top-full right-0 pt-2 w-40 hidden group-hover:block group-focus-within:block">
-                    <div class="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5 p-1">
-                        <a href="https://api.bltcy.ai/register?aff=dlam79084" target="_blank" class="flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-500 rounded-lg"><i class="fa-solid fa-landmark text-blue-400"></i> 柏拉图API</a>
+                <div class="relative group">
+                    <button
+                        class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> 注册/Key <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <div class="absolute top-full right-0 pt-2 w-40 hidden group-hover:block group-focus-within:block">
+                        <div
+                            class="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5 p-1">
+                            <a href="https://api.bltcy.ai/register?aff=dlam79084" target="_blank"
+                                class="flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-blue-50 hover:text-blue-500 rounded-lg"><i
+                                    class="fa-solid fa-landmark text-blue-400"></i> 柏拉图API</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="hidden md:block absolute top-6 right-6 z-40">
+        <div class="hidden md:flex absolute top-6 right-6 z-40 items-center gap-2">
+            <button onclick="toggleModal(true)"
+                class="bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-tags"></i> 价格表
+            </button>
             <div class="relative group">
-                <button class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
+                <button
+                    class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
                     <i class="fa-solid fa-key"></i> 获取Key <i class="fa-solid fa-caret-down text-[10px] opacity-80"></i>
                 </button>
                 <div class="absolute top-full right-0 pt-2 w-32 hidden group-hover:block">
-                    <div class="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5">
+                    <div
+                        class="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5">
                         <div class="py-1">
-                            <a href="https://api.bltcy.ai/register?aff=dlam79084" target="_blank" class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-500 transition"><i class="fa-solid fa-landmark text-blue-400"></i> 柏拉图API</a>
+                            <a href="https://api.bltcy.ai/register?aff=dlam79084" target="_blank"
+                                class="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-500 transition"><i
+                                    class="fa-solid fa-landmark text-blue-400"></i> 柏拉图API</a>
                         </div>
                     </div>
                 </div>
@@ -95,46 +164,73 @@
             <div class="w-full max-w-5xl space-y-8 md:space-y-8">
                 <section>
                     <div class="flex items-center gap-2 mb-4 md:mb-8 px-1">
-                         <div class="w-1 h-5 bg-yellow-500 rounded-full"></div>
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i class="fa-solid fa-palette text-yellow-500 mr-2"></i>AI 绘画设计</h2>
+                        <div class="w-1 h-5 bg-yellow-500 rounded-full"></div>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i
+                                class="fa-solid fa-palette text-yellow-500 mr-2"></i>AI 绘画设计</h2>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
-                        <a href="nanobanana.html" class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-yellow-300 gap-4 md:gap-0">
-                            
-                            <div class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-yellow-400 to-orange-500"></div>
-                            <div class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-500"></div>
-                            
-                            <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/nanobanana.jpg" class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0" alt="Icon" onerror="this.src='kitty.png'">
-                            
-                            <div class="flex-1 min-w-0 md:mb-4">
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">Nano Banana Pro</h3>
-                                <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">专业级图片生成与重绘工具</p>
+                        <a href="nanobanana.html"
+                            class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-yellow-300 gap-4 md:gap-0">
+
+                            <div
+                                class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-yellow-400 to-orange-500">
                             </div>
-                            
-                            <div class="ml-auto md:ml-0 md:mt-auto text-yellow-600 font-bold text-xs md:text-sm flex items-center shrink-0">
+                            <div
+                                class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-500">
+                            </div>
+
+                            <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/nanobanana.jpg"
+                                class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0"
+                                alt="Icon" onerror="this.src='kitty.png'">
+
+                            <div class="flex-1 min-w-0 md:mb-4">
+                                <h3
+                                    class="text-base md:text-lg font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
+                                    Nano Banana Pro</h3>
+                                <p
+                                    class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">
+                                    专业级图片生成与重绘工具</p>
+                            </div>
+
+                            <div
+                                class="ml-auto md:ml-0 md:mt-auto text-yellow-600 font-bold text-xs md:text-sm flex items-center shrink-0">
                                 <span class="hidden md:inline">开始生成</span>
-                                <span class="md:hidden">生成</span> 
-                                <i class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                                <span class="md:hidden">生成</span>
+                                <i
+                                    class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                             </div>
                         </a>
 
-                        <a href="gpt-image.html" class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-cyan-300 gap-4 md:gap-0">
-                            
-                            <div class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-cyan-400 to-emerald-500"></div>
-                            <div class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-emerald-500"></div>
-                            
-                            <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/gpt.png" class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0" alt="GPT Icon" onerror="this.src='kitty.png'">
-                            
-                            <div class="flex-1 min-w-0 md:mb-4">
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 group-hover:text-cyan-600 transition-colors">GPT-image</h3>
-                                <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">OpenAI 官方图像生成与编辑</p>
+                        <a href="gpt-image.html"
+                            class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-cyan-300 gap-4 md:gap-0">
+
+                            <div
+                                class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-cyan-400 to-emerald-500">
                             </div>
-                            
-                            <div class="ml-auto md:ml-0 md:mt-auto text-cyan-600 font-bold text-xs md:text-sm flex items-center shrink-0">
+                            <div
+                                class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-emerald-500">
+                            </div>
+
+                            <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/gpt.png"
+                                class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0"
+                                alt="GPT Icon" onerror="this.src='kitty.png'">
+
+                            <div class="flex-1 min-w-0 md:mb-4">
+                                <h3
+                                    class="text-base md:text-lg font-bold text-gray-900 group-hover:text-cyan-600 transition-colors">
+                                    GPT-image</h3>
+                                <p
+                                    class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">
+                                    OpenAI 官方图像生成与编辑</p>
+                            </div>
+
+                            <div
+                                class="ml-auto md:ml-0 md:mt-auto text-cyan-600 font-bold text-xs md:text-sm flex items-center shrink-0">
                                 <span class="hidden md:inline">开始生成</span>
                                 <span class="md:hidden">生成</span>
-                                <i class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                                <i
+                                    class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                             </div>
                         </a>
                     </div>
@@ -143,45 +239,72 @@
                 <section>
                     <div class="flex items-center gap-2 mb-4 md:mb-8 px-1">
                         <div class="w-1 h-5 bg-indigo-500 rounded-full"></div>
-                        <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i class="fa-solid fa-film text-indigo-500 mr-2"></i>AI 视频生成</h2>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i
+                                class="fa-solid fa-film text-indigo-500 mr-2"></i>AI 视频生成</h2>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
-                        <a href="veo3.1.html" class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-purple-300 gap-4 md:gap-0">
-                             
-                            <div class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-purple-400 to-fuchsia-500"></div>
-                            <div class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-fuchsia-500"></div>
-                            
-                            <img src="veo3.1.png" class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0" alt="Veo 3.1">
-                            
-                            <div class="flex-1 min-w-0 md:mb-4">
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors">Veo 3.1</h3>
-                                <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">DeepMind 电影级创作</p>
+                        <a href="veo3.1.html"
+                            class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-purple-300 gap-4 md:gap-0">
+
+                            <div
+                                class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-purple-400 to-fuchsia-500">
                             </div>
-                            
-                            <div class="ml-auto md:ml-0 md:mt-auto text-purple-600 font-bold text-xs md:text-sm flex items-center shrink-0">
+                            <div
+                                class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-fuchsia-500">
+                            </div>
+
+                            <img src="veo3.1.png"
+                                class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0"
+                                alt="Veo 3.1">
+
+                            <div class="flex-1 min-w-0 md:mb-4">
+                                <h3
+                                    class="text-base md:text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                                    Veo 3.1</h3>
+                                <p
+                                    class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">
+                                    DeepMind 电影级创作</p>
+                            </div>
+
+                            <div
+                                class="ml-auto md:ml-0 md:mt-auto text-purple-600 font-bold text-xs md:text-sm flex items-center shrink-0">
                                 <span class="hidden md:inline">开始生成</span>
                                 <span class="md:hidden">生成</span>
-                                <i class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                                <i
+                                    class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                             </div>
                         </a>
 
-                        <a href="sora2.html" class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-indigo-300 gap-4 md:gap-0">
-                             
-                            <div class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-blue-400 to-indigo-500"></div>
-                            <div class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
-                            
-                            <img src="sora2.png" class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0" alt="Sora 2">
-                            
-                            <div class="flex-1 min-w-0 md:mb-4">
-                                <h3 class="text-base md:text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">Sora 2</h3>
-                                <p class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">OpenAI 最新视频生成模型</p>
+                        <a href="sora2.html"
+                            class="relative overflow-hidden block bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-indigo-300 gap-4 md:gap-0">
+
+                            <div
+                                class="absolute left-0 top-0 bottom-0 w-1 h-full md:hidden bg-gradient-to-b from-blue-400 to-indigo-500">
                             </div>
-                            
-                            <div class="ml-auto md:ml-0 md:mt-auto text-indigo-600 font-bold text-xs md:text-sm flex items-center shrink-0">
+                            <div
+                                class="hidden md:block absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-500">
+                            </div>
+
+                            <img src="sora2.png"
+                                class="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl shadow-sm object-cover md:mt-2 md:mb-5 shrink-0"
+                                alt="Sora 2">
+
+                            <div class="flex-1 min-w-0 md:mb-4">
+                                <h3
+                                    class="text-base md:text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                    Sora 2</h3>
+                                <p
+                                    class="text-gray-500 text-xs md:text-sm mt-1 md:mt-2 leading-relaxed line-clamp-1 md:line-clamp-none">
+                                    OpenAI 最新视频生成模型</p>
+                            </div>
+
+                            <div
+                                class="ml-auto md:ml-0 md:mt-auto text-indigo-600 font-bold text-xs md:text-sm flex items-center shrink-0">
                                 <span class="hidden md:inline">开始生成</span>
                                 <span class="md:hidden">生成</span>
-                                <i class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
+                                <i
+                                    class="fa-solid fa-arrow-right ml-2 transition-transform group-hover:translate-x-1"></i>
                             </div>
                         </a>
                     </div>
@@ -189,20 +312,16 @@
             </div>
         </div>
 
-        <button onclick="toggleModal(true)" class="fixed bottom-6 right-6 z-40 bg-white text-emerald-600 border border-emerald-100 shadow-xl rounded-full px-5 py-3 font-bold text-sm flex items-center gap-2 hover:scale-105 transition-transform ring-4 ring-emerald-50/50 cursor-pointer">
-            <div class="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center text-emerald-600">
-                <i class="fa-solid fa-tags"></i>
-            </div>
-            <span>价格表</span>
-        </button>
-
         <div id="price-modal" class="fixed inset-0 z-50 hidden">
-            <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm transition-opacity" onclick="toggleModal(false)"></div>
+            <div class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm transition-opacity"
+                onclick="toggleModal(false)"></div>
             <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                
-                <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 md:p-8 pointer-events-auto relative modal-enter">
-                    
-                    <button onclick="toggleModal(false)" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+
+                <div
+                    class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 md:p-8 pointer-events-auto relative modal-enter">
+
+                    <button onclick="toggleModal(false)"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
 
@@ -211,21 +330,40 @@
                     </h3>
 
                     <div class="grid grid-cols-1 gap-6 text-xs text-gray-900">
-                        
+
                         <div class="space-y-3 px-2">
-                            <h4 class="font-extrabold text-indigo-700 text-center text-sm bg-indigo-50 py-1.5 rounded-lg">Blt</h4>
+                            <h4
+                                class="font-extrabold text-indigo-700 text-center text-sm bg-indigo-50 py-1.5 rounded-lg">
+                                柏拉图渠道</h4>
                             <div class="space-y-2 font-mono text-gray-600">
-                                <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap"><span class="font-extrabold text-black">Sora 2 / Pro</span><span class="font-bold text-black">0.1 / 2.5 ¥</span></div>
-                                <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap"><span class="font-extrabold text-black">Veo 3.1 Fast</span><span class="font-bold text-black">0.2 ¥</span></div>
-                                <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap"><span class="font-extrabold text-black">Veo 3.1 / Com / Pro</span><span class="font-bold text-black">0.3 / 0.3 / 1 ¥</span></div>
-                                <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap"><span class="font-extrabold text-black">Veo 3.1 / Com / Pro (4K)</span><span class="font-bold text-black">0.5 / 0.5 / 2 ¥</span></div>
-                                <div class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap"><span class="font-extrabold text-black">Nanobanana Pro</span><span class="font-bold text-black">0.2 ¥</span></div>
-                                <div class="flex justify-between items-center whitespace-nowrap"><span class="font-extrabold text-black">GPT-image</span><span class="font-bold text-black">0.05 ¥</span></div>
+                                <div
+                                    class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
+                                    <span class="font-extrabold text-black">Sora 2 / Pro</span><span
+                                        class="font-bold text-black">0.1 / 2.5 ¥</span></div>
+                                <div
+                                    class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
+                                    <span class="font-extrabold text-black">Veo 3.1 Fast</span><span
+                                        class="font-bold text-black">0.2 ¥</span></div>
+                                <div
+                                    class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
+                                    <span class="font-extrabold text-black">Veo 3.1 / Com / Pro</span><span
+                                        class="font-bold text-black">0.3 / 0.3 / 1 ¥</span></div>
+                                <div
+                                    class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
+                                    <span class="font-extrabold text-black">Veo 3.1 / Com / Pro (4K)</span><span
+                                        class="font-bold text-black">0.5 / 0.5 / 2 ¥</span></div>
+                                <div
+                                    class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
+                                    <span class="font-extrabold text-black">Nanobanana Pro</span><span
+                                        class="font-bold text-black">0.2 ¥</span></div>
+                                <div class="flex justify-between items-center whitespace-nowrap"><span
+                                        class="font-extrabold text-black">GPT-image</span><span
+                                        class="font-bold text-black">0.05 ¥</span></div>
                             </div>
                         </div>
 
                     </div>
-                    
+
                     <div class="mt-6 text-center text-[10px] text-gray-400">
                         * 价格仅供参考，实际扣费以API后台为准
                     </div>
@@ -235,9 +373,7 @@
     </div>
 
     <script>
-        // --- 核心验证逻辑 (已混淆) ---
-        // "MjAxOTA5" 是 "201909" 的加密代码
-        const ENCRYPTED_PASS = "MjAxOTA5"; 
+        const ENCRYPTED_PASS = "MjAxOTA5";
 
         function verifyPassword() {
             const input = document.getElementById('access-password').value;
@@ -245,9 +381,7 @@
             const overlay = document.getElementById('auth-overlay');
             const content = document.getElementById('main-content');
 
-            // 将用户输入的值进行加密，然后比对
             if (btoa(input) === ENCRYPTED_PASS) {
-                // 验证成功
                 sessionStorage.setItem('site_auth', 'true');
                 overlay.style.display = 'none';
                 content.style.visibility = 'visible';
@@ -257,23 +391,20 @@
             }
         }
 
-        // 页面加载检查
-        window.onload = function() {
+        window.onload = function () {
             if (sessionStorage.getItem('site_auth') === 'true') {
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('main-content').style.visibility = 'visible';
             }
         };
 
-        // 绑定回车键
-        document.getElementById('access-password').addEventListener('keypress', function(e) {
+        document.getElementById('access-password').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') verifyPassword();
         });
 
-        // 原始模态框逻辑
         function toggleModal(show) {
             const modal = document.getElementById('price-modal');
-            if(show) {
+            if (show) {
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             } else {
@@ -281,6 +412,95 @@
                 document.body.style.overflow = '';
             }
         }
+
+        // --- 交互式鼠标跟随背景 ---
+        (function () {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let targetX = mouseX, targetY = mouseY;
+            let particles = [];
+            const PARTICLE_COUNT = 50;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            document.addEventListener('mousemove', function (e) {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    radius: Math.random() * 2 + 1,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    alpha: Math.random() * 0.3 + 0.1,
+                    hue: Math.random() * 60 + 220
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                mouseX += (targetX - mouseX) * 0.08;
+                mouseY += (targetY - mouseY) * 0.08;
+
+                const gradient = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 350);
+                gradient.addColorStop(0, 'rgba(99, 102, 241, 0.08)');
+                gradient.addColorStop(0.4, 'rgba(139, 92, 246, 0.04)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    const dx = mouseX - p.x;
+                    const dy = mouseY - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 300) {
+                        p.vx += dx * 0.00005;
+                        p.vy += dy * 0.00005;
+                    }
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 6);
+                    glow.addColorStop(0, `hsla(${p.hue}, 80%, 65%, ${p.alpha})`);
+                    glow.addColorStop(1, `hsla(${p.hue}, 80%, 65%, 0)`);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius * 6, 0, Math.PI * 2);
+                    ctx.fillStyle = glow;
+                    ctx.fill();
+
+                    particles.forEach(p2 => {
+                        const d = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
+                        if (d < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${0.06 * (1 - d / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    });
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
     </script>
 </body>
+
 </html>
