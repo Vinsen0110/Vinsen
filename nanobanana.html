@@ -263,6 +263,133 @@
             background-color: #27272a;
         }
 
+        /* Crop Overlay Styles */
+        #crop-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        #crop-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #crop-box {
+            position: absolute;
+            border: 2px dashed white;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+            cursor: move;
+            pointer-events: auto;
+            z-index: 31;
+        }
+
+        #crop-box::before {
+            content: '';
+            position: absolute;
+            top: 33.33%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 calc(33.33% * 1) 0 0 rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        #crop-box::after {
+            content: '';
+            position: absolute;
+            left: 33.33%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: calc(33.33% * 1) 0 0 0 rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        .crop-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 2px solid #6366f1;
+            border-radius: 2px;
+            pointer-events: auto;
+            z-index: 32;
+        }
+
+        .crop-handle.tl {
+            top: -6px;
+            left: -6px;
+            cursor: nwse-resize;
+        }
+
+        .crop-handle.tr {
+            top: -6px;
+            right: -6px;
+            cursor: nesw-resize;
+        }
+
+        .crop-handle.bl {
+            bottom: -6px;
+            left: -6px;
+            cursor: nesw-resize;
+        }
+
+        .crop-handle.br {
+            bottom: -6px;
+            right: -6px;
+            cursor: nwse-resize;
+        }
+
+        .crop-handle.tm {
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+        }
+
+        .crop-handle.bm {
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+        }
+
+        .crop-handle.ml {
+            top: 50%;
+            left: -6px;
+            transform: translateY(-50%);
+            cursor: ew-resize;
+        }
+
+        .crop-handle.mr {
+            top: 50%;
+            right: -6px;
+            transform: translateY(-50%);
+            cursor: ew-resize;
+        }
+
+        #crop-confirm-bar {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 35;
+            pointer-events: auto;
+        }
+
         .group:hover .group-hover\:block {
             display: block;
             animation: fadeIn 0.2s ease-out;
@@ -932,6 +1059,8 @@
                         class="fa-solid fa-font"></i></div>
                 <div class="tool-btn" id="tool-move" onclick="setTool('move')" title="移动文字"><i
                         class="fa-solid fa-arrows-up-down-left-right"></i></div>
+                <div class="tool-btn" id="tool-crop" onclick="setTool('crop')" title="裁剪"><i
+                        class="fa-solid fa-crop-simple"></i></div>
                 <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
                 <div class="tool-btn hover:text-indigo-500" onclick="undo()" title="撤回上一步"><i
                         class="fa-solid fa-rotate-left"></i></div>
@@ -950,6 +1079,24 @@
             <input type="text" id="text-tool-input"
                 class="absolute hidden bg-transparent border border-dashed border-white text-white text-lg p-1 outline-none font-bold"
                 placeholder="输入文字..." draggable="false">
+            <div id="crop-overlay" class="hidden">
+                <div id="crop-box">
+                    <div class="crop-handle tl" data-handle="tl"></div>
+                    <div class="crop-handle tr" data-handle="tr"></div>
+                    <div class="crop-handle bl" data-handle="bl"></div>
+                    <div class="crop-handle br" data-handle="br"></div>
+                    <div class="crop-handle tm" data-handle="tm"></div>
+                    <div class="crop-handle bm" data-handle="bm"></div>
+                    <div class="crop-handle ml" data-handle="ml"></div>
+                    <div class="crop-handle mr" data-handle="mr"></div>
+                </div>
+                <div id="crop-confirm-bar">
+                    <button onclick="cancelCrop()"
+                        class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-full text-xs font-bold shadow-lg transition">取消裁剪</button>
+                    <button onclick="applyCrop()"
+                        class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full text-xs font-bold shadow-lg shadow-indigo-500/30 transition">确认裁剪</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1218,7 +1365,7 @@
         function openEditor(index, event) {
             if (event) event.stopPropagation();
             const file = imageSlots[index]; if (!file) return;
-            editTargetIndex = index; drawActions = [];
+            editTargetIndex = index; drawActions = []; hasDoodleInSession = false;
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
@@ -1236,14 +1383,19 @@
             reader.readAsDataURL(file);
         }
         function undo() { if (drawActions.length > 0) { drawActions.pop(); redrawCanvas(); } }
-        function cancelEdit() { document.getElementById('editor-modal').classList.add('hidden'); document.getElementById('text-tool-input').classList.add('hidden'); }
+        function cancelEdit() { hideCropOverlay(); document.getElementById('editor-modal').classList.add('hidden'); document.getElementById('text-tool-input').classList.add('hidden'); }
         function saveEdit() {
+            // 如果处于裁剪模式且裁剪框可见，先应用裁剪
+            if (currentTool === 'crop' && !document.getElementById('crop-overlay').classList.contains('hidden')) {
+                applyCropThenSave();
+                return;
+            }
             const input = document.getElementById('text-tool-input');
             if (!input.classList.contains('hidden')) finalizeText();
             redrawCanvas();
             canvas.toBlob((blob) => {
                 const newFile = new File([blob], `doodle_${Date.now()}.png`, { type: 'image/png' });
-                newFile.isDoodled = true; imageSlots[editTargetIndex] = newFile;
+                newFile.isDoodled = hasDoodleInSession; imageSlots[editTargetIndex] = newFile;
                 renderSlots(); updatePromptLockState(); cancelEdit();
             });
         }
@@ -1253,11 +1405,17 @@
         }
         function setTool(tool) {
             if (currentTool === 'text' && tool !== 'text') { const input = document.getElementById('text-tool-input'); if (!input.classList.contains('hidden')) finalizeText(); }
+            // 如果从裁剪切换到其他工具，隐藏裁剪框
+            if (currentTool === 'crop' && tool !== 'crop') { hideCropOverlay(); }
             currentTool = tool;
             document.getElementById('tool-brush').classList.toggle('active', tool === 'brush');
             document.getElementById('tool-text').classList.toggle('active', tool === 'text');
             document.getElementById('tool-move').classList.toggle('active', tool === 'move');
-            if (tool === 'move') canvas.style.cursor = 'move'; else if (tool === 'text') canvas.style.cursor = 'text'; else canvas.style.cursor = 'crosshair';
+            document.getElementById('tool-crop').classList.toggle('active', tool === 'crop');
+            if (tool === 'crop') { canvas.style.cursor = 'default'; showCropOverlay(); }
+            else if (tool === 'move') canvas.style.cursor = 'move';
+            else if (tool === 'text') canvas.style.cursor = 'text';
+            else canvas.style.cursor = 'crosshair';
         }
         function getEvtX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
         function getEvtY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
@@ -1267,7 +1425,7 @@
         function startDraw(e) {
             if (e.type === 'touchstart') e.preventDefault();
             const rect = canvas.getBoundingClientRect(); const x = getEvtX(e) - rect.left; const y = getEvtY(e) - rect.top;
-            if (currentTool === 'brush') { isDrawing = true; currentPath = { type: 'path', color: currentColor, points: [{ x, y }] }; drawActions.push(currentPath); redrawCanvas(); }
+            if (currentTool === 'brush') { isDrawing = true; hasDoodleInSession = true; currentPath = { type: 'path', color: currentColor, points: [{ x, y }] }; drawActions.push(currentPath); redrawCanvas(); }
             else if (currentTool === 'text') { handleTextClick(e); }
             else if (currentTool === 'move') {
                 for (let i = drawActions.length - 1; i >= 0; i--) {
@@ -1298,8 +1456,222 @@
         function finalizeText() {
             const input = document.getElementById('text-tool-input'); if (input.classList.contains('hidden') || !input.value.trim()) { input.classList.add('hidden'); return; }
             const x = parseFloat(input.style.left), y = parseFloat(input.style.top) + 22;
+            hasDoodleInSession = true;
             drawActions.push({ type: 'text', text: input.value, color: currentColor, x: x, y: y }); input.classList.add('hidden'); redrawCanvas();
         }
+
+        // ========== 裁剪功能 (Crop Feature) ==========
+        let hasDoodleInSession = false; // 追踪本次编辑是否有涂鸦/文字操作
+        let cropBox = { x: 0, y: 0, w: 0, h: 0 };
+        let isCropDragging = false;
+        let cropDragType = null; // 'move', 'tl', 'tr', 'bl', 'br', 'tm', 'bm', 'ml', 'mr'
+        let cropDragStart = { x: 0, y: 0 };
+        let cropBoxStart = { x: 0, y: 0, w: 0, h: 0 };
+        const MIN_CROP_SIZE = 20;
+
+        function showCropOverlay() {
+            const overlay = document.getElementById('crop-overlay');
+            overlay.classList.remove('hidden');
+            // 默认裁剪框覆盖画布80%中央区域
+            const cw = canvas.width, ch = canvas.height;
+            cropBox = {
+                x: Math.round(cw * 0.1),
+                y: Math.round(ch * 0.1),
+                w: Math.round(cw * 0.8),
+                h: Math.round(ch * 0.8)
+            };
+            updateCropUI();
+        }
+
+        function hideCropOverlay() {
+            document.getElementById('crop-overlay').classList.add('hidden');
+        }
+
+        function updateCropUI() {
+            const box = document.getElementById('crop-box');
+            // 将画布坐标转换为 canvas-wrapper 内的 CSS 坐标
+            // canvas 和 wrapper 尺寸相同（wrapper.style.width = canvas.width + 'px'）
+            box.style.left = cropBox.x + 'px';
+            box.style.top = cropBox.y + 'px';
+            box.style.width = cropBox.w + 'px';
+            box.style.height = cropBox.h + 'px';
+        }
+
+        // 裁剪框交互事件
+        (function initCropEvents() {
+            const cropBoxEl = document.getElementById('crop-box');
+
+            // 拖拽整个裁剪框
+            cropBoxEl.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('crop-handle')) return;
+                startCropDrag(e, 'move');
+            });
+            cropBoxEl.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('crop-handle')) return;
+                e.preventDefault();
+                startCropDrag(e, 'move');
+            }, { passive: false });
+
+            // 拖拽手柄
+            document.querySelectorAll('.crop-handle').forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    startCropDrag(e, handle.dataset.handle);
+                });
+                handle.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startCropDrag(e, handle.dataset.handle);
+                }, { passive: false });
+            });
+
+            window.addEventListener('mousemove', moveCropDrag);
+            window.addEventListener('touchmove', moveCropDrag, { passive: false });
+            window.addEventListener('mouseup', endCropDrag);
+            window.addEventListener('touchend', endCropDrag);
+        })();
+
+        function startCropDrag(e, type) {
+            if (currentTool !== 'crop') return;
+            isCropDragging = true;
+            cropDragType = type;
+            cropDragStart = { x: getEvtX(e), y: getEvtY(e) };
+            cropBoxStart = { ...cropBox };
+        }
+
+        function moveCropDrag(e) {
+            if (!isCropDragging || currentTool !== 'crop') return;
+            if (e.type === 'touchmove') e.preventDefault();
+
+            const dx = getEvtX(e) - cropDragStart.x;
+            const dy = getEvtY(e) - cropDragStart.y;
+            const cw = canvas.width, ch = canvas.height;
+
+            let nx = cropBoxStart.x, ny = cropBoxStart.y;
+            let nw = cropBoxStart.w, nh = cropBoxStart.h;
+
+            if (cropDragType === 'move') {
+                nx = cropBoxStart.x + dx;
+                ny = cropBoxStart.y + dy;
+                // 边界约束
+                nx = Math.max(0, Math.min(nx, cw - nw));
+                ny = Math.max(0, Math.min(ny, ch - nh));
+            } else {
+                // 手柄拖拽
+                if (cropDragType.includes('l')) {
+                    nx = cropBoxStart.x + dx;
+                    nw = cropBoxStart.w - dx;
+                }
+                if (cropDragType.includes('r')) {
+                    nw = cropBoxStart.w + dx;
+                }
+                if (cropDragType.includes('t')) {
+                    ny = cropBoxStart.y + dy;
+                    nh = cropBoxStart.h - dy;
+                }
+                if (cropDragType.includes('b')) {
+                    nh = cropBoxStart.h + dy;
+                }
+                // 处理 'm' (中间手柄)
+                if (cropDragType === 'tm') { ny = cropBoxStart.y + dy; nh = cropBoxStart.h - dy; }
+                if (cropDragType === 'bm') { nh = cropBoxStart.h + dy; }
+                if (cropDragType === 'ml') { nx = cropBoxStart.x + dx; nw = cropBoxStart.w - dx; }
+                if (cropDragType === 'mr') { nw = cropBoxStart.w + dx; }
+
+                // 最小尺寸约束
+                if (nw < MIN_CROP_SIZE) {
+                    if (cropDragType.includes('l')) { nx = cropBoxStart.x + cropBoxStart.w - MIN_CROP_SIZE; }
+                    nw = MIN_CROP_SIZE;
+                }
+                if (nh < MIN_CROP_SIZE) {
+                    if (cropDragType.includes('t')) { ny = cropBoxStart.y + cropBoxStart.h - MIN_CROP_SIZE; }
+                    nh = MIN_CROP_SIZE;
+                }
+                // 边界约束
+                if (nx < 0) { nw += nx; nx = 0; }
+                if (ny < 0) { nh += ny; ny = 0; }
+                if (nx + nw > cw) { nw = cw - nx; }
+                if (ny + nh > ch) { nh = ch - ny; }
+            }
+
+            cropBox = { x: nx, y: ny, w: nw, h: nh };
+            updateCropUI();
+        }
+
+        function endCropDrag() {
+            isCropDragging = false;
+            cropDragType = null;
+        }
+
+        function cancelCrop() {
+            hideCropOverlay();
+            setTool('brush');
+        }
+
+        function applyCrop() {
+            // 先结束可能存在的文字输入
+            const input = document.getElementById('text-tool-input');
+            if (!input.classList.contains('hidden')) finalizeText();
+            redrawCanvas();
+
+            // 从画布中提取裁剪区域
+            const ratio = baseImage ? (baseImage.width / canvas.width) : 1;
+            const sx = cropBox.x * ratio;
+            const sy = cropBox.y * ratio;
+            const sw = cropBox.w * ratio;
+            const sh = cropBox.h * ratio;
+
+            // 创建临时画布用于裁剪
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = cropBox.w;
+            tempCanvas.height = cropBox.h;
+            const tempCtx = tempCanvas.getContext('2d');
+            // 从当前画布（包含涂鸦）提取裁剪区域
+            tempCtx.drawImage(canvas, cropBox.x, cropBox.y, cropBox.w, cropBox.h, 0, 0, cropBox.w, cropBox.h);
+
+            // 用裁剪后的图像更新 baseImage 和画布
+            const croppedImg = new Image();
+            croppedImg.onload = () => {
+                baseImage = croppedImg;
+                drawActions = []; // 清空涂鸦历史（已烘焙进裁剪图）
+
+                // 重新计算画布尺寸
+                const wrapper = document.getElementById('canvas-wrapper');
+                const maxW = window.innerWidth * 0.9, maxH = window.innerHeight * 0.8;
+                let w = croppedImg.width, h = croppedImg.height;
+                const r = Math.min(maxW / w, maxH / h);
+                canvas.width = w * r; canvas.height = h * r;
+                wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
+
+                redrawCanvas();
+                hideCropOverlay();
+                setTool('brush');
+            };
+            croppedImg.src = tempCanvas.toDataURL('image/png');
+        }
+
+        function applyCropThenSave() {
+            // applyCrop 后自动保存
+            const input = document.getElementById('text-tool-input');
+            if (!input.classList.contains('hidden')) finalizeText();
+            redrawCanvas();
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = cropBox.w;
+            tempCanvas.height = cropBox.h;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(canvas, cropBox.x, cropBox.y, cropBox.w, cropBox.h, 0, 0, cropBox.w, cropBox.h);
+
+            tempCanvas.toBlob((blob) => {
+                const newFile = new File([blob], `crop_${Date.now()}.png`, { type: 'image/png' });
+                newFile.isDoodled = hasDoodleInSession;
+                imageSlots[editTargetIndex] = newFile;
+                renderSlots(); updatePromptLockState();
+                hideCropOverlay();
+                cancelEdit();
+            });
+        }
+        // ========== 裁剪功能结束 ==========
 
         let manualUnlock = false;
         function updatePromptLockState() {
