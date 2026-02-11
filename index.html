@@ -76,6 +76,14 @@
             z-index: 1;
         }
     </style>
+    <script>
+        // 立即执行：防止页面闪烁
+        if (localStorage.getItem('site_auth') === 'true') {
+            const style = document.createElement('style');
+            style.innerHTML = '#auth-overlay { display: none !important; } #main-content { visibility: visible !important; }';
+            document.head.appendChild(style);
+        }
+    </script>
 </head>
 
 <body class="bg-[#fafafa] min-h-screen flex flex-col text-gray-800 relative">
@@ -403,12 +411,7 @@
             }
         }
 
-        window.onload = function () {
-            if (localStorage.getItem('site_auth') === 'true') {
-                document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('main-content').style.visibility = 'visible';
-            }
-        };
+        // window.onload check removed as it is handled in <head> to prevent flash
 
         document.getElementById('access-password').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') verifyPassword();
