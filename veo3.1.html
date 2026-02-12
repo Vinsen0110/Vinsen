@@ -175,6 +175,46 @@
                 border-top: 1px solid #e5e7eb;
             }
         }
+
+        /* ========== 互动 UI 动效 ========== */
+        [id$="-options"]:not(.hidden) {
+            animation: dropdownIn 0.22s ease-out forwards;
+            transform-origin: top right;
+        }
+        @keyframes dropdownIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        [id$="-trigger"], #ratio-trigger, #model-trigger {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+        [id$="-trigger"]:active, #ratio-trigger:active, #model-trigger:active { transform: scale(0.98); }
+        .model-option:active, .custom-option:active, .ratio-option:active { transform: scale(0.98); }
+        .model-option, .custom-option, .ratio-option { transition: background-color 0.2s, transform 0.15s; }
+        #generate-btn {
+            transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
+        }
+        #generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+        }
+        #generate-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        header button[onclick] { transition: transform 0.2s ease, background-color 0.2s; }
+        header button[onclick]:hover { transform: scale(1.08); }
+        header button[onclick]:active { transform: scale(0.95); }
+        .task-item { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08);
+        }
+        #batch-actions button {
+            transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
+        }
+        #batch-actions button:hover { transform: scale(1.05); }
+        #batch-actions button:active { transform: scale(0.98); }
+        #slots-grid > div { transition: transform 0.2s ease, border-color 0.2s, background-color 0.2s; }
+        #slots-grid > div:hover { transform: scale(1.03); }
+        #slots-grid > div:active { transform: scale(0.98); }
     </style>
 </head>
 
@@ -197,12 +237,12 @@
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span id="current-api-display">检测中...</span>
             </div>
-            <button onclick="toggleTheme()"
+            <button onclick="toggleTheme()" title="切换深色/浅色模式"
+                class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
+                    id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
+            <button onclick="openSettings()" title="设置"
                 class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
-                    id="theme-icon" class="fa-solid fa-moon"></i></button>
-            <button onclick="openSettings()"
-                class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
-                    class="fa-solid fa-gear"></i></button>
+                    class="fa-solid fa-gear text-lg"></i></button>
         </div>
     </header>
 
@@ -461,6 +501,7 @@
 
         function initApp() {
             loadSettings();
+            loadTheme();
             loadHistory();
             renderSlots();
             setupResizers();
@@ -735,7 +776,8 @@
             updateApiDisplay(document.getElementById('setting-url').value);
         }
         function updateApiDisplay(url) { try { document.getElementById('current-api-display').innerText = "当前: " + new URL(url).hostname; } catch (e) { } }
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
+        function loadTheme() { if (localStorage.getItem('veo_theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-sun text-amber-400'; } else { document.documentElement.classList.remove('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-moon text-gray-800'; } }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); const isDark = document.documentElement.classList.contains('dark'); localStorage.setItem('veo_theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-gray-800'; }
 
         function setupResizers() {
             const rx = document.getElementById('resizer-x'), ry = document.getElementById('resizer-y'), lp = document.getElementById('left-panel'), ps = document.getElementById('preview-section');
