@@ -131,6 +131,45 @@ min-height: 500px !important; flex: none !important; }
             nav { display: none !important;
 } 
         }
+
+        /* ========== 互动 UI 动效 ========== */
+        [id$="-options"]:not(.hidden) {
+            animation: dropdownIn 0.22s ease-out forwards;
+            transform-origin: top right;
+        }
+        @keyframes dropdownIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        [id$="-trigger"] {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+        [id$="-trigger"]:active { transform: scale(0.98); }
+        .model-option:active, .custom-option:active, [class*="ratio"]:active { transform: scale(0.98); }
+        .model-option, .custom-option { transition: background-color 0.2s, transform 0.15s; }
+        #generate-btn-single, #generate-btn-sb {
+            transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
+        }
+        #generate-btn-single:hover:not(:disabled), #generate-btn-sb:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+        }
+        #generate-btn-single:active:not(:disabled), #generate-btn-sb:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        header button[onclick] { transition: transform 0.2s ease, background-color 0.2s; }
+        header button[onclick]:hover { transform: scale(1.08); }
+        header button[onclick]:active { transform: scale(0.95); }
+        .task-item { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08);
+        }
+        #batch-actions button {
+            transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
+        }
+        #batch-actions button:hover { transform: scale(1.05); }
+        #batch-actions button:active { transform: scale(0.98); }
+        .time-badge { transition: transform 0.15s ease; }
+        .time-badge:hover { transform: scale(1.03); }
     </style>
 </head>
 <body class="md:h-screen flex flex-col md:overflow-hidden bg-gray-50 text-gray-800 dark:bg-[#09090b] dark:text-[#e4e4e7]" onload="initApp()" onclick="closeDropdownOnClickOutside(event)">
@@ -149,8 +188,8 @@ min-height: 500px !important; flex: none !important; }
       
           <span id="current-api-display">检测中...</span>
             </div>
-            <button onclick="toggleTheme()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i id="theme-icon" class="fa-solid fa-moon"></i></button>
-            <button onclick="openSettings()" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i class="fa-solid fa-gear"></i></button>
+            <button onclick="toggleTheme()" title="切换深色/浅色模式" class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
+            <button onclick="openSettings()" title="设置" class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i class="fa-solid fa-gear text-lg"></i></button>
         </div>
     </header>
 
@@ -747,11 +786,9 @@ taskList = taskList.filter(t => !idsToDelete.includes(t.id)); saveHistory(); ren
 saveHistory(); renderTaskList(); if(activeTaskId === id) { activeTaskId = null; document.getElementById('preview-placeholder').classList.remove('hidden'); document.getElementById('main-player').classList.add('hidden');
 } }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); const isDark = document.documentElement.classList.contains('dark');
-localStorage.setItem('sora_theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun text-purple-500';
+localStorage.setItem('sora_theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-gray-800';
 }
-        function loadTheme() { if(localStorage.getItem('sora_theme') === 'light') { document.documentElement.classList.remove('dark');
-document.getElementById('theme-icon').className = 'fa-solid fa-sun text-purple-500'; } else { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-moon';
-} }
+        function loadTheme() { if(localStorage.getItem('sora_theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-sun text-amber-400'; } else { document.documentElement.classList.remove('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-moon text-gray-800'; } }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden');
 }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden');
