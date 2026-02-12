@@ -517,6 +517,84 @@
                 margin-right: 0;
             }
         }
+
+        /* ========== 互动 UI 动效 ========== */
+        #dropdown-options:not(.hidden),
+        #ratio-options:not(.hidden) {
+            animation: dropdownIn 0.22s ease-out forwards;
+            transform-origin: top right;
+        }
+        #ratio-options:not(.hidden) { transform-origin: bottom left; }
+        @keyframes dropdownIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        #dropdown-trigger, #ratio-trigger {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+        #dropdown-trigger:active, #ratio-trigger:active { transform: scale(0.98); }
+        .model-option:active, .ratio-option:active { transform: scale(0.98); }
+        .model-option, .ratio-option { transition: background-color 0.2s, transform 0.15s; }
+        .batch-btn {
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s, transform 0.15s;
+        }
+        .batch-btn:active { transform: scale(0.97); }
+        .batch-btn:hover:not(.active-btn) { transform: translateY(-1px); }
+        #generate-btn {
+            transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
+        }
+        #generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+        }
+        #generate-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+        header button[onclick] {
+            transition: transform 0.2s ease, background-color 0.2s;
+        }
+        header button[onclick]:hover { transform: scale(1.08); }
+        header button[onclick]:active { transform: scale(0.95); }
+        .history-item {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s;
+        }
+        .history-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+        }
+        .history-item-enter {
+            animation: historyItemIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes historyItemIn {
+            from { opacity: 0; transform: scale(0.92) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        #slots-grid > div {
+            transition: transform 0.2s ease, border-color 0.2s, background-color 0.2s;
+        }
+        #slots-grid > div:hover { transform: scale(1.03); }
+        #slots-grid > div:active { transform: scale(0.98); }
+        .compare-handle {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .compare-handle:hover,
+        .compare-slider:hover .compare-handle {
+            transform: translate(-50%, -50%) scale(1.12);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        #batch-actions button {
+            transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
+        }
+        #batch-actions button:hover { transform: scale(1.05); }
+        #batch-actions button:active { transform: scale(0.98); }
+        #agent-toggle-btn {
+            transition: transform 0.2s ease, background-color 0.2s;
+        }
+        #agent-toggle-btn:hover { transform: scale(1.06); }
+        #agent-toggle-btn:active { transform: scale(0.96); }
+        #preview-section-wrapper .flex button,
+        #preview-section-wrapper .absolute.z-30 button {
+            transition: transform 0.15s ease, color 0.2s;
+        }
+        #preview-section-wrapper button:hover { transform: scale(1.08); }
     </style>
 </head>
 
@@ -539,12 +617,12 @@
                 <span id="current-api-display">检测中...</span>
             </div>
             <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
-            <button onclick="toggleTheme()"
+            <button onclick="toggleTheme()" title="切换深色/浅色模式"
+                class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
+                    id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
+            <button onclick="openSettings()" title="设置"
                 class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i
-                    id="theme-icon" class="fa-solid fa-moon"></i></button>
-            <button onclick="openSettings()"
-                class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i
-                    class="fa-solid fa-gear"></i></button>
+                    class="fa-solid fa-gear text-lg"></i></button>
         </div>
     </header>
     <div id="main-container" class="flex flex-col md:flex-row md:h-[calc(100vh-3.5rem)] w-full">
@@ -1197,8 +1275,8 @@
 
             const savedTheme = localStorage.getItem('nano_theme');
             const icon = document.getElementById('theme-icon');
-            if (savedTheme === 'light') { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-sun text-purple-500'; }
-            else { document.documentElement.classList.add('dark'); icon.className = 'fa-solid fa-moon'; }
+            if (savedTheme === 'dark') { document.documentElement.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; }
+            else { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; }
             ctx = canvas.getContext('2d');
             document.getElementById('text-tool-input').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') finalizeText();
@@ -1756,8 +1834,8 @@
 
         function toggleTheme() {
             const html = document.documentElement; const icon = document.getElementById('theme-icon');
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); icon.className = 'fa-solid fa-sun text-purple-500'; localStorage.setItem('nano_theme', 'light'); }
-            else { html.classList.add('dark'); icon.className = 'fa-solid fa-moon'; localStorage.setItem('nano_theme', 'dark'); }
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; localStorage.setItem('nano_theme', 'light'); }
+            else { html.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; localStorage.setItem('nano_theme', 'dark'); }
         }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
@@ -2246,6 +2324,8 @@
                     <div class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-green-400 text-[10px]"></i><span class="text-[9px] text-gray-500 ml-auto bg-white/10 px-1.5 py-0.5 rounded">${duration}</span></div>
                 </div>`;
             list.prepend(item);
+            item.classList.add('history-item-enter');
+            setTimeout(function() { item.classList.remove('history-item-enter'); }, 420);
         }
 
         function toggleSelectAll() { const mainCb = document.getElementById('select-all'); document.querySelectorAll('#history-list .task-checkbox').forEach(cb => cb.checked = mainCb.checked); updateBatchState(); }
