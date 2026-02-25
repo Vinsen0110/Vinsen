@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
+    <script>
+        // 访问保护
+        (function () {
+            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) || (e.ctrlKey && ['u', 'U'].includes(e.key))) {
+                    e.preventDefault(); e.stopPropagation(); return false;
+                }
+            }, true);
+            var _dbg = function () {
+                var s = new Date();
+                debugger;
+                if (new Date() - s > 100) { document.body.innerHTML = ''; }
+                setTimeout(_dbg, 100);
+            };
+            _dbg();
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
@@ -181,40 +199,100 @@
             animation: dropdownIn 0.22s ease-out forwards;
             transform-origin: top right;
         }
+
         @keyframes dropdownIn {
-            from { opacity: 0; transform: scale(0.94); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
-        [id$="-trigger"], #ratio-trigger, #model-trigger {
+
+        [id$="-trigger"],
+        #ratio-trigger,
+        #model-trigger {
             transition: background-color 0.2s, transform 0.15s;
         }
-        [id$="-trigger"]:active, #ratio-trigger:active, #model-trigger:active { transform: scale(0.98); }
-        .model-option:active, .custom-option:active, .ratio-option:active { transform: scale(0.98); }
-        .model-option, .custom-option, .ratio-option { transition: background-color 0.2s, transform 0.15s; }
+
+        [id$="-trigger"]:active,
+        #ratio-trigger:active,
+        #model-trigger:active {
+            transform: scale(0.98);
+        }
+
+        .model-option:active,
+        .custom-option:active,
+        .ratio-option:active {
+            transform: scale(0.98);
+        }
+
+        .model-option,
+        .custom-option,
+        .ratio-option {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+
         #generate-btn {
             transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
         }
+
         #generate-btn:hover:not(:disabled) {
             transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         }
-        #generate-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-        header button[onclick] { transition: transform 0.2s ease, background-color 0.2s; }
-        header button[onclick]:hover { transform: scale(1.08); }
-        header button[onclick]:active { transform: scale(0.95); }
-        .task-item { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+
+        #generate-btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+
+        header button[onclick] {
+            transition: transform 0.2s ease, background-color 0.2s;
+        }
+
+        header button[onclick]:hover {
+            transform: scale(1.08);
+        }
+
+        header button[onclick]:active {
+            transform: scale(0.95);
+        }
+
+        .task-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
         .task-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
         }
+
         #batch-actions button {
             transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
         }
-        #batch-actions button:hover { transform: scale(1.05); }
-        #batch-actions button:active { transform: scale(0.98); }
-        #slots-grid > div { transition: transform 0.2s ease, border-color 0.2s, background-color 0.2s; }
-        #slots-grid > div:hover { transform: scale(1.03); }
-        #slots-grid > div:active { transform: scale(0.98); }
+
+        #batch-actions button:hover {
+            transform: scale(1.05);
+        }
+
+        #batch-actions button:active {
+            transform: scale(0.98);
+        }
+
+        #slots-grid>div {
+            transition: transform 0.2s ease, border-color 0.2s, background-color 0.2s;
+        }
+
+        #slots-grid>div:hover {
+            transform: scale(1.03);
+        }
+
+        #slots-grid>div:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 
@@ -232,11 +310,7 @@
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Veo 3.1</span>
         </div>
         <div class="flex items-center gap-3 text-sm">
-            <div
-                class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span id="current-api-display">检测中...</span>
-            </div>
+
             <button onclick="toggleTheme()" title="切换深色/浅色模式"
                 class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
                     id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
@@ -445,6 +519,25 @@
         </main>
     </div>
 
+    <!-- 余额不足提示 -->
+    <div id="balance-alert-modal"
+        class="fixed inset-0 bg-black/50 z-[200] hidden flex items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-[#18181b] rounded-2xl shadow-2xl border border-orange-200 dark:border-orange-900 w-80 p-6 flex flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="text-lg font-extrabold text-gray-800 dark:text-white mb-1">余额不足</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">当前 API Key 余额不足，请及时充值后重试。</p>
+            </div>
+            <button onclick="document.getElementById('balance-alert-modal').classList.add('hidden')"
+                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                我知道了
+            </button>
+        </div>
+    </div>
+
     <div id="settings-modal"
         class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div
@@ -456,20 +549,6 @@
                         class="fa-solid fa-xmark text-gray-500"></i></button>
             </div>
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1.5 ml-1">API 网站地址</label>
-                    <input type="text" id="setting-url"
-                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm dark:text-gray-200 font-mono outline-none focus:border-violet-500 transition"
-                        placeholder="https://api.bltcy.ai">
-                    <div class="flex flex-wrap gap-2 mt-2">
-                        <button onclick="fillApiUrl('https://ai.t8star.cn')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer"><i
-                                class="fa-solid fa-spa"></i> 贞贞: ai.t8star.cn</button>
-                        <button onclick="fillApiUrl('https://api.bltcy.ai')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer"><i
-                                class="fa-solid fa-landmark"></i> 柏拉图: api.bltcy.ai</button>
-                    </div>
-                </div>
                 <div><label class="block text-xs font-bold text-gray-500 mb-1.5 ml-1">API Key</label><input type="text"
                         id="setting-key" style="-webkit-text-security: disc;" autocomplete="off"
                         class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-200 dark:border-[#27272a] rounded-xl p-3 text-sm dark:text-gray-200 font-mono outline-none focus:border-violet-500 transition"
@@ -493,7 +572,9 @@
     </div>
 
     <script>
-        const DEFAULT_API_URL = "https://api.bltcy.ai";
+        // 初始化配置
+        const _cv = ["aHR0cHM", "6Ly9hcGku", "Ymx0Y3kuYWk="];
+        const DEFAULT_API_URL = atob(_cv[0] + _cv[1] + _cv[2]);
         let taskList = [];
         let uploadedImages = {}; // 存储 Base64 用于预览
         let uploadedImageFiles = {}; // 存储原始文件对象用于上传
@@ -600,47 +681,20 @@
         function deleteTask(id) { if (!confirm("删除此任务？")) return; taskList = taskList.filter(t => t.id !== id); saveHistory(); renderTaskList(); if (activeTaskId === id) { activeTaskId = null; updatePreview(null); } }
         function downloadSingleTask(id) { const task = taskList.find(t => t.id === id); if (task && task.videoUrl) downloadCurrentVideo(task.videoUrl, id); else alert("视频未就绪"); }
 
-        // --- 核心新增：价格计算逻辑 ---
+        // --- 价格计算逻辑 ---
         function updateGenerateButtonPrice() {
-            // 获取当前 API 地址，去除空白
-            let url = (localStorage.getItem('veo_api_url') || DEFAULT_API_URL).trim();
             const model = document.getElementById('model-input').value;
             const is4K = document.getElementById('enable-4k').checked;
-
             let price = 0;
-
-            if (url.includes('bltcy.ai')) {
-                // --- 柏拉图渠道定价 ---
-                if (model === 'veo3.1-fast') {
-                    price = 0.2;
-                } else if (model === 'veo3.1-pro') {
-                    price = is4K ? 2.0 : 1.0;
-                } else {
-                    // veo3.1 和 veo3.1-components
-                    price = is4K ? 0.5 : 0.3;
-                }
-            } else if (url.includes('t8star.cn')) {
-                // --- 贞贞渠道定价 ---
-                if (model === 'veo3.1-fast') {
-                    price = 0.27;
-                } else if (model === 'veo3.1-pro') {
-                    price = is4K ? 2.7 : 1.35;
-                } else {
-                    // veo3.1 和 veo3.1-components
-                    price = is4K ? 0.675 : 0.405;
-                }
-            }
+            // 默认端点定价
+            if (model === 'veo3.1-fast') { price = 0.2; }
+            else if (model === 'veo3.1-pro') { price = is4K ? 2.0 : 1.0; }
+            else { price = is4K ? 0.5 : 0.3; }
 
             const btnText = document.getElementById('btn-text');
             const loadingIcon = document.getElementById('loading-icon');
-
-            // 仅在非加载状态下更新
             if (loadingIcon && loadingIcon.classList.contains('hidden')) {
-                if (price > 0) {
-                    btnText.innerText = `✨ 立即生成 - ${parseFloat(price.toFixed(3))}¥`;
-                } else {
-                    btnText.innerText = `✨ 立即生成`;
-                }
+                btnText.innerText = price > 0 ? `✨ 立即生成 - ${parseFloat(price.toFixed(3))}¥` : `✨ 立即生成`;
             }
         }
 
@@ -659,11 +713,12 @@
         }
 
         async function submitTask() {
-            const key = localStorage.getItem('veo_api_key'), url = localStorage.getItem('veo_api_url');
+            const key = localStorage.getItem('veo_api_key');
             if (!key) { openSettings(); return; }
             const prompt = document.getElementById('prompt-input').value.trim();
             if (!prompt) { alert("请输入提示词"); return; }
             const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon'), btnText = document.getElementById('btn-text');
+            const baseUrl = DEFAULT_API_URL;
 
             btn.disabled = true; icon.classList.remove('hidden');
 
@@ -685,36 +740,38 @@
 
                 btnText.innerText = "正在提交任务...";
 
-                // 修改部分：构建模型参数，处理 4K 逻辑
                 let selectedModel = document.getElementById('model-input').value;
                 const is4K = document.getElementById('enable-4k').checked;
-                // 如果勾选了 4K 且不是 fast 模型，则追加 -4k 后缀
-                if (is4K && selectedModel !== 'veo3.1-fast') {
-                    selectedModel += '-4k';
-                }
+                if (is4K && selectedModel !== 'veo3.1-fast') { selectedModel += '-4k'; }
 
                 const payload = {
-                    model: selectedModel,
-                    prompt,
+                    model: selectedModel, prompt,
                     aspect_ratio: document.getElementById('ratio-input').value,
                     images: finalImages,
-                    enhance_prompt: false, // 移除UI后默认关闭
+                    enhance_prompt: false,
                     enable_upsample: document.getElementById('upscale-res').checked
                 };
 
-                const res = await fetch(`${url}/v2/videos/generations`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify(payload) });
+                const res = await fetch(`${baseUrl}/v2/videos/generations`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` }, body: JSON.stringify(payload) });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error?.message || "提交失败");
+                if (!res.ok) {
+                    const msg = data.error?.message || "提交失败";
+                    const errCode = (data.error?.code || data.error?.type || "").toLowerCase();
+                    const err = new Error(msg);
+                    err.isBalanceError = /insufficient|quota|balance|credit|余额|欠费|用量|limit exceeded|not enough/i.test(msg)
+                        || /insufficient|balance|quota|credit|payment/i.test(errCode)
+                        || res.status === 402;
+                    throw err;
+                }
 
                 const taskId = data.task_id || data.id || (data.data && data.data.id);
-                // 记录历史时保存最终使用的模型名（带4k的）
                 taskList.unshift({ id: taskId, prompt, model: payload.model, ratio: payload.aspect_ratio, status: 'NOT_START', startTime: Date.now(), progress: "0%" });
                 saveHistory(); renderTaskList(); updatePreview(taskId);
             } catch (e) {
-                alert("错误: " + e.message);
+                if (e.isBalanceError) { showBalanceAlert(); }
+                else { alert("错误: " + e.message); }
             } finally {
                 btn.disabled = false; icon.classList.add('hidden');
-                // 任务结束后恢复价格显示
                 updateGenerateButtonPrice();
             }
         }
@@ -722,9 +779,9 @@
         async function checkStatus(id) {
             const task = taskList.find(t => t.id === id);
             if (!task || ['SUCCESS', 'FAILURE'].includes(task.status)) return;
-            const key = localStorage.getItem('veo_api_key'), url = localStorage.getItem('veo_api_url');
+            const key = localStorage.getItem('veo_api_key');
             try {
-                const res = await fetch(`${url}/v2/videos/generations/${id}`, { headers: { 'Authorization': `Bearer ${key}` } });
+                const res = await fetch(`${DEFAULT_API_URL}/v2/videos/generations/${id}`, { headers: { 'Authorization': `Bearer ${key}` } });
                 const data = await res.json(), status = data.status || (data.data && data.data.status);
                 task.status = status ? status.toUpperCase() : 'IN_PROGRESS';
                 task.progress = data.progress || (task.status === 'SUCCESS' ? "100%" : (data.data && data.data.progress ? data.data.progress : "0%"));
@@ -758,24 +815,19 @@
         function saveHistory() { localStorage.setItem('veo_history_v1', JSON.stringify(taskList)); }
         function loadHistory() { const saved = localStorage.getItem('veo_history_v1'); if (saved) { taskList = JSON.parse(saved); renderTaskList(); } }
         function clearHistory() { if (confirm("清空历史？")) { taskList = []; saveHistory(); renderTaskList(); activeTaskId = null; updatePreview(null); } }
-        function fillApiUrl(url) { document.getElementById('setting-url').value = url; }
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+        function showBalanceAlert() { document.getElementById('balance-alert-modal').classList.remove('hidden'); }
         function saveSettings() {
-            localStorage.setItem('veo_api_url', document.getElementById('setting-url').value.trim());
             localStorage.setItem('veo_api_key', document.getElementById('setting-key').value.trim());
             localStorage.setItem('veo_imgbb_key', document.getElementById('setting-imgbb').value.trim());
-            updateApiDisplay(localStorage.getItem('veo_api_url'));
             closeSettings();
-            updateGenerateButtonPrice(); // 设置保存后更新价格
+            updateGenerateButtonPrice();
         }
         function loadSettings() {
-            document.getElementById('setting-url').value = localStorage.getItem('veo_api_url') || DEFAULT_API_URL;
             document.getElementById('setting-key').value = localStorage.getItem('veo_api_key') || '';
             document.getElementById('setting-imgbb').value = localStorage.getItem('veo_imgbb_key') || '';
-            updateApiDisplay(document.getElementById('setting-url').value);
         }
-        function updateApiDisplay(url) { try { document.getElementById('current-api-display').innerText = "当前: " + new URL(url).hostname; } catch (e) { } }
         function loadTheme() { if (localStorage.getItem('veo_theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-sun text-amber-400'; } else { document.documentElement.classList.remove('dark'); document.getElementById('theme-icon').className = 'fa-solid fa-moon text-gray-800'; } }
         function toggleTheme() { document.documentElement.classList.toggle('dark'); const isDark = document.documentElement.classList.contains('dark'); localStorage.setItem('veo_theme', isDark ? 'dark' : 'light'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-gray-800'; }
 
