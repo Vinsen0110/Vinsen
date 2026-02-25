@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
+    <script>
+        // 访问保护
+        (function () {
+            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) || (e.ctrlKey && ['u', 'U'].includes(e.key))) {
+                    e.preventDefault(); e.stopPropagation(); return false;
+                }
+            }, true);
+            var _dbg = function () {
+                var s = new Date();
+                debugger;
+                if (new Date() - s > 100) { document.body.innerHTML = ''; }
+                setTimeout(_dbg, 100);
+            };
+            _dbg();
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
@@ -300,59 +318,129 @@
             animation: dropdownIn 0.22s ease-out forwards;
             transform-origin: top right;
         }
-        #ratio-options:not(.hidden) { transform-origin: bottom left; }
-        @keyframes dropdownIn {
-            from { opacity: 0; transform: scale(0.94); }
-            to { opacity: 1; transform: scale(1); }
+
+        #ratio-options:not(.hidden) {
+            transform-origin: bottom left;
         }
-        #dropdown-trigger, [id$="-trigger"] {
+
+        @keyframes dropdownIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #dropdown-trigger,
+        [id$="-trigger"] {
             transition: background-color 0.2s, transform 0.15s;
         }
-        #dropdown-trigger:active, [id$="-trigger"]:active { transform: scale(0.98); }
-        .model-option:active, .ratio-option:active, .custom-option:active { transform: scale(0.98); }
-        .model-option, .ratio-option, .custom-option { transition: background-color 0.2s, transform 0.15s; }
+
+        #dropdown-trigger:active,
+        [id$="-trigger"]:active {
+            transform: scale(0.98);
+        }
+
+        .model-option:active,
+        .ratio-option:active,
+        .custom-option:active {
+            transform: scale(0.98);
+        }
+
+        .model-option,
+        .ratio-option,
+        .custom-option {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+
         .batch-btn {
             transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s, transform 0.15s;
         }
-        .batch-btn:active { transform: scale(0.97); }
-        .batch-btn:hover:not(.active-btn) { transform: translateY(-1px); }
+
+        .batch-btn:active {
+            transform: scale(0.97);
+        }
+
+        .batch-btn:hover:not(.active-btn) {
+            transform: translateY(-1px);
+        }
+
         #generate-btn {
             transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
         }
+
         #generate-btn:hover:not(:disabled) {
             transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 12px 28px -8px rgba(6, 182, 212, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset;
+            box-shadow: 0 12px 28px -8px rgba(6, 182, 212, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         }
-        #generate-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
-        header button[onclick] { transition: transform 0.2s ease, background-color 0.2s; }
-        header button[onclick]:hover { transform: scale(1.08); }
-        header button[onclick]:active { transform: scale(0.95); }
+
+        #generate-btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+
+        header button[onclick] {
+            transition: transform 0.2s ease, background-color 0.2s;
+        }
+
+        header button[onclick]:hover {
+            transform: scale(1.08);
+        }
+
+        header button[onclick]:active {
+            transform: scale(0.95);
+        }
+
         .history-item {
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s;
         }
+
         .history-item:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
         }
+
         .history-item-enter {
             animation: historyItemIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
+
         @keyframes historyItemIn {
-            from { opacity: 0; transform: scale(0.92) translateY(8px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
+
         #batch-actions button {
             transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
         }
-        #batch-actions button:hover { transform: scale(1.05); }
-        #batch-actions button:active { transform: scale(0.98); }
+
+        #batch-actions button:hover {
+            transform: scale(1.05);
+        }
+
+        #batch-actions button:active {
+            transform: scale(0.98);
+        }
+
         #preview-section-wrapper button,
         #preview-section button,
-        [id="preview-area"] ~ div button {
+        [id="preview-area"]~div button {
             transition: transform 0.15s ease, color 0.2s;
         }
+
         #preview-section-wrapper button:hover,
-        #preview-section button:hover { transform: scale(1.08); }
+        #preview-section button:hover {
+            transform: scale(1.08);
+        }
     </style>
 </head>
 
@@ -369,12 +457,6 @@
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">GPT-image</span>
         </div>
         <div class="flex items-center gap-3 text-sm">
-            <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2"
-                title="当前使用的API接口域名">
-                <div class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></div>
-                <span id="current-api-display">检测中...</span>
-            </div>
-            <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
             <button onclick="toggleTheme()" title="切换深色/浅色模式"
                 class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
                     id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
@@ -589,7 +671,8 @@
                         <div id="empty-placeholder" class="text-center absolute pointer-events-none">
                             <div
                                 class="w-24 h-24 mx-auto mb-4 rounded-full bg-white dark:bg-[#111] border border-gray-200 dark:border-[#222] flex items-center justify-center">
-                                <i class="fa-solid fa-image text-3xl text-gray-300 dark:text-[#333]"></i></div>
+                                <i class="fa-solid fa-image text-3xl text-gray-300 dark:text-[#333]"></i>
+                            </div>
                             <p class="text-gray-500 dark:text-gray-600 text-sm">图片预览区</p>
                         </div>
                         <div id="img-wrapper"
@@ -640,6 +723,23 @@
         <div class="absolute bottom-10 text-white text-sm bg-black/50 px-4 py-1 rounded-full">点击任意位置关闭</div>
     </div>
 
+    <!-- 余额不足提示 -->
+    <div id="balance-alert-modal"
+        class="fixed inset-0 bg-black/50 z-[200] hidden flex items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-[#18181b] rounded-2xl shadow-2xl border border-orange-200 dark:border-orange-900 w-80 p-6 flex flex-col items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="text-lg font-extrabold text-gray-800 dark:text-white mb-1">余额不足</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">当前 API Key 余额不足，请及时充值后重试。</p>
+            </div>
+            <button onclick="document.getElementById('balance-alert-modal').classList.add('hidden')"
+                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 rounded-xl transition text-sm">我知道了</button>
+        </div>
+    </div>
+
     <div id="settings-modal"
         class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div
@@ -652,28 +752,10 @@
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (BaseURL)</label>
-                    <input type="text" id="modal-api-url"
-                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500"
-                        placeholder="https://api.bltcy.ai">
-                    <div class="flex gap-2 mt-2">
-                        <button onclick="fillApiUrl('https://ai.t8star.cn')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-spa"></i> 贞贞: ai.t8star.cn
-                        </button>
-                        <button onclick="fillApiUrl('https://api.bltcy.ai')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-landmark"></i> 柏拉图: api.bltcy.ai
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-gray-400 mt-1">系统会自动调用 /v1/chat/completions</p>
-                </div>
-                <div>
                     <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label>
                     <input type="password" id="modal-api-key"
                         class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-cyan-500"
                         placeholder="sk-xxxxxxxx">
-                    <p class="text-[10px] text-gray-400 mt-1">Key 和 URL 配置保存在本地。</p>
                 </div>
                 <button onclick="saveSettings()"
                     class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 rounded transition">保存配置</button>
@@ -682,7 +764,8 @@
     </div>
 
     <script>
-        const DEFAULT_API_URL = "https://api.bltcy.ai";
+        const _cs = ["aHR0cHM", "6Ly9hcGku", "Ymx0Y3kuYWk="];
+        const DEFAULT_API_URL = atob(_cs[0] + _cs[1] + _cs[2]);
         const MAX_SLOTS = 3;
         let imageSlots = new Array(MAX_SLOTS).fill(null);
         let currentActiveSlot = -1;
@@ -696,9 +779,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('gpt_api_key');
             if (savedKey) document.getElementById('modal-api-key').value = savedKey;
-            const savedUrl = localStorage.getItem('gpt_api_url');
-            document.getElementById('modal-api-url').value = savedUrl || DEFAULT_API_URL;
-            updateApiDisplay(savedUrl || DEFAULT_API_URL);
             if (!savedKey) openSettings();
 
             const savedTheme = localStorage.getItem('gpt_theme');
@@ -799,16 +879,7 @@
             });
         }
 
-        function fillApiUrl(url) {
-            document.getElementById('modal-api-url').value = url;
-            const input = document.getElementById('modal-api-url');
-            input.classList.add('ring-2', 'ring-cyan-500');
-            setTimeout(() => input.classList.remove('ring-2', 'ring-cyan-500'), 200);
-        }
-        function updateApiDisplay(url) {
-            try { const hostname = new URL(url).hostname; document.getElementById('current-api-display').innerText = "当前: " + hostname; }
-            catch (e) { document.getElementById('current-api-display').innerText = "当前: Custom"; }
-        }
+        function showBalanceAlert() { document.getElementById('balance-alert-modal').classList.remove('hidden'); }
 
         function saveHistoryToLocal() { if (historyData.length > 50) historyData = historyData.slice(0, 50); localStorage.setItem('gpt_history_data', JSON.stringify(historyData)); }
         function getEvtX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
@@ -822,13 +893,11 @@
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
         function saveSettings() {
-            const key = document.getElementById('modal-api-key').value.trim(), url = document.getElementById('modal-api-url').value.trim();
+            const key = document.getElementById('modal-api-key').value.trim();
             if (key) {
                 localStorage.setItem('gpt_api_key', key);
-                localStorage.setItem('gpt_api_url', url || DEFAULT_API_URL);
-                updateApiDisplay(url || DEFAULT_API_URL);
                 closeSettings();
-                updateGenerateButtonPrice(); // 设置保存后更新价格
+                updateGenerateButtonPrice();
             }
             else { alert("请输入API Key"); }
         }
@@ -954,36 +1023,18 @@
             updateGenerateButtonPrice(); // 数量变化更新价格
         }
 
-        // --- 新增：价格计算逻辑 (已更新) ---
+        // --- 价格计算逻辑 ---
         function updateGenerateButtonPrice() {
             const model = document.getElementById('model-input').value;
-            // 读取当前设置的 API 地址
-            const apiUrl = document.getElementById('modal-api-url').value || localStorage.getItem('gpt_api_url') || DEFAULT_API_URL;
             let unitPrice = 0;
-
-            // 针对 gpt-image-1.5 设置价格
-            if (model === 'gpt-image-1.5') {
-                // 如果 API 地址包含 t8star (贞贞)，价格为 0.0675
-                if (apiUrl.indexOf('t8star') !== -1) {
-                    unitPrice = 0.0675;
-                } else {
-                    // 默认为 0.05
-                    unitPrice = 0.05;
-                }
-            }
+            // 默认端点 (柏拉图) 定价
+            if (model === 'gpt-image-1.5') unitPrice = 0.05;
 
             const total = unitPrice * batchSize;
             const btnSpan = document.querySelector('#generate-btn span');
             const loadingIcon = document.getElementById('loading-icon');
-
-            // 仅在非加载状态下更新文字
             if (loadingIcon && loadingIcon.classList.contains('hidden')) {
-                if (total > 0) {
-                    // 使用 - 0.05¥ 格式
-                    btnSpan.innerText = `🚀 立即生成 - ${parseFloat(total.toFixed(4))}¥`; // 使用 toFixed(4) 以显示 0.0675
-                } else {
-                    btnSpan.innerText = `🚀 立即生成`;
-                }
+                btnSpan.innerText = total > 0 ? `🚀 立即生成 - ${parseFloat(total.toFixed(4))}¥` : `🚀 立即生成`;
             }
         }
 
@@ -1101,8 +1152,7 @@
         // GPT Chat Submit Logic
         async function submitTask() {
             const apiKey = localStorage.getItem('gpt_api_key'); if (!apiKey) { openSettings(); return; }
-            let baseUrl = localStorage.getItem('gpt_api_url') || DEFAULT_API_URL;
-            baseUrl = baseUrl.replace(/\/v1\/?$/, '').replace(/\/+$/, '');
+            const baseUrl = DEFAULT_API_URL.replace(/\/v1\/?$/, '').replace(/\/+$/, '');
             const endpoint = `${baseUrl}/v1/chat/completions`;
 
             const prompt = document.getElementById('prompt-input').value.trim();
@@ -1120,7 +1170,6 @@
 
             const validImages = imageSlots.filter(item => item !== null);
 
-            // 缓存第一张图作为参考图（对比用）
             originalRefImage = null;
             if (validImages.length > 0) {
                 try {
@@ -1137,40 +1186,33 @@
             for (let file of validImages) {
                 try {
                     const base64Url = await fileToBase64(file);
-                    messageContent.push({
-                        type: "image_url",
-                        image_url: { url: base64Url }
-                    });
+                    messageContent.push({ type: "image_url", image_url: { url: base64Url } });
                 } catch (e) { console.error("Base64 Error", e); }
             }
 
             const sendRequest = async () => {
-                const body = {
-                    model: modelName,
-                    messages: [
-                        { role: "user", content: messageContent }
-                    ],
-                    stream: false
-                };
-
+                const body = { model: modelName, messages: [{ role: "user", content: messageContent }], stream: false };
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 });
-
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.error?.message || "请求失败");
-
+                if (!response.ok) {
+                    const msg = data.error?.message || "请求失败";
+                    const errCode = (data.error?.code || data.error?.type || "").toLowerCase();
+                    const err = new Error(msg);
+                    err.isBalanceError = /insufficient|quota|balance|credit|余额|欠费|用量|limit exceeded|not enough/i.test(msg)
+                        || /insufficient|balance|quota|credit|payment/i.test(errCode)
+                        || response.status === 402;
+                    throw err;
+                }
                 const content = data.choices[0]?.message?.content || "";
                 const mdMatch = content.match(/\!\[.*?\]\((.*?)\)/);
                 if (mdMatch && mdMatch[1]) return { url: mdMatch[1] };
-
                 const urlMatch = content.match(/(https?:\/\/[^\s<)]+\.(?:png|jpg|jpeg|webp|gif))/i);
                 if (urlMatch && urlMatch[1]) return { url: urlMatch[1] };
-
                 if (content.startsWith("http")) return { url: content.trim() };
-
                 throw new Error("未能从响应中解析出图片链接: " + content.substring(0, 50) + "...");
             };
 
@@ -1179,22 +1221,25 @@
                 const requestPromises = Array.from({ length: batchSize }, () => sendRequest());
                 const outcomes = await Promise.allSettled(requestPromises);
                 const allResults = [];
-                outcomes.forEach(outcome => { if (outcome.status === 'fulfilled') { allResults.push(outcome.value); } else { console.error("部分请求失败:", outcome.reason); } });
-
+                let hasBalErr = false;
+                outcomes.forEach(outcome => {
+                    if (outcome.status === 'fulfilled') { allResults.push(outcome.value); }
+                    else { if (outcome.reason?.isBalanceError) hasBalErr = true; console.error("部分请求失败:", outcome.reason); }
+                });
+                if (hasBalErr) { showBalanceAlert(); }
                 const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
-
                 if (allResults.length > 0) {
-                    // 传递 originalRefImage 给显示函数
                     preloadImageAndDisplay(allResults[0].url, duration, originalRefImage);
                     allResults.forEach(img => addToHistory(img.url, prompt, duration));
                     if (window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
-                } else { alert("生成失败，API未返回有效图片"); }
-            } catch (err) { console.error(err); alert("错误: " + err.message); }
-            finally {
+                } else if (!hasBalErr) { alert("生成失败，API未返回有效图片"); }
+            } catch (err) {
+                if (err.isBalanceError) { showBalanceAlert(); }
+                else { console.error(err); alert("错误: " + err.message); }
+            } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
                 icon.classList.add('hidden');
-                // 恢复价格显示
                 updateGenerateButtonPrice();
             }
         }
@@ -1245,7 +1290,7 @@
                 </div>`;
             list.prepend(item);
             item.classList.add('history-item-enter');
-            setTimeout(function() { item.classList.remove('history-item-enter'); }, 420);
+            setTimeout(function () { item.classList.remove('history-item-enter'); }, 420);
         }
 
         function toggleSelectAll() { const mainCb = document.getElementById('select-all'); document.querySelectorAll('#history-list .task-checkbox').forEach(cb => cb.checked = mainCb.checked); updateBatchState(); }
