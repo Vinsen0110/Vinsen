@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
+    <script>
+        // 访问保护
+        (function () {
+            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) || (e.ctrlKey && ['u', 'U'].includes(e.key))) {
+                    e.preventDefault(); e.stopPropagation(); return false;
+                }
+            }, true);
+            var _dbg = function () {
+                var s = new Date();
+                debugger;
+                if (new Date() - s > 100) { document.body.innerHTML = ''; }
+                setTimeout(_dbg, 100);
+            };
+            _dbg();
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
@@ -524,77 +542,159 @@
             animation: dropdownIn 0.22s ease-out forwards;
             transform-origin: top right;
         }
-        #ratio-options:not(.hidden) { transform-origin: bottom left; }
-        @keyframes dropdownIn {
-            from { opacity: 0; transform: scale(0.94); }
-            to { opacity: 1; transform: scale(1); }
+
+        #ratio-options:not(.hidden) {
+            transform-origin: bottom left;
         }
-        #dropdown-trigger, #ratio-trigger {
+
+        @keyframes dropdownIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #dropdown-trigger,
+        #ratio-trigger {
             transition: background-color 0.2s, transform 0.15s;
         }
-        #dropdown-trigger:active, #ratio-trigger:active { transform: scale(0.98); }
-        .model-option:active, .ratio-option:active { transform: scale(0.98); }
-        .model-option, .ratio-option { transition: background-color 0.2s, transform 0.15s; }
+
+        #dropdown-trigger:active,
+        #ratio-trigger:active {
+            transform: scale(0.98);
+        }
+
+        .model-option:active,
+        .ratio-option:active {
+            transform: scale(0.98);
+        }
+
+        .model-option,
+        .ratio-option {
+            transition: background-color 0.2s, transform 0.15s;
+        }
+
         .batch-btn {
             transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s, transform 0.15s;
         }
-        .batch-btn:active { transform: scale(0.97); }
-        .batch-btn:hover:not(.active-btn) { transform: translateY(-1px); }
+
+        .batch-btn:active {
+            transform: scale(0.97);
+        }
+
+        .batch-btn:hover:not(.active-btn) {
+            transform: translateY(-1px);
+        }
+
         #generate-btn {
             transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s;
         }
+
         #generate-btn:hover:not(:disabled) {
             transform: translateY(-2px) scale(1.01);
-            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+            box-shadow: 0 12px 28px -8px rgba(139, 92, 246, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         }
-        #generate-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+
+        #generate-btn:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+
         header button[onclick] {
             transition: transform 0.2s ease, background-color 0.2s;
         }
-        header button[onclick]:hover { transform: scale(1.08); }
-        header button[onclick]:active { transform: scale(0.95); }
+
+        header button[onclick]:hover {
+            transform: scale(1.08);
+        }
+
+        header button[onclick]:active {
+            transform: scale(0.95);
+        }
+
         .history-item {
             transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s;
         }
+
         .history-item:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
         }
+
         .history-item-enter {
             animation: historyItemIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
+
         @keyframes historyItemIn {
-            from { opacity: 0; transform: scale(0.92) translateY(8px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
-        #slots-grid > div {
+
+        #slots-grid>div {
             transition: transform 0.2s ease, border-color 0.2s, background-color 0.2s;
         }
-        #slots-grid > div:hover { transform: scale(1.03); }
-        #slots-grid > div:active { transform: scale(0.98); }
+
+        #slots-grid>div:hover {
+            transform: scale(1.03);
+        }
+
+        #slots-grid>div:active {
+            transform: scale(0.98);
+        }
+
         .compare-handle {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
         .compare-handle:hover,
         .compare-slider:hover .compare-handle {
             transform: translate(-50%, -50%) scale(1.12);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
+
         #batch-actions button {
             transition: transform 0.15s ease, background-color 0.2s, color 0.2s;
         }
-        #batch-actions button:hover { transform: scale(1.05); }
-        #batch-actions button:active { transform: scale(0.98); }
+
+        #batch-actions button:hover {
+            transform: scale(1.05);
+        }
+
+        #batch-actions button:active {
+            transform: scale(0.98);
+        }
+
         #agent-toggle-btn {
             transition: transform 0.2s ease, background-color 0.2s;
         }
-        #agent-toggle-btn:hover { transform: scale(1.06); }
-        #agent-toggle-btn:active { transform: scale(0.96); }
+
+        #agent-toggle-btn:hover {
+            transform: scale(1.06);
+        }
+
+        #agent-toggle-btn:active {
+            transform: scale(0.96);
+        }
+
         #preview-section-wrapper .flex button,
         #preview-section-wrapper .absolute.z-30 button {
             transition: transform 0.15s ease, color 0.2s;
         }
-        #preview-section-wrapper button:hover { transform: scale(1.08); }
+
+        #preview-section-wrapper button:hover {
+            transform: scale(1.08);
+        }
     </style>
 </head>
 
@@ -611,11 +711,6 @@
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Nano Banana Pro</span>
         </div>
         <div class="flex items-center gap-3 text-sm">
-            <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-[#18181b] border border-gray-200 dark:border-[#27272a] rounded-full text-[10px] font-mono text-gray-500 dark:text-gray-400 select-none mr-2"
-                title="当前使用的API接口域名">
-                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span id="current-api-display">检测中...</span>
-            </div>
             <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
             <button onclick="toggleTheme()" title="切换深色/浅色模式"
                 class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
@@ -1190,6 +1285,25 @@
         </div>
     </div>
 
+    <!-- 余额不足提示 -->
+    <div id="balance-alert-modal"
+        class="fixed inset-0 bg-black/50 z-[200] hidden flex items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white dark:bg-[#18181b] rounded-2xl shadow-2xl border border-orange-200 dark:border-orange-900 w-80 p-6 flex flex-col items-center gap-4 animate-bounce-in">
+            <div class="w-16 h-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                <i class="fa-solid fa-triangle-exclamation text-orange-500 text-3xl"></i>
+            </div>
+            <div class="text-center">
+                <h3 class="text-lg font-extrabold text-gray-800 dark:text-white mb-1">余额不足</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">当前 API Key 余额不足，请及时充值后重试。</p>
+            </div>
+            <button onclick="document.getElementById('balance-alert-modal').classList.add('hidden')"
+                class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-orange-200 dark:shadow-orange-900/30 text-sm">
+                我知道了
+            </button>
+        </div>
+    </div>
+
     <div id="settings-modal"
         class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center backdrop-blur-sm">
         <div
@@ -1202,815 +1316,784 @@
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API 网站地址 (自动追加
-                        /v1/images/edits)</label>
-                    <input type="text" id="modal-api-url"
-                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500"
-                        placeholder="https://api.bltcy.ai">
-                    <div class="flex gap-2 mt-2 flex-wrap">
-                        <button onclick="fillApiUrl('https://api.bltcy.ai')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-landmark"></i> 柏拉图
-                        </button>
-                        <button onclick="fillApiUrl('https://ai.t8star.cn')"
-                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-pink-900/40 transition cursor-pointer">
-                            <i class="fa-solid fa-spa"></i> 贞贞
-                        </button>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label>
+                        <input type="password" id="modal-api-key"
+                            class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500"
+                            placeholder="sk-xxxxxxxx">
+                        <p class="text-[10px] text-gray-400 mt-1">Key 和 URL 配置保存在本地。</p>
                     </div>
+                    <button onclick="saveSettings()"
+                        class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded transition">保存配置</button>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">API Key</label>
-                    <input type="password" id="modal-api-key"
-                        class="w-full bg-gray-50 dark:bg-[#0c0c0e] border border-gray-300 dark:border-[#27272a] rounded p-3 text-sm text-gray-800 dark:text-gray-200 outline-none focus:border-purple-500"
-                        placeholder="sk-xxxxxxxx">
-                    <p class="text-[10px] text-gray-400 mt-1">Key 和 URL 配置保存在本地。</p>
-                </div>
-                <button onclick="saveSettings()"
-                    class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 rounded transition">保存配置</button>
             </div>
         </div>
-    </div>
 
-    <script>
-        const DEFAULT_API_URL = "https://api.bltcy.ai";
-        const MAX_SLOTS = 9;
-        let imageSlots = new Array(MAX_SLOTS).fill(null);
-        let currentActiveSlot = -1;
-        let visibleSlotCount = 3; // 默认显示3个格子
-        let batchSize = 1;
-        let currentMainImageUrl = "";
-        let scale = 1, panning = false, pointX = 0, pointY = 0, startX = 0, startY = 0;
-        let originalRefImage = null;
-        let historyData = [];
-        const FIXED_PROMPT = "按照图片上的标记对图片进行修改，修改完成后将标记去掉，包括文字和画线";
-        let isDrawing = false;
-        let ctx = null;
-        let currentColor = '#ef4444';
-        let currentTool = 'brush';
-        let editTargetIndex = -1;
-        let canvas = document.getElementById('paint-canvas');
-        let drawActions = [];
-        let currentPath = null;
-        let baseImage = null;
-        let isDraggingText = false;
-        let draggingActionIndex = -1;
-        let dragStartOffset = { x: 0, y: 0 };
-        let isSliding = false;
+        <script>
+            // 初始化配置
+            const _c = ["aHR0cHM", "6Ly9hcGku", "Ymx0Y3kuYWk="];
+            const DEFAULT_API_URL = atob(_c[0] + _c[1] + _c[2]);
+            const MAX_SLOTS = 9;
+            let imageSlots = new Array(MAX_SLOTS).fill(null);
+            let currentActiveSlot = -1;
+            let visibleSlotCount = 3; // 默认显示3个格子
+            let batchSize = 1;
+            let currentMainImageUrl = "";
+            let scale = 1, panning = false, pointX = 0, pointY = 0, startX = 0, startY = 0;
+            let originalRefImage = null;
+            let historyData = [];
+            const FIXED_PROMPT = "按照图片上的标记对图片进行修改，修改完成后将标记去掉，包括文字和画线";
+            let isDrawing = false;
+            let ctx = null;
+            let currentColor = '#ef4444';
+            let currentTool = 'brush';
+            let editTargetIndex = -1;
+            let canvas = document.getElementById('paint-canvas');
+            let drawActions = [];
+            let currentPath = null;
+            let baseImage = null;
+            let isDraggingText = false;
+            let draggingActionIndex = -1;
+            let dragStartOffset = { x: 0, y: 0 };
+            let isSliding = false;
 
-        // Agent Global Vars
-        let agentPromptLib = [];
-        let agentBase64Img = null;
+            // Agent Global Vars
+            let agentPromptLib = [];
+            let agentBase64Img = null;
 
-        // --- 用户自定义区域：主提示词库 ---
-        let mainPromptLib = [];
-        // ------------------------------------------------
+            // --- 用户自定义区域：主提示词库 ---
+            let mainPromptLib = [];
+            // ------------------------------------------------
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem('nano_api_key');
-            if (savedKey) document.getElementById('modal-api-key').value = savedKey;
-            const savedUrl = localStorage.getItem('nano_api_url');
-            document.getElementById('modal-api-url').value = savedUrl || DEFAULT_API_URL;
-            updateApiDisplay(savedUrl || DEFAULT_API_URL);
-            if (!savedKey) openSettings();
+            window.addEventListener('DOMContentLoaded', () => {
+                const savedKey = localStorage.getItem('nano_api_key');
+                if (savedKey) document.getElementById('modal-api-key').value = savedKey;
+                if (!savedKey) openSettings();
 
-            const savedTheme = localStorage.getItem('nano_theme');
-            const icon = document.getElementById('theme-icon');
-            if (savedTheme === 'dark') { document.documentElement.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; }
-            else { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; }
-            ctx = canvas.getContext('2d');
-            document.getElementById('text-tool-input').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') finalizeText();
-            });
-            renderSlots();
-            const savedHistory = localStorage.getItem('nano_history_data');
-            if (savedHistory) {
-                try {
-                    historyData = JSON.parse(savedHistory);
-                    for (let i = historyData.length - 1; i >= 0; i--) {
-                        renderHistoryItem(historyData[i].url, historyData[i].prompt, historyData[i].duration);
-                    }
-                } catch (e) { console.error("History Load Error", e); }
-            }
-            updateModelRestrictions();
-            updateGenerateButtonPrice();
-
-            // Initialize Libs
-            loadAgentPromptLib();
-            loadMainPromptLib();
-        });
-
-        // 自定义下拉逻辑 (模型)
-        function toggleModelDropdown(event) {
-            if (event) event.stopPropagation();
-            const container = document.getElementById('custom-model-dropdown');
-            const options = document.getElementById('dropdown-options');
-            const trigger = document.getElementById('dropdown-trigger');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectModel(val, text) {
-            document.getElementById('model-input').value = val;
-            document.getElementById('current-model-text').innerText = text;
-            if (val === 'nano-banana-hd') { selectSize('2K', '2K'); document.getElementById('size-trigger').classList.add('option-disabled'); }
-            else { document.getElementById('size-trigger').classList.remove('option-disabled'); }
-            document.querySelectorAll('.model-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon');
-                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleModelDropdown(); renderSlots(); updatePromptLockState();
-            updateGenerateButtonPrice();
-        }
-
-        // 自定义下拉逻辑 (宽高比)
-        function toggleRatioDropdown(event) {
-            if (event) event.stopPropagation();
-            const container = document.getElementById('custom-ratio-dropdown');
-            const options = document.getElementById('ratio-options');
-            const trigger = document.getElementById('ratio-trigger');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectRatio(val, text) {
-            document.getElementById('ratio-input').value = val;
-            document.getElementById('current-ratio-text').innerText = text;
-            document.querySelectorAll('.ratio-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon-ratio');
-                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleRatioDropdown();
-        }
-
-        // 自定义下拉逻辑 (分辨率)
-        function toggleSizeDropdown(event) {
-            if (event) event.stopPropagation();
-            const trigger = document.getElementById('size-trigger');
-            if (trigger.classList.contains('option-disabled')) return;
-            const container = document.getElementById('custom-size-dropdown');
-            const options = document.getElementById('size-options');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectSize(val, text) {
-            document.getElementById('size-input').value = val;
-            document.getElementById('current-size-text').innerText = text;
-            document.querySelectorAll('.size-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon-size');
-                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleSizeDropdown();
-        }
-
-        // Agent 模型下拉逻辑
-        function toggleAgentModelDropdown(event) {
-            if (event) event.stopPropagation();
-            const container = document.getElementById('agent-model-dropdown');
-            const options = document.getElementById('agent-model-options');
-            const trigger = document.getElementById('agent-model-trigger');
-            container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
-            if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
-            else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
-        }
-        function selectAgentModel(val, text) {
-            document.getElementById('agent-model-select').value = val;
-            document.getElementById('agent-model-text').innerText = text;
-            document.querySelectorAll('.agent-model-option').forEach(opt => {
-                const check = opt.querySelector('.check-icon-agent');
-                if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
-                else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
-            });
-            toggleAgentModelDropdown();
-        }
-
-        function closeDropdownOnClickOutside(event) {
-            const dropdowns = [
-                { id: 'custom-model-dropdown', opt: 'dropdown-options', trig: 'dropdown-trigger' },
-                { id: 'custom-ratio-dropdown', opt: 'ratio-options', trig: 'ratio-trigger' },
-                { id: 'custom-size-dropdown', opt: 'size-options', trig: 'size-trigger' },
-                { id: 'agent-model-dropdown', opt: 'agent-model-options', trig: 'agent-model-trigger' }
-            ];
-            dropdowns.forEach(d => {
-                const container = document.getElementById(d.id);
-                const options = document.getElementById(d.opt);
-                const trigger = document.getElementById(d.trig);
-                if (container && !container.contains(event.target)) {
-                    container.classList.remove('dropdown-open'); options.classList.add('hidden');
-                    trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]');
+                const savedTheme = localStorage.getItem('nano_theme');
+                const icon = document.getElementById('theme-icon');
+                if (savedTheme === 'dark') { document.documentElement.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; }
+                else { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; }
+                ctx = canvas.getContext('2d');
+                document.getElementById('text-tool-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') finalizeText();
+                });
+                renderSlots();
+                const savedHistory = localStorage.getItem('nano_history_data');
+                if (savedHistory) {
+                    try {
+                        historyData = JSON.parse(savedHistory);
+                        for (let i = historyData.length - 1; i >= 0; i--) {
+                            renderHistoryItem(historyData[i].url, historyData[i].prompt, historyData[i].duration);
+                        }
+                    } catch (e) { console.error("History Load Error", e); }
                 }
+                updateModelRestrictions();
+                updateGenerateButtonPrice();
+
+                // Initialize Libs
+                loadAgentPromptLib();
+                loadMainPromptLib();
             });
-        }
 
-        // 工具函数
-        function fillApiUrl(url) {
-            document.getElementById('modal-api-url').value = url;
-            const input = document.getElementById('modal-api-url');
-            input.classList.add('ring-2', 'ring-purple-500');
-            setTimeout(() => input.classList.remove('ring-2', 'ring-purple-500'), 200);
-        }
-        function updateApiDisplay(url) {
-            try { const hostname = new URL(url).hostname; document.getElementById('current-api-display').innerText = "当前: " + hostname; }
-            catch (e) { document.getElementById('current-api-display').innerText = "当前: Custom"; }
-        }
+            // 自定义下拉逻辑 (模型)
+            function toggleModelDropdown(event) {
+                if (event) event.stopPropagation();
+                const container = document.getElementById('custom-model-dropdown');
+                const options = document.getElementById('dropdown-options');
+                const trigger = document.getElementById('dropdown-trigger');
+                container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
+                if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
+                else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
+            }
+            function selectModel(val, text) {
+                document.getElementById('model-input').value = val;
+                document.getElementById('current-model-text').innerText = text;
+                if (val === 'nano-banana-hd') { selectSize('2K', '2K'); document.getElementById('size-trigger').classList.add('option-disabled'); }
+                else { document.getElementById('size-trigger').classList.remove('option-disabled'); }
+                document.querySelectorAll('.model-option').forEach(opt => {
+                    const check = opt.querySelector('.check-icon');
+                    if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                    else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                });
+                toggleModelDropdown(); renderSlots(); updatePromptLockState();
+                updateGenerateButtonPrice();
+            }
 
-        // --- 核心修改：模型限制逻辑 (支持 MnAPI 禁用 HD) ---
-        function updateModelRestrictions() {
-            const currentUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
-            const isPlato = currentUrl.includes('bltcy.ai');
-            const hdOption = document.querySelector('.model-option[data-val="nano-banana-hd"]');
+            // 自定义下拉逻辑 (宽高比)
+            function toggleRatioDropdown(event) {
+                if (event) event.stopPropagation();
+                const container = document.getElementById('custom-ratio-dropdown');
+                const options = document.getElementById('ratio-options');
+                const trigger = document.getElementById('ratio-trigger');
+                container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
+                if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
+                else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
+            }
+            function selectRatio(val, text) {
+                document.getElementById('ratio-input').value = val;
+                document.getElementById('current-ratio-text').innerText = text;
+                document.querySelectorAll('.ratio-option').forEach(opt => {
+                    const check = opt.querySelector('.check-icon-ratio');
+                    if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                    else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                });
+                toggleRatioDropdown();
+            }
 
-            if (!hdOption) return;
+            // 自定义下拉逻辑 (分辨率)
+            function toggleSizeDropdown(event) {
+                if (event) event.stopPropagation();
+                const trigger = document.getElementById('size-trigger');
+                if (trigger.classList.contains('option-disabled')) return;
+                const container = document.getElementById('custom-size-dropdown');
+                const options = document.getElementById('size-options');
+                container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
+                if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
+                else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
+            }
+            function selectSize(val, text) {
+                document.getElementById('size-input').value = val;
+                document.getElementById('current-size-text').innerText = text;
+                document.querySelectorAll('.size-option').forEach(opt => {
+                    const check = opt.querySelector('.check-icon-size');
+                    if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                    else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                });
+                toggleSizeDropdown();
+            }
 
-            if (isPlato) { // 柏拉图禁用HD (Nano Banana)
+            // Agent 模型下拉逻辑
+            function toggleAgentModelDropdown(event) {
+                if (event) event.stopPropagation();
+                const container = document.getElementById('agent-model-dropdown');
+                const options = document.getElementById('agent-model-options');
+                const trigger = document.getElementById('agent-model-trigger');
+                container.classList.toggle('dropdown-open'); options.classList.toggle('hidden');
+                if (container.classList.contains('dropdown-open')) { trigger.classList.add('glow-effect'); trigger.classList.remove('bg-gray-100', 'dark:bg-[#18181b]'); }
+                else { trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]'); }
+            }
+            function selectAgentModel(val, text) {
+                document.getElementById('agent-model-select').value = val;
+                document.getElementById('agent-model-text').innerText = text;
+                document.querySelectorAll('.agent-model-option').forEach(opt => {
+                    const check = opt.querySelector('.check-icon-agent');
+                    if (opt.dataset.val === val) { check.classList.remove('opacity-0'); check.classList.add('opacity-100'); opt.classList.add('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                    else { check.classList.add('opacity-0'); check.classList.remove('opacity-100'); opt.classList.remove('bg-indigo-50', 'dark:bg-[#27272a]'); }
+                });
+                toggleAgentModelDropdown();
+            }
+
+            function closeDropdownOnClickOutside(event) {
+                const dropdowns = [
+                    { id: 'custom-model-dropdown', opt: 'dropdown-options', trig: 'dropdown-trigger' },
+                    { id: 'custom-ratio-dropdown', opt: 'ratio-options', trig: 'ratio-trigger' },
+                    { id: 'custom-size-dropdown', opt: 'size-options', trig: 'size-trigger' },
+                    { id: 'agent-model-dropdown', opt: 'agent-model-options', trig: 'agent-model-trigger' }
+                ];
+                dropdowns.forEach(d => {
+                    const container = document.getElementById(d.id);
+                    const options = document.getElementById(d.opt);
+                    const trigger = document.getElementById(d.trig);
+                    if (container && !container.contains(event.target)) {
+                        container.classList.remove('dropdown-open'); options.classList.add('hidden');
+                        trigger.classList.remove('glow-effect'); trigger.classList.add('bg-gray-100', 'dark:bg-[#18181b]');
+                    }
+                });
+            }
+
+            // 工具函数 (URL 已固定，不再需要 fillApiUrl / updateApiDisplay)
+
+            // --- 核心修改：模型限制逻辑 ---
+            function updateModelRestrictions() {
+                const hdOption = document.querySelector('.model-option[data-val="nano-banana-hd"]');
+                if (!hdOption) return;
+                // 默认端点禁用 HD
                 hdOption.classList.add('option-disabled');
                 const currentModel = document.getElementById('model-input').value;
                 if (currentModel === 'nano-banana-hd') selectModel('nano-banana-2-4k', 'Nano Banana Pro');
-            } else {
-                hdOption.classList.remove('option-disabled');
-            }
-        }
-
-        function saveHistoryToLocal() { if (historyData.length > 50) historyData = historyData.slice(0, 50); localStorage.setItem('nano_history_data', JSON.stringify(historyData)); }
-
-        function redrawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (baseImage) { ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height); }
-            drawActions.forEach(action => {
-                ctx.fillStyle = action.color; ctx.strokeStyle = action.color; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                if (action.type === 'path') { ctx.beginPath(); if (action.points.length > 0) { ctx.moveTo(action.points[0].x, action.points[0].y); for (let i = 1; i < action.points.length; i++) { ctx.lineTo(action.points[i].x, action.points[i].y); } } ctx.stroke(); }
-                else if (action.type === 'text') { ctx.font = "bold 24px Arial"; ctx.fillText(action.text, action.x, action.y); }
-            });
-        }
-        function openEditor(index, event) {
-            if (event) event.stopPropagation();
-            const file = imageSlots[index]; if (!file) return;
-            editTargetIndex = index; drawActions = []; hasDoodleInSession = false;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    baseImage = img;
-                    const wrapper = document.getElementById('canvas-wrapper');
-                    const maxW = window.innerWidth * 0.9, maxH = window.innerHeight * 0.8;
-                    let w = img.width, h = img.height; const ratio = Math.min(maxW / w, maxH / h);
-                    canvas.width = w * ratio; canvas.height = h * ratio;
-                    wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
-                    redrawCanvas(); document.getElementById('editor-modal').classList.remove('hidden');
-                    setTool('crop'); // 默认打开裁剪工具
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-        function undo() { if (drawActions.length > 0) { drawActions.pop(); redrawCanvas(); } }
-        function cancelEdit() { hideCropOverlay(); document.getElementById('editor-modal').classList.add('hidden'); document.getElementById('text-tool-input').classList.add('hidden'); }
-        function saveEdit() {
-            // 如果处于裁剪模式且裁剪框可见，先应用裁剪
-            if (currentTool === 'crop' && !document.getElementById('crop-overlay').classList.contains('hidden')) {
-                applyCropThenSave();
-                return;
-            }
-            const input = document.getElementById('text-tool-input');
-            if (!input.classList.contains('hidden')) finalizeText();
-            redrawCanvas();
-            canvas.toBlob((blob) => {
-                const newFile = new File([blob], `doodle_${Date.now()}.png`, { type: 'image/png' });
-                newFile.isDoodled = hasDoodleInSession; imageSlots[editTargetIndex] = newFile;
-                renderSlots(); updatePromptLockState(); cancelEdit();
-            });
-        }
-        function setDrawColor(color, btn) {
-            currentColor = color; document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-            const input = document.getElementById('text-tool-input'); if (!input.classList.contains('hidden')) { input.style.color = color; input.style.borderColor = color; }
-        }
-        function setTool(tool) {
-            if (currentTool === 'text' && tool !== 'text') { const input = document.getElementById('text-tool-input'); if (!input.classList.contains('hidden')) finalizeText(); }
-            // 如果从裁剪切换到其他工具，隐藏裁剪框
-            if (currentTool === 'crop' && tool !== 'crop') { hideCropOverlay(); }
-            currentTool = tool;
-            document.getElementById('tool-brush').classList.toggle('active', tool === 'brush');
-            document.getElementById('tool-text').classList.toggle('active', tool === 'text');
-            document.getElementById('tool-move').classList.toggle('active', tool === 'move');
-            document.getElementById('tool-crop').classList.toggle('active', tool === 'crop');
-            if (tool === 'crop') { canvas.style.cursor = 'default'; showCropOverlay(); }
-            else if (tool === 'move') canvas.style.cursor = 'move';
-            else if (tool === 'text') canvas.style.cursor = 'text';
-            else canvas.style.cursor = 'crosshair';
-        }
-        function getEvtX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
-        function getEvtY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
-
-        canvas.addEventListener('mousedown', startDraw);
-        canvas.addEventListener('touchstart', startDraw, { passive: false });
-        function startDraw(e) {
-            if (e.type === 'touchstart') e.preventDefault();
-            const rect = canvas.getBoundingClientRect(); const x = getEvtX(e) - rect.left; const y = getEvtY(e) - rect.top;
-            if (currentTool === 'brush') { isDrawing = true; hasDoodleInSession = true; currentPath = { type: 'path', color: currentColor, points: [{ x, y }] }; drawActions.push(currentPath); redrawCanvas(); }
-            else if (currentTool === 'text') { handleTextClick(e); }
-            else if (currentTool === 'move') {
-                for (let i = drawActions.length - 1; i >= 0; i--) {
-                    const act = drawActions[i];
-                    if (act.type === 'text') {
-                        ctx.font = "bold 24px Arial"; const w = ctx.measureText(act.text).width; const h = 24;
-                        if (x >= act.x && x <= act.x + w && y >= act.y - h && y <= act.y + 10) { isDraggingText = true; draggingActionIndex = i; dragStartOffset = { x: x - act.x, y: y - act.y }; return; }
-                    }
-                }
-            }
-        }
-        canvas.addEventListener('mousemove', moveDraw);
-        canvas.addEventListener('touchmove', moveDraw, { passive: false });
-        function moveDraw(e) {
-            if (e.type === 'touchmove') e.preventDefault();
-            const rect = canvas.getBoundingClientRect(); const x = getEvtX(e) - rect.left; const y = getEvtY(e) - rect.top;
-            if (isDrawing && currentTool === 'brush') { currentPath.points.push({ x, y }); redrawCanvas(); }
-            else if (isDraggingText && currentTool === 'move') { const act = drawActions[draggingActionIndex]; act.x = x - dragStartOffset.x; act.y = y - dragStartOffset.y; redrawCanvas(); }
-        }
-        window.addEventListener('mouseup', () => { isDrawing = false; isDraggingText = false; draggingActionIndex = -1; });
-        window.addEventListener('touchend', () => { isDrawing = false; isDraggingText = false; draggingActionIndex = -1; });
-        function handleTextClick(e) {
-            const input = document.getElementById('text-tool-input'); const rect = document.getElementById('canvas-wrapper').getBoundingClientRect();
-            const x = getEvtX(e) - rect.left, y = getEvtY(e) - rect.top; if (!input.classList.contains('hidden')) finalizeText();
-            input.value = ""; input.style.left = x + 'px'; input.style.top = y + 'px'; input.style.color = currentColor; input.style.borderColor = currentColor;
-            input.classList.remove('hidden'); setTimeout(() => input.focus(), 10);
-        }
-        function finalizeText() {
-            const input = document.getElementById('text-tool-input'); if (input.classList.contains('hidden') || !input.value.trim()) { input.classList.add('hidden'); return; }
-            const x = parseFloat(input.style.left), y = parseFloat(input.style.top) + 24;
-            hasDoodleInSession = true;
-            drawActions.push({ type: 'text', text: input.value, color: currentColor, x: x, y: y }); input.classList.add('hidden'); redrawCanvas();
-        }
-
-        // ========== 裁剪功能 (Crop Feature) ==========
-        let hasDoodleInSession = false; // 追踪本次编辑是否有涂鸦/文字操作
-        let cropBox = { x: 0, y: 0, w: 0, h: 0 };
-        let isCropDragging = false;
-        let cropDragType = null; // 'move', 'tl', 'tr', 'bl', 'br', 'tm', 'bm', 'ml', 'mr'
-        let cropDragStart = { x: 0, y: 0 };
-        let cropBoxStart = { x: 0, y: 0, w: 0, h: 0 };
-        const MIN_CROP_SIZE = 20;
-
-        function showCropOverlay() {
-            const overlay = document.getElementById('crop-overlay');
-            overlay.classList.remove('hidden');
-            // 默认裁剪框覆盖画布80%中央区域
-            const cw = canvas.width, ch = canvas.height;
-            cropBox = {
-                x: Math.round(cw * 0.1),
-                y: Math.round(ch * 0.1),
-                w: Math.round(cw * 0.8),
-                h: Math.round(ch * 0.8)
-            };
-            updateCropUI();
-        }
-
-        function hideCropOverlay() {
-            document.getElementById('crop-overlay').classList.add('hidden');
-        }
-
-        function updateCropUI() {
-            const box = document.getElementById('crop-box');
-            // 将画布坐标转换为 canvas-wrapper 内的 CSS 坐标
-            // canvas 和 wrapper 尺寸相同（wrapper.style.width = canvas.width + 'px'）
-            box.style.left = cropBox.x + 'px';
-            box.style.top = cropBox.y + 'px';
-            box.style.width = cropBox.w + 'px';
-            box.style.height = cropBox.h + 'px';
-        }
-
-        // 裁剪框交互事件
-        (function initCropEvents() {
-            const cropBoxEl = document.getElementById('crop-box');
-
-            // 拖拽整个裁剪框
-            cropBoxEl.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('crop-handle')) return;
-                startCropDrag(e, 'move');
-            });
-            cropBoxEl.addEventListener('touchstart', (e) => {
-                if (e.target.classList.contains('crop-handle')) return;
-                e.preventDefault();
-                startCropDrag(e, 'move');
-            }, { passive: false });
-
-            // 拖拽手柄
-            document.querySelectorAll('.crop-handle').forEach(handle => {
-                handle.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    startCropDrag(e, handle.dataset.handle);
-                });
-                handle.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    startCropDrag(e, handle.dataset.handle);
-                }, { passive: false });
-            });
-
-            window.addEventListener('mousemove', moveCropDrag);
-            window.addEventListener('touchmove', moveCropDrag, { passive: false });
-            window.addEventListener('mouseup', endCropDrag);
-            window.addEventListener('touchend', endCropDrag);
-        })();
-
-        function startCropDrag(e, type) {
-            if (currentTool !== 'crop') return;
-            isCropDragging = true;
-            cropDragType = type;
-            cropDragStart = { x: getEvtX(e), y: getEvtY(e) };
-            cropBoxStart = { ...cropBox };
-        }
-
-        function moveCropDrag(e) {
-            if (!isCropDragging || currentTool !== 'crop') return;
-            if (e.type === 'touchmove') e.preventDefault();
-
-            const dx = getEvtX(e) - cropDragStart.x;
-            const dy = getEvtY(e) - cropDragStart.y;
-            const cw = canvas.width, ch = canvas.height;
-
-            let nx = cropBoxStart.x, ny = cropBoxStart.y;
-            let nw = cropBoxStart.w, nh = cropBoxStart.h;
-
-            if (cropDragType === 'move') {
-                nx = cropBoxStart.x + dx;
-                ny = cropBoxStart.y + dy;
-                // 边界约束
-                nx = Math.max(0, Math.min(nx, cw - nw));
-                ny = Math.max(0, Math.min(ny, ch - nh));
-            } else {
-                // 手柄拖拽
-                if (cropDragType.includes('l')) {
-                    nx = cropBoxStart.x + dx;
-                    nw = cropBoxStart.w - dx;
-                }
-                if (cropDragType.includes('r')) {
-                    nw = cropBoxStart.w + dx;
-                }
-                if (cropDragType.includes('t')) {
-                    ny = cropBoxStart.y + dy;
-                    nh = cropBoxStart.h - dy;
-                }
-                if (cropDragType.includes('b')) {
-                    nh = cropBoxStart.h + dy;
-                }
-                // 处理 'm' (中间手柄)
-                if (cropDragType === 'tm') { ny = cropBoxStart.y + dy; nh = cropBoxStart.h - dy; }
-                if (cropDragType === 'bm') { nh = cropBoxStart.h + dy; }
-                if (cropDragType === 'ml') { nx = cropBoxStart.x + dx; nw = cropBoxStart.w - dx; }
-                if (cropDragType === 'mr') { nw = cropBoxStart.w + dx; }
-
-                // 最小尺寸约束
-                if (nw < MIN_CROP_SIZE) {
-                    if (cropDragType.includes('l')) { nx = cropBoxStart.x + cropBoxStart.w - MIN_CROP_SIZE; }
-                    nw = MIN_CROP_SIZE;
-                }
-                if (nh < MIN_CROP_SIZE) {
-                    if (cropDragType.includes('t')) { ny = cropBoxStart.y + cropBoxStart.h - MIN_CROP_SIZE; }
-                    nh = MIN_CROP_SIZE;
-                }
-                // 边界约束
-                if (nx < 0) { nw += nx; nx = 0; }
-                if (ny < 0) { nh += ny; ny = 0; }
-                if (nx + nw > cw) { nw = cw - nx; }
-                if (ny + nh > ch) { nh = ch - ny; }
             }
 
-            cropBox = { x: nx, y: ny, w: nw, h: nh };
-            updateCropUI();
-        }
+            function saveHistoryToLocal() { if (historyData.length > 50) historyData = historyData.slice(0, 50); localStorage.setItem('nano_history_data', JSON.stringify(historyData)); }
 
-        function endCropDrag() {
-            isCropDragging = false;
-            cropDragType = null;
-        }
-
-        function cancelCrop() {
-            hideCropOverlay();
-            setTool('brush');
-        }
-
-        function applyCrop() {
-            // 先结束可能存在的文字输入
-            const input = document.getElementById('text-tool-input');
-            if (!input.classList.contains('hidden')) finalizeText();
-            redrawCanvas();
-
-            // 计算原图到画布的缩放比
-            const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
-            // 原图上的裁剪坐标
-            const sx = Math.round(cropBox.x * scaleRatio);
-            const sy = Math.round(cropBox.y * scaleRatio);
-            const sw = Math.round(cropBox.w * scaleRatio);
-            const sh = Math.round(cropBox.h * scaleRatio);
-
-            // 创建原始分辨率的临时画布
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = sw;
-            tempCanvas.height = sh;
-            const tempCtx = tempCanvas.getContext('2d');
-
-            // 先在原始分辨率上绘制 baseImage 的裁剪区域
-            if (baseImage) {
-                tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
-            }
-
-            // 如果有涂鸦，按比例绘制到裁剪后的高清画布上
-            if (drawActions.length > 0) {
-                tempCtx.save();
-                tempCtx.scale(scaleRatio, scaleRatio);
-                tempCtx.translate(-cropBox.x, -cropBox.y);
+            function redrawCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (baseImage) { ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height); }
                 drawActions.forEach(action => {
-                    tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
-                    tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
-                    if (action.type === 'path') {
-                        tempCtx.beginPath();
-                        if (action.points.length > 0) {
-                            tempCtx.moveTo(action.points[0].x, action.points[0].y);
-                            for (let i = 1; i < action.points.length; i++) {
-                                tempCtx.lineTo(action.points[i].x, action.points[i].y);
-                            }
-                        }
-                        tempCtx.stroke();
-                    } else if (action.type === 'text') {
-                        tempCtx.font = 'bold 24px Arial';
-                        tempCtx.fillText(action.text, action.x, action.y);
-                    }
+                    ctx.fillStyle = action.color; ctx.strokeStyle = action.color; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    if (action.type === 'path') { ctx.beginPath(); if (action.points.length > 0) { ctx.moveTo(action.points[0].x, action.points[0].y); for (let i = 1; i < action.points.length; i++) { ctx.lineTo(action.points[i].x, action.points[i].y); } } ctx.stroke(); }
+                    else if (action.type === 'text') { ctx.font = "bold 24px Arial"; ctx.fillText(action.text, action.x, action.y); }
                 });
-                tempCtx.restore();
+            }
+            function openEditor(index, event) {
+                if (event) event.stopPropagation();
+                const file = imageSlots[index]; if (!file) return;
+                editTargetIndex = index; drawActions = []; hasDoodleInSession = false;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        baseImage = img;
+                        const wrapper = document.getElementById('canvas-wrapper');
+                        const maxW = window.innerWidth * 0.9, maxH = window.innerHeight * 0.8;
+                        let w = img.width, h = img.height; const ratio = Math.min(maxW / w, maxH / h);
+                        canvas.width = w * ratio; canvas.height = h * ratio;
+                        wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
+                        redrawCanvas(); document.getElementById('editor-modal').classList.remove('hidden');
+                        setTool('crop'); // 默认打开裁剪工具
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+            function undo() { if (drawActions.length > 0) { drawActions.pop(); redrawCanvas(); } }
+            function cancelEdit() { hideCropOverlay(); document.getElementById('editor-modal').classList.add('hidden'); document.getElementById('text-tool-input').classList.add('hidden'); }
+            function saveEdit() {
+                // 如果处于裁剪模式且裁剪框可见，先应用裁剪
+                if (currentTool === 'crop' && !document.getElementById('crop-overlay').classList.contains('hidden')) {
+                    applyCropThenSave();
+                    return;
+                }
+                const input = document.getElementById('text-tool-input');
+                if (!input.classList.contains('hidden')) finalizeText();
+                redrawCanvas();
+                canvas.toBlob((blob) => {
+                    const newFile = new File([blob], `doodle_${Date.now()}.png`, { type: 'image/png' });
+                    newFile.isDoodled = hasDoodleInSession; imageSlots[editTargetIndex] = newFile;
+                    renderSlots(); updatePromptLockState(); cancelEdit();
+                });
+            }
+            function setDrawColor(color, btn) {
+                currentColor = color; document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+                const input = document.getElementById('text-tool-input'); if (!input.classList.contains('hidden')) { input.style.color = color; input.style.borderColor = color; }
+            }
+            function setTool(tool) {
+                if (currentTool === 'text' && tool !== 'text') { const input = document.getElementById('text-tool-input'); if (!input.classList.contains('hidden')) finalizeText(); }
+                // 如果从裁剪切换到其他工具，隐藏裁剪框
+                if (currentTool === 'crop' && tool !== 'crop') { hideCropOverlay(); }
+                currentTool = tool;
+                document.getElementById('tool-brush').classList.toggle('active', tool === 'brush');
+                document.getElementById('tool-text').classList.toggle('active', tool === 'text');
+                document.getElementById('tool-move').classList.toggle('active', tool === 'move');
+                document.getElementById('tool-crop').classList.toggle('active', tool === 'crop');
+                if (tool === 'crop') { canvas.style.cursor = 'default'; showCropOverlay(); }
+                else if (tool === 'move') canvas.style.cursor = 'move';
+                else if (tool === 'text') canvas.style.cursor = 'text';
+                else canvas.style.cursor = 'crosshair';
+            }
+            function getEvtX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+            function getEvtY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            function startDraw(e) {
+                if (e.type === 'touchstart') e.preventDefault();
+                const rect = canvas.getBoundingClientRect(); const x = getEvtX(e) - rect.left; const y = getEvtY(e) - rect.top;
+                if (currentTool === 'brush') { isDrawing = true; hasDoodleInSession = true; currentPath = { type: 'path', color: currentColor, points: [{ x, y }] }; drawActions.push(currentPath); redrawCanvas(); }
+                else if (currentTool === 'text') { handleTextClick(e); }
+                else if (currentTool === 'move') {
+                    for (let i = drawActions.length - 1; i >= 0; i--) {
+                        const act = drawActions[i];
+                        if (act.type === 'text') {
+                            ctx.font = "bold 24px Arial"; const w = ctx.measureText(act.text).width; const h = 24;
+                            if (x >= act.x && x <= act.x + w && y >= act.y - h && y <= act.y + 10) { isDraggingText = true; draggingActionIndex = i; dragStartOffset = { x: x - act.x, y: y - act.y }; return; }
+                        }
+                    }
+                }
+            }
+            canvas.addEventListener('mousemove', moveDraw);
+            canvas.addEventListener('touchmove', moveDraw, { passive: false });
+            function moveDraw(e) {
+                if (e.type === 'touchmove') e.preventDefault();
+                const rect = canvas.getBoundingClientRect(); const x = getEvtX(e) - rect.left; const y = getEvtY(e) - rect.top;
+                if (isDrawing && currentTool === 'brush') { currentPath.points.push({ x, y }); redrawCanvas(); }
+                else if (isDraggingText && currentTool === 'move') { const act = drawActions[draggingActionIndex]; act.x = x - dragStartOffset.x; act.y = y - dragStartOffset.y; redrawCanvas(); }
+            }
+            window.addEventListener('mouseup', () => { isDrawing = false; isDraggingText = false; draggingActionIndex = -1; });
+            window.addEventListener('touchend', () => { isDrawing = false; isDraggingText = false; draggingActionIndex = -1; });
+            function handleTextClick(e) {
+                const input = document.getElementById('text-tool-input'); const rect = document.getElementById('canvas-wrapper').getBoundingClientRect();
+                const x = getEvtX(e) - rect.left, y = getEvtY(e) - rect.top; if (!input.classList.contains('hidden')) finalizeText();
+                input.value = ""; input.style.left = x + 'px'; input.style.top = y + 'px'; input.style.color = currentColor; input.style.borderColor = currentColor;
+                input.classList.remove('hidden'); setTimeout(() => input.focus(), 10);
+            }
+            function finalizeText() {
+                const input = document.getElementById('text-tool-input'); if (input.classList.contains('hidden') || !input.value.trim()) { input.classList.add('hidden'); return; }
+                const x = parseFloat(input.style.left), y = parseFloat(input.style.top) + 24;
+                hasDoodleInSession = true;
+                drawActions.push({ type: 'text', text: input.value, color: currentColor, x: x, y: y }); input.classList.add('hidden'); redrawCanvas();
             }
 
-            // 用裁剪后的高清图像更新 baseImage 和画布
-            const croppedImg = new Image();
-            croppedImg.onload = () => {
-                baseImage = croppedImg;
-                drawActions = []; // 清空涂鸦历史（已烘焙进裁剪图）
+            // ========== 裁剪功能 (Crop Feature) ==========
+            let hasDoodleInSession = false; // 追踪本次编辑是否有涂鸦/文字操作
+            let cropBox = { x: 0, y: 0, w: 0, h: 0 };
+            let isCropDragging = false;
+            let cropDragType = null; // 'move', 'tl', 'tr', 'bl', 'br', 'tm', 'bm', 'ml', 'mr'
+            let cropDragStart = { x: 0, y: 0 };
+            let cropBoxStart = { x: 0, y: 0, w: 0, h: 0 };
+            const MIN_CROP_SIZE = 20;
 
-                // 重新计算画布尺寸
-                const wrapper = document.getElementById('canvas-wrapper');
-                const maxW = window.innerWidth * 0.9, maxH = window.innerHeight * 0.8;
-                let w = croppedImg.width, h = croppedImg.height;
-                const r = Math.min(maxW / w, maxH / h);
-                canvas.width = w * r; canvas.height = h * r;
-                wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
+            function showCropOverlay() {
+                const overlay = document.getElementById('crop-overlay');
+                overlay.classList.remove('hidden');
+                // 默认裁剪框覆盖画布80%中央区域
+                const cw = canvas.width, ch = canvas.height;
+                cropBox = {
+                    x: Math.round(cw * 0.1),
+                    y: Math.round(ch * 0.1),
+                    w: Math.round(cw * 0.8),
+                    h: Math.round(ch * 0.8)
+                };
+                updateCropUI();
+            }
 
-                redrawCanvas();
+            function hideCropOverlay() {
+                document.getElementById('crop-overlay').classList.add('hidden');
+            }
+
+            function updateCropUI() {
+                const box = document.getElementById('crop-box');
+                // 将画布坐标转换为 canvas-wrapper 内的 CSS 坐标
+                // canvas 和 wrapper 尺寸相同（wrapper.style.width = canvas.width + 'px'）
+                box.style.left = cropBox.x + 'px';
+                box.style.top = cropBox.y + 'px';
+                box.style.width = cropBox.w + 'px';
+                box.style.height = cropBox.h + 'px';
+            }
+
+            // 裁剪框交互事件
+            (function initCropEvents() {
+                const cropBoxEl = document.getElementById('crop-box');
+
+                // 拖拽整个裁剪框
+                cropBoxEl.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('crop-handle')) return;
+                    startCropDrag(e, 'move');
+                });
+                cropBoxEl.addEventListener('touchstart', (e) => {
+                    if (e.target.classList.contains('crop-handle')) return;
+                    e.preventDefault();
+                    startCropDrag(e, 'move');
+                }, { passive: false });
+
+                // 拖拽手柄
+                document.querySelectorAll('.crop-handle').forEach(handle => {
+                    handle.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        startCropDrag(e, handle.dataset.handle);
+                    });
+                    handle.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        startCropDrag(e, handle.dataset.handle);
+                    }, { passive: false });
+                });
+
+                window.addEventListener('mousemove', moveCropDrag);
+                window.addEventListener('touchmove', moveCropDrag, { passive: false });
+                window.addEventListener('mouseup', endCropDrag);
+                window.addEventListener('touchend', endCropDrag);
+            })();
+
+            function startCropDrag(e, type) {
+                if (currentTool !== 'crop') return;
+                isCropDragging = true;
+                cropDragType = type;
+                cropDragStart = { x: getEvtX(e), y: getEvtY(e) };
+                cropBoxStart = { ...cropBox };
+            }
+
+            function moveCropDrag(e) {
+                if (!isCropDragging || currentTool !== 'crop') return;
+                if (e.type === 'touchmove') e.preventDefault();
+
+                const dx = getEvtX(e) - cropDragStart.x;
+                const dy = getEvtY(e) - cropDragStart.y;
+                const cw = canvas.width, ch = canvas.height;
+
+                let nx = cropBoxStart.x, ny = cropBoxStart.y;
+                let nw = cropBoxStart.w, nh = cropBoxStart.h;
+
+                if (cropDragType === 'move') {
+                    nx = cropBoxStart.x + dx;
+                    ny = cropBoxStart.y + dy;
+                    // 边界约束
+                    nx = Math.max(0, Math.min(nx, cw - nw));
+                    ny = Math.max(0, Math.min(ny, ch - nh));
+                } else {
+                    // 手柄拖拽
+                    if (cropDragType.includes('l')) {
+                        nx = cropBoxStart.x + dx;
+                        nw = cropBoxStart.w - dx;
+                    }
+                    if (cropDragType.includes('r')) {
+                        nw = cropBoxStart.w + dx;
+                    }
+                    if (cropDragType.includes('t')) {
+                        ny = cropBoxStart.y + dy;
+                        nh = cropBoxStart.h - dy;
+                    }
+                    if (cropDragType.includes('b')) {
+                        nh = cropBoxStart.h + dy;
+                    }
+                    // 处理 'm' (中间手柄)
+                    if (cropDragType === 'tm') { ny = cropBoxStart.y + dy; nh = cropBoxStart.h - dy; }
+                    if (cropDragType === 'bm') { nh = cropBoxStart.h + dy; }
+                    if (cropDragType === 'ml') { nx = cropBoxStart.x + dx; nw = cropBoxStart.w - dx; }
+                    if (cropDragType === 'mr') { nw = cropBoxStart.w + dx; }
+
+                    // 最小尺寸约束
+                    if (nw < MIN_CROP_SIZE) {
+                        if (cropDragType.includes('l')) { nx = cropBoxStart.x + cropBoxStart.w - MIN_CROP_SIZE; }
+                        nw = MIN_CROP_SIZE;
+                    }
+                    if (nh < MIN_CROP_SIZE) {
+                        if (cropDragType.includes('t')) { ny = cropBoxStart.y + cropBoxStart.h - MIN_CROP_SIZE; }
+                        nh = MIN_CROP_SIZE;
+                    }
+                    // 边界约束
+                    if (nx < 0) { nw += nx; nx = 0; }
+                    if (ny < 0) { nh += ny; ny = 0; }
+                    if (nx + nw > cw) { nw = cw - nx; }
+                    if (ny + nh > ch) { nh = ch - ny; }
+                }
+
+                cropBox = { x: nx, y: ny, w: nw, h: nh };
+                updateCropUI();
+            }
+
+            function endCropDrag() {
+                isCropDragging = false;
+                cropDragType = null;
+            }
+
+            function cancelCrop() {
                 hideCropOverlay();
                 setTool('brush');
-            };
-            croppedImg.src = tempCanvas.toDataURL('image/png');
-        }
-
-        function applyCropThenSave() {
-            // applyCrop 后自动保存（原始分辨率）
-            const input = document.getElementById('text-tool-input');
-            if (!input.classList.contains('hidden')) finalizeText();
-            redrawCanvas();
-
-            // 计算原图到画布的缩放比
-            const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
-            const sx = Math.round(cropBox.x * scaleRatio);
-            const sy = Math.round(cropBox.y * scaleRatio);
-            const sw = Math.round(cropBox.w * scaleRatio);
-            const sh = Math.round(cropBox.h * scaleRatio);
-
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = sw;
-            tempCanvas.height = sh;
-            const tempCtx = tempCanvas.getContext('2d');
-
-            // 原图分辨率裁剪
-            if (baseImage) {
-                tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
             }
 
-            // 如果有涂鸦，按比例绘制
-            if (drawActions.length > 0) {
-                tempCtx.save();
-                tempCtx.scale(scaleRatio, scaleRatio);
-                tempCtx.translate(-cropBox.x, -cropBox.y);
-                drawActions.forEach(action => {
-                    tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
-                    tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
-                    if (action.type === 'path') {
-                        tempCtx.beginPath();
-                        if (action.points.length > 0) {
-                            tempCtx.moveTo(action.points[0].x, action.points[0].y);
-                            for (let i = 1; i < action.points.length; i++) {
-                                tempCtx.lineTo(action.points[i].x, action.points[i].y);
+            function applyCrop() {
+                // 先结束可能存在的文字输入
+                const input = document.getElementById('text-tool-input');
+                if (!input.classList.contains('hidden')) finalizeText();
+                redrawCanvas();
+
+                // 计算原图到画布的缩放比
+                const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
+                // 原图上的裁剪坐标
+                const sx = Math.round(cropBox.x * scaleRatio);
+                const sy = Math.round(cropBox.y * scaleRatio);
+                const sw = Math.round(cropBox.w * scaleRatio);
+                const sh = Math.round(cropBox.h * scaleRatio);
+
+                // 创建原始分辨率的临时画布
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = sw;
+                tempCanvas.height = sh;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // 先在原始分辨率上绘制 baseImage 的裁剪区域
+                if (baseImage) {
+                    tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
+                }
+
+                // 如果有涂鸦，按比例绘制到裁剪后的高清画布上
+                if (drawActions.length > 0) {
+                    tempCtx.save();
+                    tempCtx.scale(scaleRatio, scaleRatio);
+                    tempCtx.translate(-cropBox.x, -cropBox.y);
+                    drawActions.forEach(action => {
+                        tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
+                        tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
+                        if (action.type === 'path') {
+                            tempCtx.beginPath();
+                            if (action.points.length > 0) {
+                                tempCtx.moveTo(action.points[0].x, action.points[0].y);
+                                for (let i = 1; i < action.points.length; i++) {
+                                    tempCtx.lineTo(action.points[i].x, action.points[i].y);
+                                }
                             }
+                            tempCtx.stroke();
+                        } else if (action.type === 'text') {
+                            tempCtx.font = 'bold 24px Arial';
+                            tempCtx.fillText(action.text, action.x, action.y);
                         }
-                        tempCtx.stroke();
-                    } else if (action.type === 'text') {
-                        tempCtx.font = 'bold 24px Arial';
-                        tempCtx.fillText(action.text, action.x, action.y);
+                    });
+                    tempCtx.restore();
+                }
+
+                // 用裁剪后的高清图像更新 baseImage 和画布
+                const croppedImg = new Image();
+                croppedImg.onload = () => {
+                    baseImage = croppedImg;
+                    drawActions = []; // 清空涂鸦历史（已烘焙进裁剪图）
+
+                    // 重新计算画布尺寸
+                    const wrapper = document.getElementById('canvas-wrapper');
+                    const maxW = window.innerWidth * 0.9, maxH = window.innerHeight * 0.8;
+                    let w = croppedImg.width, h = croppedImg.height;
+                    const r = Math.min(maxW / w, maxH / h);
+                    canvas.width = w * r; canvas.height = h * r;
+                    wrapper.style.width = canvas.width + 'px'; wrapper.style.height = canvas.height + 'px';
+
+                    redrawCanvas();
+                    hideCropOverlay();
+                    setTool('brush');
+                };
+                croppedImg.src = tempCanvas.toDataURL('image/png');
+            }
+
+            function applyCropThenSave() {
+                // applyCrop 后自动保存（原始分辨率）
+                const input = document.getElementById('text-tool-input');
+                if (!input.classList.contains('hidden')) finalizeText();
+                redrawCanvas();
+
+                // 计算原图到画布的缩放比
+                const scaleRatio = baseImage ? (baseImage.width / canvas.width) : 1;
+                const sx = Math.round(cropBox.x * scaleRatio);
+                const sy = Math.round(cropBox.y * scaleRatio);
+                const sw = Math.round(cropBox.w * scaleRatio);
+                const sh = Math.round(cropBox.h * scaleRatio);
+
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = sw;
+                tempCanvas.height = sh;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // 原图分辨率裁剪
+                if (baseImage) {
+                    tempCtx.drawImage(baseImage, sx, sy, sw, sh, 0, 0, sw, sh);
+                }
+
+                // 如果有涂鸦，按比例绘制
+                if (drawActions.length > 0) {
+                    tempCtx.save();
+                    tempCtx.scale(scaleRatio, scaleRatio);
+                    tempCtx.translate(-cropBox.x, -cropBox.y);
+                    drawActions.forEach(action => {
+                        tempCtx.fillStyle = action.color; tempCtx.strokeStyle = action.color;
+                        tempCtx.lineWidth = 5; tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
+                        if (action.type === 'path') {
+                            tempCtx.beginPath();
+                            if (action.points.length > 0) {
+                                tempCtx.moveTo(action.points[0].x, action.points[0].y);
+                                for (let i = 1; i < action.points.length; i++) {
+                                    tempCtx.lineTo(action.points[i].x, action.points[i].y);
+                                }
+                            }
+                            tempCtx.stroke();
+                        } else if (action.type === 'text') {
+                            tempCtx.font = 'bold 24px Arial';
+                            tempCtx.fillText(action.text, action.x, action.y);
+                        }
+                    });
+                    tempCtx.restore();
+                }
+
+                tempCanvas.toBlob((blob) => {
+                    const newFile = new File([blob], `crop_${Date.now()}.png`, { type: 'image/png' });
+                    newFile.isDoodled = hasDoodleInSession;
+                    imageSlots[editTargetIndex] = newFile;
+                    renderSlots(); updatePromptLockState();
+                    hideCropOverlay();
+                    cancelEdit();
+                });
+            }
+            // ========== 裁剪功能结束 ==========
+
+            let manualUnlock = false;
+            function updatePromptLockState() {
+                const currentModel = document.getElementById('model-input').value; const hasDoodle = imageSlots.some(file => file && file.isDoodled);
+                const promptBox = document.getElementById('prompt-input'), lockMsg = document.getElementById('prompt-lock-msg');
+                if (!hasDoodle) manualUnlock = false;
+                if (currentModel === 'nano-banana-2-4k' && hasDoodle && !manualUnlock) { promptBox.value = FIXED_PROMPT; promptBox.readOnly = true; lockMsg.classList.remove('hidden'); }
+                else { promptBox.readOnly = false; lockMsg.classList.add('hidden'); }
+            }
+            function unlockPrompt() { manualUnlock = true; updatePromptLockState(); }
+
+            function toggleTheme() {
+                const html = document.documentElement; const icon = document.getElementById('theme-icon');
+                if (html.classList.contains('dark')) { html.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; localStorage.setItem('nano_theme', 'light'); }
+                else { html.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; localStorage.setItem('nano_theme', 'dark'); }
+            }
+            function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+            function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+            function showBalanceAlert() {
+                const loader = document.getElementById('custom-loader');
+                if (loader) loader.classList.add('hidden');
+                document.getElementById('balance-alert-modal').classList.remove('hidden');
+            }
+            function saveSettings() {
+                const key = document.getElementById('modal-api-key').value.trim();
+                if (key) {
+                    localStorage.setItem('nano_api_key', key);
+                    updateModelRestrictions();
+                    closeSettings();
+                    updateGenerateButtonPrice();
+                }
+                else { alert("请输入API Key"); }
+            }
+
+            function setupResizers() {
+                const resizerX = document.getElementById('resizer-x');
+                const leftPanel = document.getElementById('left-panel');
+                let startX = 0, startW = 0;
+
+                if (resizerX) {
+                    resizerX.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        startX = e.clientX;
+                        startW = leftPanel.getBoundingClientRect().width;
+                        document.body.classList.add('no-select');
+                        resizerX.classList.add('resizing');
+                        document.addEventListener('mousemove', onMouseMoveX);
+                        document.addEventListener('mouseup', onMouseUpX);
+                    });
+                }
+
+                function onMouseMoveX(e) {
+                    const newW = startW + (e.clientX - startX);
+                    if (newW >= 280 && newW <= 600) {
+                        leftPanel.style.width = newW + 'px';
+                    }
+                }
+
+                function onMouseUpX() {
+                    document.body.classList.remove('no-select');
+                    resizerX.classList.remove('resizing');
+                    document.removeEventListener('mousemove', onMouseMoveX);
+                    document.removeEventListener('mouseup', onMouseUpX);
+                }
+
+                const resizerY = document.getElementById('resizer-y');
+                const taskPanel = document.getElementById('task-panel');
+                let startY = 0, startH = 0;
+
+                if (resizerY) {
+                    resizerY.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        startY = e.clientY;
+                        startH = taskPanel.getBoundingClientRect().height;
+                        document.body.classList.add('no-select');
+                        resizerY.classList.add('resizing');
+                        document.addEventListener('mousemove', onMouseMoveY);
+                        document.addEventListener('mouseup', onMouseUpY);
+                    });
+                }
+
+                function onMouseMoveY(e) {
+                    const newH = startH + (startY - e.clientY);
+                    if (newH > 120 && newH < 600) {
+                        taskPanel.style.height = newH + 'px';
+                    }
+                }
+
+                function onMouseUpY() {
+                    document.body.classList.remove('no-select');
+                    resizerY.classList.remove('resizing');
+                    document.removeEventListener('mousemove', onMouseMoveY);
+                    document.removeEventListener('mouseup', onMouseUpY);
+                }
+            }
+            setupResizers();
+
+            function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
+            function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
+
+            // 修改：清除逻辑
+            function clearSlot(index, event) {
+                if (event) event.stopPropagation();
+
+                // 如果格子数大于3，则执行删除逻辑
+                if (visibleSlotCount > 3) {
+                    // 删除该位置的图片数据
+                    imageSlots.splice(index, 1);
+                    imageSlots.push(null); // 在末尾补一个null保持数组长度
+                    visibleSlotCount--; // 减少可见数量
+                } else {
+                    // 否则只是清空图片
+                    imageSlots[index] = null;
+                }
+                renderSlots();
+                updatePromptLockState();
+            }
+
+            function clearAllSlots() {
+                imageSlots = new Array(MAX_SLOTS).fill(null);
+                visibleSlotCount = 3; // 重置显示数量
+                renderSlots();
+                updatePromptLockState();
+            }
+
+            const zoomContainer = document.getElementById('zoom-container'), imgWrapper = document.getElementById('img-wrapper'), sliderHandle = document.getElementById('slider-handle'), compareOverlay = document.getElementById('compare-overlay');
+            function updateTransform() { imgWrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`; }
+            function resetZoom() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
+
+            zoomContainer.addEventListener('wheel', (e) => { if (imgWrapper.classList.contains('hidden')) return; e.preventDefault(); const delta = -e.deltaY; (delta > 0) ? (scale *= 1.1) : (scale /= 1.1); if (scale < 0.5) scale = 0.5; if (scale > 5) scale = 5; updateTransform(); });
+
+            zoomContainer.addEventListener('mousedown', (e) => {
+                if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
+                if (imgWrapper.classList.contains('hidden')) return;
+                startPan(e);
+            });
+
+            let initialPinchDist = 0;
+            zoomContainer.addEventListener('touchstart', (e) => {
+                if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
+                if (imgWrapper.classList.contains('hidden')) return;
+                if (e.touches.length === 2) { e.preventDefault(); initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); }
+                else if (e.touches.length === 1) { e.preventDefault(); startPan(e); }
+            }, { passive: false });
+
+            function startPan(e) { startX = getEvtX(e) - pointX; startY = getEvtY(e) - pointY; panning = true; }
+            window.addEventListener('mouseup', () => { panning = false; isSliding = false; });
+            window.addEventListener('touchend', () => { panning = false; isSliding = false; });
+
+            zoomContainer.addEventListener('mousemove', movePan);
+            zoomContainer.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault(); const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                    if (initialPinchDist > 0) { const delta = dist / initialPinchDist; scale *= delta; scale = Math.min(Math.max(0.5, scale), 5); updateTransform(); initialPinchDist = dist; }
+                } else if (e.touches.length === 1) { e.preventDefault(); movePan(e); }
+            }, { passive: false });
+
+            function movePan(e) {
+                if (isSliding) {
+                    const rect = imgWrapper.getBoundingClientRect(); let x = getEvtX(e) - rect.left;
+                    if (x < 0) x = 0; if (x > rect.width) x = rect.width;
+                    const percentage = (x / rect.width) * 100; sliderHandle.style.left = percentage + '%'; compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`; return;
+                }
+                if (!panning) return;
+                pointX = getEvtX(e) - startX; pointY = getEvtY(e) - startY; updateTransform();
+            }
+
+            zoomContainer.addEventListener('dblclick', resetZoom);
+            let lastTap = 0;
+            zoomContainer.addEventListener('touchend', (e) => {
+                const currentTime = new Date().getTime(); const tapLength = currentTime - lastTap;
+                if (tapLength < 500 && tapLength > 0) { resetZoom(); e.preventDefault(); } lastTap = currentTime;
+            });
+
+            function setBatchSize(num) {
+                batchSize = num;
+                document.querySelectorAll('.batch-btn').forEach(btn => {
+                    if (parseInt(btn.dataset.val) === num) {
+                        btn.className = "batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition";
+                    } else {
+                        btn.className = "batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition";
                     }
                 });
-                tempCtx.restore();
-            }
-
-            tempCanvas.toBlob((blob) => {
-                const newFile = new File([blob], `crop_${Date.now()}.png`, { type: 'image/png' });
-                newFile.isDoodled = hasDoodleInSession;
-                imageSlots[editTargetIndex] = newFile;
-                renderSlots(); updatePromptLockState();
-                hideCropOverlay();
-                cancelEdit();
-            });
-        }
-        // ========== 裁剪功能结束 ==========
-
-        let manualUnlock = false;
-        function updatePromptLockState() {
-            const currentModel = document.getElementById('model-input').value; const hasDoodle = imageSlots.some(file => file && file.isDoodled);
-            const promptBox = document.getElementById('prompt-input'), lockMsg = document.getElementById('prompt-lock-msg');
-            if (!hasDoodle) manualUnlock = false;
-            if (currentModel === 'nano-banana-2-4k' && hasDoodle && !manualUnlock) { promptBox.value = FIXED_PROMPT; promptBox.readOnly = true; lockMsg.classList.remove('hidden'); }
-            else { promptBox.readOnly = false; lockMsg.classList.add('hidden'); }
-        }
-        function unlockPrompt() { manualUnlock = true; updatePromptLockState(); }
-
-        function toggleTheme() {
-            const html = document.documentElement; const icon = document.getElementById('theme-icon');
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; localStorage.setItem('nano_theme', 'light'); }
-            else { html.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; localStorage.setItem('nano_theme', 'dark'); }
-        }
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function saveSettings() {
-            const key = document.getElementById('modal-api-key').value.trim(), url = document.getElementById('modal-api-url').value.trim();
-            if (key) {
-                localStorage.setItem('nano_api_key', key);
-                localStorage.setItem('nano_api_url', url || DEFAULT_API_URL);
-                updateApiDisplay(url || DEFAULT_API_URL);
-                updateModelRestrictions();
-                closeSettings();
                 updateGenerateButtonPrice();
             }
-            else { alert("请输入API Key"); }
-        }
 
-        function setupResizers() {
-            const resizerX = document.getElementById('resizer-x');
-            const leftPanel = document.getElementById('left-panel');
-            let startX = 0, startW = 0;
-
-            if (resizerX) {
-                resizerX.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startX = e.clientX;
-                    startW = leftPanel.getBoundingClientRect().width;
-                    document.body.classList.add('no-select');
-                    resizerX.classList.add('resizing');
-                    document.addEventListener('mousemove', onMouseMoveX);
-                    document.addEventListener('mouseup', onMouseUpX);
-                });
-            }
-
-            function onMouseMoveX(e) {
-                const newW = startW + (e.clientX - startX);
-                if (newW >= 280 && newW <= 600) {
-                    leftPanel.style.width = newW + 'px';
-                }
-            }
-
-            function onMouseUpX() {
-                document.body.classList.remove('no-select');
-                resizerX.classList.remove('resizing');
-                document.removeEventListener('mousemove', onMouseMoveX);
-                document.removeEventListener('mouseup', onMouseUpX);
-            }
-
-            const resizerY = document.getElementById('resizer-y');
-            const taskPanel = document.getElementById('task-panel');
-            let startY = 0, startH = 0;
-
-            if (resizerY) {
-                resizerY.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    startY = e.clientY;
-                    startH = taskPanel.getBoundingClientRect().height;
-                    document.body.classList.add('no-select');
-                    resizerY.classList.add('resizing');
-                    document.addEventListener('mousemove', onMouseMoveY);
-                    document.addEventListener('mouseup', onMouseUpY);
-                });
-            }
-
-            function onMouseMoveY(e) {
-                const newH = startH + (startY - e.clientY);
-                if (newH > 120 && newH < 600) {
-                    taskPanel.style.height = newH + 'px';
-                }
-            }
-
-            function onMouseUpY() {
-                document.body.classList.remove('no-select');
-                resizerY.classList.remove('resizing');
-                document.removeEventListener('mousemove', onMouseMoveY);
-                document.removeEventListener('mouseup', onMouseUpY);
-            }
-        }
-        setupResizers();
-
-        function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
-        function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
-
-        // 修改：清除逻辑
-        function clearSlot(index, event) {
-            if (event) event.stopPropagation();
-
-            // 如果格子数大于3，则执行删除逻辑
-            if (visibleSlotCount > 3) {
-                // 删除该位置的图片数据
-                imageSlots.splice(index, 1);
-                imageSlots.push(null); // 在末尾补一个null保持数组长度
-                visibleSlotCount--; // 减少可见数量
-            } else {
-                // 否则只是清空图片
-                imageSlots[index] = null;
-            }
-            renderSlots();
-            updatePromptLockState();
-        }
-
-        function clearAllSlots() {
-            imageSlots = new Array(MAX_SLOTS).fill(null);
-            visibleSlotCount = 3; // 重置显示数量
-            renderSlots();
-            updatePromptLockState();
-        }
-
-        const zoomContainer = document.getElementById('zoom-container'), imgWrapper = document.getElementById('img-wrapper'), sliderHandle = document.getElementById('slider-handle'), compareOverlay = document.getElementById('compare-overlay');
-        function updateTransform() { imgWrapper.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`; }
-        function resetZoom() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
-
-        zoomContainer.addEventListener('wheel', (e) => { if (imgWrapper.classList.contains('hidden')) return; e.preventDefault(); const delta = -e.deltaY; (delta > 0) ? (scale *= 1.1) : (scale /= 1.1); if (scale < 0.5) scale = 0.5; if (scale > 5) scale = 5; updateTransform(); });
-
-        zoomContainer.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
-            if (imgWrapper.classList.contains('hidden')) return;
-            startPan(e);
-        });
-
-        let initialPinchDist = 0;
-        zoomContainer.addEventListener('touchstart', (e) => {
-            if (e.target.closest('#slider-handle')) { isSliding = true; e.preventDefault(); return; }
-            if (imgWrapper.classList.contains('hidden')) return;
-            if (e.touches.length === 2) { e.preventDefault(); initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); }
-            else if (e.touches.length === 1) { e.preventDefault(); startPan(e); }
-        }, { passive: false });
-
-        function startPan(e) { startX = getEvtX(e) - pointX; startY = getEvtY(e) - pointY; panning = true; }
-        window.addEventListener('mouseup', () => { panning = false; isSliding = false; });
-        window.addEventListener('touchend', () => { panning = false; isSliding = false; });
-
-        zoomContainer.addEventListener('mousemove', movePan);
-        zoomContainer.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2) {
-                e.preventDefault(); const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-                if (initialPinchDist > 0) { const delta = dist / initialPinchDist; scale *= delta; scale = Math.min(Math.max(0.5, scale), 5); updateTransform(); initialPinchDist = dist; }
-            } else if (e.touches.length === 1) { e.preventDefault(); movePan(e); }
-        }, { passive: false });
-
-        function movePan(e) {
-            if (isSliding) {
-                const rect = imgWrapper.getBoundingClientRect(); let x = getEvtX(e) - rect.left;
-                if (x < 0) x = 0; if (x > rect.width) x = rect.width;
-                const percentage = (x / rect.width) * 100; sliderHandle.style.left = percentage + '%'; compareOverlay.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`; return;
-            }
-            if (!panning) return;
-            pointX = getEvtX(e) - startX; pointY = getEvtY(e) - startY; updateTransform();
-        }
-
-        zoomContainer.addEventListener('dblclick', resetZoom);
-        let lastTap = 0;
-        zoomContainer.addEventListener('touchend', (e) => {
-            const currentTime = new Date().getTime(); const tapLength = currentTime - lastTap;
-            if (tapLength < 500 && tapLength > 0) { resetZoom(); e.preventDefault(); } lastTap = currentTime;
-        });
-
-        function setBatchSize(num) {
-            batchSize = num;
-            document.querySelectorAll('.batch-btn').forEach(btn => {
-                if (parseInt(btn.dataset.val) === num) {
-                    btn.className = "batch-btn active-btn flex-1 py-1.5 text-xs rounded-lg transition";
-                } else {
-                    btn.className = "batch-btn inactive-btn bg-gray-100 dark:bg-[#18181b] border border-transparent dark:border-[#27272a] text-gray-700 dark:text-gray-300 flex-1 py-1.5 text-xs rounded-lg transition";
-                }
-            });
-            updateGenerateButtonPrice();
-        }
-
-        function ensureLoaderExists() {
-            if (document.getElementById('custom-loader')) return;
-            const container = document.getElementById('zoom-container');
-            const loaderDiv = document.createElement('div');
-            loaderDiv.id = 'custom-loader';
-            loaderDiv.className = 'hidden absolute z-50 flex flex-col items-center justify-center bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-[#27272a] transition-all select-none';
-            loaderDiv.innerHTML = `
+            function ensureLoaderExists() {
+                if (document.getElementById('custom-loader')) return;
+                const container = document.getElementById('zoom-container');
+                const loaderDiv = document.createElement('div');
+                loaderDiv.id = 'custom-loader';
+                loaderDiv.className = 'hidden absolute z-50 flex flex-col items-center justify-center bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-[#27272a] transition-all select-none';
+                loaderDiv.innerHTML = `
                 <div class="relative w-16 h-16 mb-4 flex items-center justify-center">
                     <div class="absolute inset-0 border-4 border-indigo-100 dark:border-indigo-900 rounded-full"></div>
                     <div class="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -2025,294 +2108,310 @@
                     <div id="loader-percent" class="mt-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono">...</div>
                 </div>
             `;
-            container.appendChild(loaderDiv);
-        }
-
-        function preloadImageAndDisplay(url, duration, refSrc) {
-            ensureLoaderExists();
-            const loader = document.getElementById('custom-loader');
-            document.getElementById('loader-status').innerText = '图像加载中';
-            document.getElementById('loader-detail').innerText = '接收结果...';
-
-            loader.classList.remove('hidden');
-            if (!document.getElementById('img-wrapper').classList.contains('hidden')) {
-                document.getElementById('main-image').style.filter = 'blur(10px) grayscale(100%)';
+                container.appendChild(loaderDiv);
             }
 
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'blob';
+            function preloadImageAndDisplay(url, duration, refSrc) {
+                ensureLoaderExists();
+                const loader = document.getElementById('custom-loader');
+                document.getElementById('loader-status').innerText = '图像加载中';
+                document.getElementById('loader-detail').innerText = '接收结果...';
 
-            xhr.onprogress = (event) => {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    document.getElementById('loader-percent').innerText = percent + '%';
-                    document.getElementById('loader-bar').style.width = percent + '%';
+                loader.classList.remove('hidden');
+                if (!document.getElementById('img-wrapper').classList.contains('hidden')) {
+                    document.getElementById('main-image').style.filter = 'blur(10px) grayscale(100%)';
                 }
-            };
 
-            xhr.onload = () => {
-                loader.classList.add('hidden');
-                document.getElementById('main-image').style.filter = '';
-                if (xhr.status === 200) {
-                    const blobUrl = URL.createObjectURL(xhr.response);
-                    setMainImage(blobUrl, duration, refSrc);
-                } else {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.responseType = 'blob';
+
+                xhr.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        document.getElementById('loader-percent').innerText = percent + '%';
+                        document.getElementById('loader-bar').style.width = percent + '%';
+                    }
+                };
+
+                xhr.onload = () => {
+                    loader.classList.add('hidden');
+                    document.getElementById('main-image').style.filter = '';
+                    if (xhr.status === 200) {
+                        const blobUrl = URL.createObjectURL(xhr.response);
+                        setMainImage(blobUrl, duration, refSrc);
+                    } else {
+                        setMainImage(url, duration, refSrc);
+                    }
+                };
+
+                xhr.onerror = () => {
+                    loader.classList.add('hidden');
+                    document.getElementById('main-image').style.filter = '';
                     setMainImage(url, duration, refSrc);
-                }
-            };
-
-            xhr.onerror = () => {
-                loader.classList.add('hidden');
-                document.getElementById('main-image').style.filter = '';
-                setMainImage(url, duration, refSrc);
-            };
-
-            xhr.send();
-        }
-
-        function renderSlots() {
-            const grid = document.getElementById('slots-grid');
-            const currentModel = document.getElementById('model-input').value;
-            const canDoodle = (currentModel === 'nano-banana-2-4k');
-            grid.innerHTML = '';
-
-            // 修改：只渲染可见数量的格子
-            for (let index = 0; index < visibleSlotCount; index++) {
-                const file = imageSlots[index];
-                const slotNum = index + 1;
-                const div = document.createElement('div');
-                div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group ${file ? 'border-transparent bg-gray-900' : 'border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-[#18181b] hover:bg-purple-50 dark:hover:bg-[#1f1f22]'}`;
-
-                div.ondragover = (e) => {
-                    e.preventDefault();
-                    if (!file) div.classList.add('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
-                };
-                div.ondragleave = (e) => {
-                    e.preventDefault();
-                    div.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
-                };
-                div.ondrop = (e) => {
-                    e.preventDefault();
-                    div.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
-                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                        const droppedFile = e.dataTransfer.files[0];
-                        if (droppedFile.type.startsWith('image/')) {
-                            imageSlots[index] = droppedFile; renderSlots(); updatePromptLockState();
-                        } else { alert("请拖入图片格式的文件"); }
-                    }
                 };
 
-                if (file) {
-                    const reader = new FileReader(); reader.onload = (e) => {
-                        let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
-                        let editBtn = canDoodle ? `<div onclick="openEditor(${index}, event)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="涂鸦编辑"><i class="fa-solid fa-paintbrush text-[10px]"></i></div>` : "";
-
-                        // 删除按钮
-                        let deleteIcon = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
-
-                        // 如果超过3个格子，删除按钮始终显示（提示用户可以删除格子）
-                        if (visibleSlotCount > 3) {
-                            deleteIcon = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
-                        }
-
-                        div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn} ${doodleBadge}${deleteIcon}<div onclick="viewOriginal('${e.target.result}')" class="absolute inset-0 z-0"></div>`;
-                    }; reader.readAsDataURL(file);
-                } else {
-                    div.onclick = () => triggerSlotUpload(index);
-
-                    // 如果超过3个格子且没有图片，显示显眼的删除按钮以便移除空格子
-                    let deleteEmpty = '';
-                    if (visibleSlotCount > 3) {
-                        deleteEmpty = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center shadow-sm z-20 transition"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
-                    }
-
-                    div.innerHTML = `${deleteEmpty}<i class="fa-solid fa-plus text-gray-300 dark:text-gray-600 text-lg mb-1 group-hover:text-purple-500 transition"></i><span class="text-[10px] text-gray-400 dark:text-gray-500 font-mono group-hover:text-purple-500 transition">图片 ${slotNum}</span>`;
-                }
-                grid.appendChild(div);
+                xhr.send();
             }
 
-            // 新增：如果未满9个，显示加号按钮
-            if (visibleSlotCount < MAX_SLOTS) {
-                const addBtn = document.createElement('div');
-                addBtn.className = "relative w-full aspect-[4/3] rounded-lg border-2 border-dashed border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50/50 dark:bg-[#18181b]/50 hover:bg-purple-50 dark:hover:bg-[#1f1f22] transition cursor-pointer flex flex-col items-center justify-center text-gray-400 hover:text-purple-500";
-                addBtn.onclick = () => {
-                    visibleSlotCount++;
-                    renderSlots();
-                };
-                addBtn.innerHTML = `<i class="fa-solid fa-plus text-xl"></i>`;
-                grid.appendChild(addBtn);
-            }
-        }
+            function renderSlots() {
+                const grid = document.getElementById('slots-grid');
+                const currentModel = document.getElementById('model-input').value;
+                const canDoodle = (currentModel === 'nano-banana-2-4k');
+                grid.innerHTML = '';
 
-        function updateGenerateButtonPrice() {
-            let url = (localStorage.getItem('nano_api_url') || DEFAULT_API_URL).trim();
-            const model = document.getElementById('model-input').value;
-            let unitPrice = 0;
-            if (url.includes('bltcy.ai')) {
-                if (model === 'nano-banana-2-4k') unitPrice = 0.2;
-            } else if (url.includes('t8star.cn')) {
-                if (model === 'nano-banana-2-4k') unitPrice = 0.27;
-                if (model === 'nano-banana-hd') unitPrice = 0.162;
-            }
-            const total = unitPrice * batchSize;
-            const btnSpan = document.querySelector('#generate-btn span');
-            const loadingIcon = document.getElementById('loading-icon');
-            if (loadingIcon && loadingIcon.classList.contains('hidden')) {
-                if (total > 0) { btnSpan.innerText = `✨ 立即生成 - ${parseFloat(total.toFixed(3))}¥`; }
-                else { btnSpan.innerText = `✨ 立即生成`; }
-            }
-        }
+                // 修改：只渲染可见数量的格子
+                for (let index = 0; index < visibleSlotCount; index++) {
+                    const file = imageSlots[index];
+                    const slotNum = index + 1;
+                    const div = document.createElement('div');
+                    div.className = `relative w-full aspect-[4/3] rounded-lg border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center group ${file ? 'border-transparent bg-gray-900' : 'border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50 dark:bg-[#18181b] hover:bg-purple-50 dark:hover:bg-[#1f1f22]'}`;
 
-        // --- 核心增强：智能压缩 ---
-        async function compressImage(file, maxSizeMB = 3) {
-            if (file.size <= maxSizeMB * 1024 * 1024) return file;
-            const maxDimension = 2560;
-            return new Promise((resolve) => {
-                const reader = new FileReader(); reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image(); img.src = event.target.result;
-                    img.onload = () => {
-                        let width = img.width, height = img.height;
-                        if (width > maxDimension || height > maxDimension) {
-                            if (width > height) { height = Math.round((height * maxDimension) / width); width = maxDimension; }
-                            else { width = Math.round((width * maxDimension) / height); height = maxDimension; }
-                        }
-                        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                        let quality = 0.9;
-                        const tryCompress = () => {
-                            canvas.toBlob((blob) => {
-                                if (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.5) { resolve(new File([blob], file.name, { type: 'image/jpeg' })); }
-                                else { quality -= 0.1; tryCompress(); }
-                            }, 'image/jpeg', quality);
-                        }; tryCompress();
+                    div.ondragover = (e) => {
+                        e.preventDefault();
+                        if (!file) div.classList.add('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
                     };
-                };
-            });
-        }
+                    div.ondragleave = (e) => {
+                        e.preventDefault();
+                        div.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
+                    };
+                    div.ondrop = (e) => {
+                        e.preventDefault();
+                        div.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
+                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                            const droppedFile = e.dataTransfer.files[0];
+                            if (droppedFile.type.startsWith('image/')) {
+                                imageSlots[index] = droppedFile; renderSlots(); updatePromptLockState();
+                            } else { alert("请拖入图片格式的文件"); }
+                        }
+                    };
 
-        async function submitTask() {
-            const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
-            let baseUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
-            baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+                    if (file) {
+                        const reader = new FileReader(); reader.onload = (e) => {
+                            let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
+                            let editBtn = canDoodle ? `<div onclick="openEditor(${index}, event)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="涂鸦编辑"><i class="fa-solid fa-paintbrush text-[10px]"></i></div>` : "";
 
-            let basePrompt = document.getElementById('prompt-input').value.trim();
-            const oldText = document.getElementById('text-edit-old').value.trim();
-            const newText = document.getElementById('text-edit-new').value.trim();
+                            // 删除按钮
+                            let deleteIcon = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
 
-            let finalPrompt = basePrompt;
-            if (oldText && newText) { finalPrompt += ` 文字编辑要求：把 “${oldText}” 修改为 “${newText}”`; }
+                            // 如果超过3个格子，删除按钮始终显示（提示用户可以删除格子）
+                            if (visibleSlotCount > 3) {
+                                deleteIcon = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
+                            }
 
-            const ratio = document.getElementById('ratio-input').value;
-            const size = document.getElementById('size-input').value;
-            const modelName = document.getElementById('model-input').value;
-            const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon');
+                            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn} ${doodleBadge}${deleteIcon}<div onclick="viewOriginal('${e.target.result}')" class="absolute inset-0 z-0"></div>`;
+                        }; reader.readAsDataURL(file);
+                    } else {
+                        div.onclick = () => triggerSlotUpload(index);
 
-            if (!finalPrompt) { alert("请输入提示词"); return; }
+                        // 如果超过3个格子且没有图片，显示显眼的删除按钮以便移除空格子
+                        let deleteEmpty = '';
+                        if (visibleSlotCount > 3) {
+                            deleteEmpty = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-red-500 hover:text-white rounded-full flex items-center justify-center shadow-sm z-20 transition"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
+                        }
 
-            ensureLoaderExists();
-            btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden');
+                        div.innerHTML = `${deleteEmpty}<i class="fa-solid fa-plus text-gray-300 dark:text-gray-600 text-lg mb-1 group-hover:text-purple-500 transition"></i><span class="text-[10px] text-gray-400 dark:text-gray-500 font-mono group-hover:text-purple-500 transition">图片 ${slotNum}</span>`;
+                    }
+                    grid.appendChild(div);
+                }
 
-            const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
-
-            // 1. 图片准备（已关闭自动压缩）
-            const compressedImages = [];
-            if (validImages.length > 0) {
-                const loaderStatus = document.getElementById('loader-status');
-                const loaderDetail = document.getElementById('loader-detail');
-                loaderStatus.innerText = "准备图片中"; loaderDetail.innerText = "正在准备图片...";
-                const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]);
-                for (let img of validImages) {
-                    compressedImages.push(img); // 直接使用原图，不压缩
+                // 新增：如果未满9个，显示加号按钮
+                if (visibleSlotCount < MAX_SLOTS) {
+                    const addBtn = document.createElement('div');
+                    addBtn.className = "relative w-full aspect-[4/3] rounded-lg border-2 border-dashed border-gray-300 dark:border-[#27272a] hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50/50 dark:bg-[#18181b]/50 hover:bg-purple-50 dark:hover:bg-[#1f1f22] transition cursor-pointer flex flex-col items-center justify-center text-gray-400 hover:text-purple-500";
+                    addBtn.onclick = () => {
+                        visibleSlotCount++;
+                        renderSlots();
+                    };
+                    addBtn.innerHTML = `<i class="fa-solid fa-plus text-xl"></i>`;
+                    grid.appendChild(addBtn);
                 }
             }
 
-            btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`;
-            document.getElementById('loader-status').innerText = "AI 生成中";
-            document.getElementById('loader-detail').innerText = "正在请求 API...";
+            function updateGenerateButtonPrice() {
+                let url = DEFAULT_API_URL;
+                const model = document.getElementById('model-input').value;
+                let unitPrice = 0;
+                if (url.includes('bltcy.ai')) {
+                    if (model === 'nano-banana-2-4k') unitPrice = 0.2;
+                } else if (url.includes('t8star.cn')) {
+                    if (model === 'nano-banana-2-4k') unitPrice = 0.27;
+                    if (model === 'nano-banana-hd') unitPrice = 0.162;
+                }
+                const total = unitPrice * batchSize;
+                const btnSpan = document.querySelector('#generate-btn span');
+                const loadingIcon = document.getElementById('loading-icon');
+                if (loadingIcon && loadingIcon.classList.contains('hidden')) {
+                    if (total > 0) { btnSpan.innerText = `✨ 立即生成 - ${parseFloat(total.toFixed(3))}¥`; }
+                    else { btnSpan.innerText = `✨ 立即生成`; }
+                }
+            }
 
-            const startTime = Date.now();
-            const sendRequest = async (retryCount = 0) => {
-                const isTxt2Img = compressedImages.length === 0; let endpoint, body, headers;
-                headers = { 'Authorization': `Bearer ${apiKey}` };
+            // --- 核心增强：智能压缩 ---
+            async function compressImage(file, maxSizeMB = 3) {
+                if (file.size <= maxSizeMB * 1024 * 1024) return file;
+                const maxDimension = 2560;
+                return new Promise((resolve) => {
+                    const reader = new FileReader(); reader.readAsDataURL(file);
+                    reader.onload = (event) => {
+                        const img = new Image(); img.src = event.target.result;
+                        img.onload = () => {
+                            let width = img.width, height = img.height;
+                            if (width > maxDimension || height > maxDimension) {
+                                if (width > height) { height = Math.round((height * maxDimension) / width); width = maxDimension; }
+                                else { width = Math.round((width * maxDimension) / height); height = maxDimension; }
+                            }
+                            const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+                            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+                            let quality = 0.9;
+                            const tryCompress = () => {
+                                canvas.toBlob((blob) => {
+                                    if (blob.size <= maxSizeMB * 1024 * 1024 || quality <= 0.5) { resolve(new File([blob], file.name, { type: 'image/jpeg' })); }
+                                    else { quality -= 0.1; tryCompress(); }
+                                }, 'image/jpeg', quality);
+                            }; tryCompress();
+                        };
+                    };
+                });
+            }
 
-                let requestModelName = modelName;
+            async function submitTask() {
+                const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
+                let baseUrl = DEFAULT_API_URL;
+                baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+
+                let basePrompt = document.getElementById('prompt-input').value.trim();
+                const oldText = document.getElementById('text-edit-old').value.trim();
+                const newText = document.getElementById('text-edit-new').value.trim();
+
+                let finalPrompt = basePrompt;
+                if (oldText && newText) { finalPrompt += ` 文字编辑要求：把 “${oldText}” 修改为 “${newText}”`; }
+
+                const ratio = document.getElementById('ratio-input').value;
+                const size = document.getElementById('size-input').value;
+                const modelName = document.getElementById('model-input').value;
+                const btn = document.getElementById('generate-btn'), icon = document.getElementById('loading-icon');
+
+                if (!finalPrompt) { alert("请输入提示词"); return; }
+
+                ensureLoaderExists();
+                btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden');
+
+                const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
+
+                // 1. 图片准备（已关闭自动压缩）
+                const compressedImages = [];
+                if (validImages.length > 0) {
+                    const loaderStatus = document.getElementById('loader-status');
+                    const loaderDetail = document.getElementById('loader-detail');
+                    loaderStatus.innerText = "准备图片中"; loaderDetail.innerText = "正在准备图片...";
+                    const reader = new FileReader(); reader.onload = (e) => { originalRefImage = e.target.result; }; reader.readAsDataURL(validImages[0]);
+                    for (let img of validImages) {
+                        compressedImages.push(img); // 直接使用原图，不压缩
+                    }
+                }
+
+                btn.querySelector('span').innerText = `生成中 (0/${batchSize})...`;
+                document.getElementById('loader-status').innerText = "AI 生成中";
+                document.getElementById('loader-detail').innerText = "正在请求 API...";
+
+                const startTime = Date.now();
+                const sendRequest = async (retryCount = 0) => {
+                    const isTxt2Img = compressedImages.length === 0; let endpoint, body, headers;
+                    headers = { 'Authorization': `Bearer ${apiKey}` };
+
+                    let requestModelName = modelName;
+
+                    try {
+                        if (isTxt2Img) {
+                            endpoint = `${baseUrl}/v1/images/generations`; headers['Content-Type'] = 'application/json';
+                            body = JSON.stringify({ model: requestModelName, prompt: finalPrompt, aspect_ratio: ratio, image_size: size, n: 1, response_format: 'url' });
+                        } else {
+                            endpoint = `${baseUrl}/v1/images/edits`; const formData = new FormData();
+                            formData.append('model', requestModelName); formData.append('prompt', finalPrompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', 1); formData.append('response_format', 'url');
+                            compressedImages.forEach((file) => formData.append('image', file)); body = formData;
+                        }
+                        const response = await fetch(endpoint, { method: 'POST', headers: headers, body: body });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            const msg = data.error?.message || "请求失败";
+                            const errCode = (data.error?.code || data.error?.type || "").toLowerCase();
+                            const err = new Error(msg);
+                            // 余额不足检测：消息关键词 + 错误码 + HTTP 402
+                            err.isBalanceError = /insufficient|quota|balance|credit|余额|欠费|用量|limit exceeded|not enough/i.test(msg)
+                                || /insufficient|balance|quota|credit|payment/i.test(errCode)
+                                || response.status === 402;
+                            throw err;
+                        }
+                        return data.data || (data.url ? [{ url: data.url }] : []);
+                    } catch (e) {
+                        if (e.isBalanceError) throw e; // 余额不足直接抛出，不重试
+                        if (retryCount < 1) { // 简单重试逻辑
+                            console.warn("请求失败，尝试重连...");
+                            await new Promise(r => setTimeout(r, 2000));
+                            return sendRequest(retryCount + 1);
+                        }
+                        throw e;
+                    }
+                };
 
                 try {
-                    if (isTxt2Img) {
-                        endpoint = `${baseUrl}/v1/images/generations`; headers['Content-Type'] = 'application/json';
-                        body = JSON.stringify({ model: requestModelName, prompt: finalPrompt, aspect_ratio: ratio, image_size: size, n: 1, response_format: 'url' });
+                    const requestPromises = Array.from({ length: batchSize }, () => sendRequest());
+                    const outcomes = await Promise.allSettled(requestPromises);
+                    const allResults = [];
+                    let hasBalErr = false;
+                    outcomes.forEach(outcome => {
+                        if (outcome.status === 'fulfilled') { allResults.push(...outcome.value); }
+                        else { console.error("部分请求失败:", outcome.reason); if (outcome.reason?.isBalanceError) hasBalErr = true; }
+                    });
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
+
+                    if (allResults.length > 0) {
+                        preloadImageAndDisplay(allResults[0].url, duration, originalRefImage);
+                        allResults.forEach(img => addToHistory(img.url, basePrompt, duration));
+                        if (window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
                     } else {
-                        endpoint = `${baseUrl}/v1/images/edits`; const formData = new FormData();
-                        formData.append('model', requestModelName); formData.append('prompt', finalPrompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', 1); formData.append('response_format', 'url');
-                        compressedImages.forEach((file) => formData.append('image', file)); body = formData;
+                        if (hasBalErr) { showBalanceAlert(); }
+                        else { alert("生成失败，请检查设置或稍后重试"); }
+                        document.getElementById('custom-loader').classList.add('hidden');
                     }
-                    const response = await fetch(endpoint, { method: 'POST', headers: headers, body: body });
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error?.message || "请求失败");
-                    return data.data || (data.url ? [{ url: data.url }] : []);
-                } catch (e) {
-                    if (retryCount < 1) { // 简单重试逻辑
-                        console.warn("请求失败，尝试重连...");
-                        await new Promise(r => setTimeout(r, 2000));
-                        return sendRequest(retryCount + 1);
-                    }
-                    throw e;
-                }
-            };
-
-            try {
-                const requestPromises = Array.from({ length: batchSize }, () => sendRequest());
-                const outcomes = await Promise.allSettled(requestPromises);
-                const allResults = [];
-                outcomes.forEach(outcome => { if (outcome.status === 'fulfilled') { allResults.push(...outcome.value); } else { console.error("部分请求失败:", outcome.reason); } });
-                const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
-
-                if (allResults.length > 0) {
-                    preloadImageAndDisplay(allResults[0].url, duration, originalRefImage);
-                    allResults.forEach(img => addToHistory(img.url, basePrompt, duration));
-                    if (window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
-                } else {
-                    alert("生成失败，请检查设置或稍后重试");
+                } catch (err) {
+                    console.error(err);
+                    if (err.isBalanceError) { showBalanceAlert(); }
+                    else { alert("错误: " + err.message); }
                     document.getElementById('custom-loader').classList.add('hidden');
                 }
-            } catch (err) {
-                console.error(err);
-                alert("错误: " + err.message);
-                document.getElementById('custom-loader').classList.add('hidden');
-            }
-            finally {
-                btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); icon.classList.add('hidden');
-                updateGenerateButtonPrice();
-            }
-        }
-
-        function setMainImage(url, duration = "", refSrc = null) {
-            currentMainImageUrl = url; const placeholder = document.getElementById('empty-placeholder'), timeBadge = document.getElementById('time-badge');
-            placeholder.classList.add('hidden'); imgWrapper.classList.remove('hidden'); document.getElementById('main-image').src = url;
-            if (refSrc) {
-                document.getElementById('ref-image').src = refSrc; compareOverlay.classList.remove('hidden');
-                sliderHandle.classList.remove('hidden'); sliderHandle.style.left = '50%'; compareOverlay.style.clipPath = 'inset(0 50% 0 0)';
-            } else { compareOverlay.classList.add('hidden'); sliderHandle.classList.add('hidden'); }
-            resetZoom(); if (duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
-        }
-        function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
-        function addToHistory(url, prompt, duration) { historyData.unshift({ url: url, prompt: prompt, duration: duration }); saveHistoryToLocal(); renderHistoryItem(url, prompt, duration); }
-
-        function renderHistoryItem(url, prompt, duration) {
-            const list = document.getElementById('history-list'), empty = document.getElementById('history-empty'); if (empty) empty.remove();
-            const item = document.createElement('div');
-            item.className = "history-item group relative flex-shrink-0 bg-gray-900 rounded-xl overflow-hidden border border-gray-700 cursor-pointer hover:border-purple-500 transition shadow-lg md:w-auto md:h-full md:aspect-[4/3] w-full aspect-[16/9]";
-            item.dataset.url = url; item.dataset.prompt = encodeURIComponent(prompt); item.dataset.duration = duration;
-            item.onclick = (e) => {
-                if (!e.target.closest('.task-checkbox') && !e.target.closest('button')) {
-                    const decPrompt = decodeURIComponent(item.dataset.prompt); setMainImage(url, duration);
-                    document.getElementById('prompt-input').value = decPrompt;
-                    if (window.innerWidth < 768) { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }
+                finally {
+                    btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); icon.classList.add('hidden');
+                    updateGenerateButtonPrice();
                 }
-            };
-            item.innerHTML = `<img src="${url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 pointer-events-none">
+            }
+
+            function setMainImage(url, duration = "", refSrc = null) {
+                currentMainImageUrl = url; const placeholder = document.getElementById('empty-placeholder'), timeBadge = document.getElementById('time-badge');
+                placeholder.classList.add('hidden'); imgWrapper.classList.remove('hidden'); document.getElementById('main-image').src = url;
+                if (refSrc) {
+                    document.getElementById('ref-image').src = refSrc; compareOverlay.classList.remove('hidden');
+                    sliderHandle.classList.remove('hidden'); sliderHandle.style.left = '50%'; compareOverlay.style.clipPath = 'inset(0 50% 0 0)';
+                } else { compareOverlay.classList.add('hidden'); sliderHandle.classList.add('hidden'); }
+                resetZoom(); if (duration) { document.getElementById('time-val').innerText = duration; timeBadge.classList.remove('hidden'); } else { timeBadge.classList.add('hidden'); }
+            }
+            function clearMainPreview() { currentMainImageUrl = ""; imgWrapper.classList.add('hidden'); document.getElementById('empty-placeholder').classList.remove('hidden'); document.getElementById('time-badge').classList.add('hidden'); }
+            function addToHistory(url, prompt, duration) { historyData.unshift({ url: url, prompt: prompt, duration: duration }); saveHistoryToLocal(); renderHistoryItem(url, prompt, duration); }
+
+            function renderHistoryItem(url, prompt, duration) {
+                const list = document.getElementById('history-list'), empty = document.getElementById('history-empty'); if (empty) empty.remove();
+                const item = document.createElement('div');
+                item.className = "history-item group relative flex-shrink-0 bg-gray-900 rounded-xl overflow-hidden border border-gray-700 cursor-pointer hover:border-purple-500 transition shadow-lg md:w-auto md:h-full md:aspect-[4/3] w-full aspect-[16/9]";
+                item.dataset.url = url; item.dataset.prompt = encodeURIComponent(prompt); item.dataset.duration = duration;
+                item.onclick = (e) => {
+                    if (!e.target.closest('.task-checkbox') && !e.target.closest('button')) {
+                        const decPrompt = decodeURIComponent(item.dataset.prompt); setMainImage(url, duration);
+                        document.getElementById('prompt-input').value = decPrompt;
+                        if (window.innerWidth < 768) { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }
+                    }
+                };
+                item.innerHTML = `<img src="${url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-300 pointer-events-none">
                 <div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
                 <div class="absolute top-2 left-2 z-20"><input type="checkbox" class="task-checkbox" onchange="updateBatchState()" onclick="event.stopPropagation()"></div>
                 <div class="absolute top-2 right-2 flex gap-3 opacity-100 md:opacity-0 group-hover:opacity-100 transition duration-200 z-20">
@@ -2323,266 +2422,266 @@
                     <p class="text-white text-xs font-bold line-clamp-2 leading-tight drop-shadow-md mb-1.5">${prompt.replace(/</g, "&lt;")}</p>
                     <div class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-green-400 text-[10px]"></i><span class="text-[9px] text-gray-500 ml-auto bg-white/10 px-1.5 py-0.5 rounded">${duration}</span></div>
                 </div>`;
-            list.prepend(item);
-            item.classList.add('history-item-enter');
-            setTimeout(function() { item.classList.remove('history-item-enter'); }, 420);
-        }
+                list.prepend(item);
+                item.classList.add('history-item-enter');
+                setTimeout(function () { item.classList.remove('history-item-enter'); }, 420);
+            }
 
-        function toggleSelectAll() { const mainCb = document.getElementById('select-all'); document.querySelectorAll('#history-list .task-checkbox').forEach(cb => cb.checked = mainCb.checked); updateBatchState(); }
-        function updateBatchState() {
-            const checkboxes = document.querySelectorAll('#history-list .task-checkbox'), checked = Array.from(checkboxes).filter(cb => cb.checked);
-            const batchActions = document.getElementById('batch-actions'), titleLabel = document.getElementById('task-list-title');
-            if (checked.length > 0) { batchActions.classList.remove('hidden'); titleLabel.innerHTML = `已选 <span class="text-purple-500">${checked.length}</span> 项`; titleLabel.classList.add('text-gray-900', 'dark:text-white'); }
-            else { batchActions.classList.add('hidden'); titleLabel.innerHTML = '任务列表'; titleLabel.classList.remove('text-gray-900', 'dark:text-white'); }
-            const mainCb = document.getElementById('select-all'); if (checked.length === checkboxes.length && checkboxes.length > 0) mainCb.checked = true; else if (checked.length === 0) mainCb.checked = false; else mainCb.indeterminate = true;
-        }
+            function toggleSelectAll() { const mainCb = document.getElementById('select-all'); document.querySelectorAll('#history-list .task-checkbox').forEach(cb => cb.checked = mainCb.checked); updateBatchState(); }
+            function updateBatchState() {
+                const checkboxes = document.querySelectorAll('#history-list .task-checkbox'), checked = Array.from(checkboxes).filter(cb => cb.checked);
+                const batchActions = document.getElementById('batch-actions'), titleLabel = document.getElementById('task-list-title');
+                if (checked.length > 0) { batchActions.classList.remove('hidden'); titleLabel.innerHTML = `已选 <span class="text-purple-500">${checked.length}</span> 项`; titleLabel.classList.add('text-gray-900', 'dark:text-white'); }
+                else { batchActions.classList.add('hidden'); titleLabel.innerHTML = '任务列表'; titleLabel.classList.remove('text-gray-900', 'dark:text-white'); }
+                const mainCb = document.getElementById('select-all'); if (checked.length === checkboxes.length && checkboxes.length > 0) mainCb.checked = true; else if (checked.length === 0) mainCb.checked = false; else mainCb.indeterminate = true;
+            }
 
-        async function batchDownload() {
-            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
-            if (!confirm(`确认下载选中的 ${checked.length} 张图片吗？`)) return;
-            for (let cb of checked) { const item = cb.closest('.history-item'); downloadSingleImage(item.dataset.url); await new Promise(r => setTimeout(r, 500)); }
-        }
-        function batchDelete() {
-            const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
-            if (!confirm(`确认删除选中的 ${checked.length} 张任务吗？`)) return;
-            checked.forEach(cb => { const item = cb.closest('.history-item'); const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove); item.remove(); });
-            saveHistoryToLocal(); updateBatchState();
-            if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
-        }
-        function viewOriginal(src) {
-            const img = document.getElementById('lightbox-img');
-            img.src = src;
-            lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
-            document.getElementById('lightbox-modal').classList.remove('hidden');
-        }
-        function closeLightbox() {
-            document.getElementById('lightbox-modal').classList.add('hidden');
-            lbScale = 1; lbPanX = 0; lbPanY = 0;
-        }
-
-        // --- Lightbox zoom/pan ---
-        let lbScale = 1, lbPanX = 0, lbPanY = 0, lbPanning = false, lbStartX = 0, lbStartY = 0;
-        function updateLightboxTransform() {
-            document.getElementById('lightbox-img').style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbScale})`;
-        }
-        (function initLightboxZoom() {
-            const container = document.getElementById('lightbox-container');
-            const img = document.getElementById('lightbox-img');
-
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                const delta = -e.deltaY;
-                (delta > 0) ? (lbScale *= 1.15) : (lbScale /= 1.15);
-                if (lbScale < 0.5) lbScale = 0.5;
-                if (lbScale > 10) lbScale = 10;
-                updateLightboxTransform();
-            }, { passive: false });
-
-            img.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                lbPanning = true; lbStartX = e.clientX - lbPanX; lbStartY = e.clientY - lbPanY;
-                img.style.cursor = 'grabbing';
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!lbPanning) return;
-                lbPanX = e.clientX - lbStartX; lbPanY = e.clientY - lbStartY;
-                updateLightboxTransform();
-            });
-            window.addEventListener('mouseup', () => {
-                if (lbPanning) { lbPanning = false; img.style.cursor = 'grab'; }
-            });
-
-            // Touch support
-            img.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    e.preventDefault();
-                    lbPanning = true; lbStartX = e.touches[0].clientX - lbPanX; lbStartY = e.touches[0].clientY - lbPanY;
-                }
-            }, { passive: false });
-            window.addEventListener('touchmove', (e) => {
-                if (!lbPanning || e.touches.length !== 1) return;
-                lbPanX = e.touches[0].clientX - lbStartX; lbPanY = e.touches[0].clientY - lbStartY;
-                updateLightboxTransform();
-            });
-            window.addEventListener('touchend', () => { lbPanning = false; });
-
-            // Double-click to reset
-            container.addEventListener('dblclick', (e) => {
-                e.stopPropagation();
-                lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
-            });
-
-            // Click container background (not img) to close
-            container.addEventListener('click', (e) => {
-                if (e.target === container) closeLightbox();
-            });
-        })();
-        async function downloadSingleImage(url) { try { const r = await fetch(url); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `nano_${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(u); } catch (e) { window.open(url, '_blank'); } }
-        function deleteHistoryItem(btn) {
-            const item = btn.closest('.history-item'); if (item) {
-                const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove);
-                saveHistoryToLocal(); item.remove(); updateBatchState();
+            async function batchDownload() {
+                const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
+                if (!confirm(`确认下载选中的 ${checked.length} 张图片吗？`)) return;
+                for (let cb of checked) { const item = cb.closest('.history-item'); downloadSingleImage(item.dataset.url); await new Promise(r => setTimeout(r, 500)); }
+            }
+            function batchDelete() {
+                const checked = document.querySelectorAll('#history-list .task-checkbox:checked'); if (checked.length === 0) return;
+                if (!confirm(`确认删除选中的 ${checked.length} 张任务吗？`)) return;
+                checked.forEach(cb => { const item = cb.closest('.history-item'); const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove); item.remove(); });
+                saveHistoryToLocal(); updateBatchState();
                 if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
             }
-        }
-        async function downloadCurrentImage() { if (!currentMainImageUrl) { alert("当前没有图片"); return; } downloadSingleImage(currentMainImageUrl); }
-        async function importCurrentImage() {
-            if (!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
-            const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
-            try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch (e) { alert("导入失败"); }
-        }
-
-        /* --- Agent Window Functions --- */
-        function toggleAgentWindow() {
-            const win = document.getElementById('agent-window');
-            const content = document.getElementById('agent-content');
-            const btn = document.getElementById('agent-toggle-btn');
-
-            if (win.classList.contains('agent-collapsed')) {
-                win.classList.remove('agent-collapsed');
-                win.classList.add('agent-expanded');
-                btn.classList.add('hidden');
-                setTimeout(() => content.classList.remove('hidden'), 200);
-            } else {
-                content.classList.add('hidden');
-                win.classList.remove('agent-expanded');
-                win.classList.add('agent-collapsed');
-                setTimeout(() => btn.classList.remove('hidden'), 200);
+            function viewOriginal(src) {
+                const img = document.getElementById('lightbox-img');
+                img.src = src;
+                lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
+                document.getElementById('lightbox-modal').classList.remove('hidden');
             }
-        }
-
-        function handleAgentImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                agentBase64Img = e.target.result;
-                document.getElementById('agent-img-preview').src = agentBase64Img;
-                document.getElementById('agent-img-preview-area').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearAgentImage() {
-            agentBase64Img = null;
-            document.getElementById('agent-img-preview').src = '';
-            document.getElementById('agent-img-preview-area').classList.add('hidden');
-            document.getElementById('agent-img-upload').value = '';
-        }
-
-        async function runAgent() {
-            const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
-            let baseUrl = localStorage.getItem('nano_api_url') || DEFAULT_API_URL;
-            baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
-
-            const meta = document.getElementById('agent-meta-prompt').value.trim();
-            const user = document.getElementById('agent-user-input').value.trim();
-            const model = document.getElementById('agent-model-select').value;
-            const outputArea = document.getElementById('agent-output');
-            const btn = document.getElementById('agent-run-btn');
-
-            if (!user && !agentBase64Img) { alert('请输入内容或上传图片'); return; }
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 思考中...';
-            outputArea.value = "正在连接 AI 模型...";
-
-            // Build Messages
-            let messages = [];
-            if (meta) messages.push({ role: 'system', content: meta });
-
-            let userContent = [];
-            if (user) userContent.push({ type: "text", text: user });
-            if (agentBase64Img) {
-                userContent.push({ type: "image_url", image_url: { url: agentBase64Img } });
+            function closeLightbox() {
+                document.getElementById('lightbox-modal').classList.add('hidden');
+                lbScale = 1; lbPanX = 0; lbPanY = 0;
             }
 
-            // If strictly text, can simplify content string for compatibility, but object array is standard for multimodal
-            if (userContent.length === 1 && userContent[0].type === 'text') {
-                messages.push({ role: 'user', content: user });
-            } else {
-                messages.push({ role: 'user', content: userContent });
+            // --- Lightbox zoom/pan ---
+            let lbScale = 1, lbPanX = 0, lbPanY = 0, lbPanning = false, lbStartX = 0, lbStartY = 0;
+            function updateLightboxTransform() {
+                document.getElementById('lightbox-img').style.transform = `translate(${lbPanX}px, ${lbPanY}px) scale(${lbScale})`;
             }
+            (function initLightboxZoom() {
+                const container = document.getElementById('lightbox-container');
+                const img = document.getElementById('lightbox-img');
 
-            try {
-                // OpenAI Compatible Chat Endpoint
-                const response = await fetch(`${baseUrl}/v1/chat/completions`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: messages,
-                        max_tokens: 4096
-                    })
+                container.addEventListener('wheel', (e) => {
+                    e.preventDefault(); e.stopPropagation();
+                    const delta = -e.deltaY;
+                    (delta > 0) ? (lbScale *= 1.15) : (lbScale /= 1.15);
+                    if (lbScale < 0.5) lbScale = 0.5;
+                    if (lbScale > 10) lbScale = 10;
+                    updateLightboxTransform();
+                }, { passive: false });
+
+                img.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    lbPanning = true; lbStartX = e.clientX - lbPanX; lbStartY = e.clientY - lbPanY;
+                    img.style.cursor = 'grabbing';
+                });
+                window.addEventListener('mousemove', (e) => {
+                    if (!lbPanning) return;
+                    lbPanX = e.clientX - lbStartX; lbPanY = e.clientY - lbStartY;
+                    updateLightboxTransform();
+                });
+                window.addEventListener('mouseup', () => {
+                    if (lbPanning) { lbPanning = false; img.style.cursor = 'grab'; }
                 });
 
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error?.message || "请求失败");
-
-                const resultText = data.choices[0]?.message?.content || "无返回内容";
-                outputArea.value = resultText;
-            } catch (e) {
-                outputArea.value = "错误: " + e.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-play text-xs"></i> 运行';
-            }
-        }
-
-        function copyAgentOutput() {
-            const text = document.getElementById('agent-output').value;
-            if (!text) return;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector('button[onclick="copyAgentOutput()"]');
-                const originalText = btn.innerText;
-                btn.innerText = "已复制";
-                setTimeout(() => btn.innerText = originalText, 2000);
-            });
-        }
-
-        // --- Prompt Library Functions (Updated for Full Data Save) ---
-        function togglePromptLibrary() {
-            const panel = document.getElementById('prompt-library-panel');
-            panel.classList.toggle('hidden');
-        }
-
-        function loadAgentPromptLib() {
-            const stored = localStorage.getItem('nano_prompt_lib');
-            if (stored) {
-                try { agentPromptLib = JSON.parse(stored); } catch (e) { agentPromptLib = []; }
-            } else {
-                // Init with defaults if empty
-                agentPromptLib = [
-                    {
-                        id: Date.now(),
-                        title: "人物场景",
-                        content: "你是一名专业的摄影构图师,电商主图设计师，产品是拖鞋",
-                        user: "站在你的角度分析一下这张图片的内容，产品布局结构，光影以及整体色调，如果有人物的动作需要具体分析，人物的面部表情以及肢体动作，以及人物的角度（例如往左还是往右侧着的，角度大概是多少度）描述动作的时候要保持人物的动作自然和协调，人物的皮肤面部纹理质感清晰，重点要描述人物脚上的拖鞋的样式，因为我的的产品都是拖鞋，最后我要去ai文生图生成类似的场景图"
+                // Touch support
+                img.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 1) {
+                        e.preventDefault();
+                        lbPanning = true; lbStartX = e.touches[0].clientX - lbPanX; lbStartY = e.touches[0].clientY - lbPanY;
                     }
-                ];
-                saveAgentPromptLib();
+                }, { passive: false });
+                window.addEventListener('touchmove', (e) => {
+                    if (!lbPanning || e.touches.length !== 1) return;
+                    lbPanX = e.touches[0].clientX - lbStartX; lbPanY = e.touches[0].clientY - lbStartY;
+                    updateLightboxTransform();
+                });
+                window.addEventListener('touchend', () => { lbPanning = false; });
+
+                // Double-click to reset
+                container.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    lbScale = 1; lbPanX = 0; lbPanY = 0; updateLightboxTransform();
+                });
+
+                // Click container background (not img) to close
+                container.addEventListener('click', (e) => {
+                    if (e.target === container) closeLightbox();
+                });
+            })();
+            async function downloadSingleImage(url) { try { const r = await fetch(url); const b = await r.blob(); const u = window.URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = `nano_${Date.now()}.jpg`; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(u); } catch (e) { window.open(url, '_blank'); } }
+            function deleteHistoryItem(btn) {
+                const item = btn.closest('.history-item'); if (item) {
+                    const urlToRemove = item.dataset.url; historyData = historyData.filter(d => d.url !== urlToRemove);
+                    saveHistoryToLocal(); item.remove(); updateBatchState();
+                    if (document.getElementById('history-list').children.length === 0) document.getElementById('history-list').innerHTML = '<div id="history-empty" class="text-xs text-gray-400 w-full text-center select-none">暂无历史任务</div>';
+                }
             }
-            renderAgentPromptLib();
-        }
+            async function downloadCurrentImage() { if (!currentMainImageUrl) { alert("当前没有图片"); return; } downloadSingleImage(currentMainImageUrl); }
+            async function importCurrentImage() {
+                if (!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
+                const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
+                try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch (e) { alert("导入失败"); }
+            }
 
-        function saveAgentPromptLib() {
-            localStorage.setItem('nano_prompt_lib', JSON.stringify(agentPromptLib));
-            renderAgentPromptLib();
-        }
+            /* --- Agent Window Functions --- */
+            function toggleAgentWindow() {
+                const win = document.getElementById('agent-window');
+                const content = document.getElementById('agent-content');
+                const btn = document.getElementById('agent-toggle-btn');
 
-        function renderAgentPromptLib() {
-            const list = document.getElementById('prompt-lib-list');
-            const count = document.getElementById('lib-count');
-            count.innerText = agentPromptLib.length;
-            list.innerHTML = '';
+                if (win.classList.contains('agent-collapsed')) {
+                    win.classList.remove('agent-collapsed');
+                    win.classList.add('agent-expanded');
+                    btn.classList.add('hidden');
+                    setTimeout(() => content.classList.remove('hidden'), 200);
+                } else {
+                    content.classList.add('hidden');
+                    win.classList.remove('agent-expanded');
+                    win.classList.add('agent-collapsed');
+                    setTimeout(() => btn.classList.remove('hidden'), 200);
+                }
+            }
 
-            agentPromptLib.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-gray-50 dark:bg-[#27272a] p-2 rounded text-xs group";
-                div.innerHTML = `
+            function handleAgentImage(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    agentBase64Img = e.target.result;
+                    document.getElementById('agent-img-preview').src = agentBase64Img;
+                    document.getElementById('agent-img-preview-area').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function clearAgentImage() {
+                agentBase64Img = null;
+                document.getElementById('agent-img-preview').src = '';
+                document.getElementById('agent-img-preview-area').classList.add('hidden');
+                document.getElementById('agent-img-upload').value = '';
+            }
+
+            async function runAgent() {
+                const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
+                let baseUrl = DEFAULT_API_URL;
+                baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+
+                const meta = document.getElementById('agent-meta-prompt').value.trim();
+                const user = document.getElementById('agent-user-input').value.trim();
+                const model = document.getElementById('agent-model-select').value;
+                const outputArea = document.getElementById('agent-output');
+                const btn = document.getElementById('agent-run-btn');
+
+                if (!user && !agentBase64Img) { alert('请输入内容或上传图片'); return; }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 思考中...';
+                outputArea.value = "正在连接 AI 模型...";
+
+                // Build Messages
+                let messages = [];
+                if (meta) messages.push({ role: 'system', content: meta });
+
+                let userContent = [];
+                if (user) userContent.push({ type: "text", text: user });
+                if (agentBase64Img) {
+                    userContent.push({ type: "image_url", image_url: { url: agentBase64Img } });
+                }
+
+                // If strictly text, can simplify content string for compatibility, but object array is standard for multimodal
+                if (userContent.length === 1 && userContent[0].type === 'text') {
+                    messages.push({ role: 'user', content: user });
+                } else {
+                    messages.push({ role: 'user', content: userContent });
+                }
+
+                try {
+                    // OpenAI Compatible Chat Endpoint
+                    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: messages,
+                            max_tokens: 4096
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error?.message || "请求失败");
+
+                    const resultText = data.choices[0]?.message?.content || "无返回内容";
+                    outputArea.value = resultText;
+                } catch (e) {
+                    outputArea.value = "错误: " + e.message;
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-play text-xs"></i> 运行';
+                }
+            }
+
+            function copyAgentOutput() {
+                const text = document.getElementById('agent-output').value;
+                if (!text) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.querySelector('button[onclick="copyAgentOutput()"]');
+                    const originalText = btn.innerText;
+                    btn.innerText = "已复制";
+                    setTimeout(() => btn.innerText = originalText, 2000);
+                });
+            }
+
+            // --- Prompt Library Functions (Updated for Full Data Save) ---
+            function togglePromptLibrary() {
+                const panel = document.getElementById('prompt-library-panel');
+                panel.classList.toggle('hidden');
+            }
+
+            function loadAgentPromptLib() {
+                const stored = localStorage.getItem('nano_prompt_lib');
+                if (stored) {
+                    try { agentPromptLib = JSON.parse(stored); } catch (e) { agentPromptLib = []; }
+                } else {
+                    // Init with defaults if empty
+                    agentPromptLib = [
+                        {
+                            id: Date.now(),
+                            title: "人物场景",
+                            content: "你是一名专业的摄影构图师,电商主图设计师，产品是",
+                            user: "站在你的角度分析一下这张图片的内容，产品布局结构，光影以及整体色调，如果有人物的动作需要具体分析，人物的面部表情以及肢体动作，以及人物的角度（例如往左还是往右侧着的，角度大概是多少度）描述动作的时候要保持人物的动作自然和协调，人物的皮肤面部纹理质感清晰，重点要描述人物脚上的拖鞋的样式，因为我的的产品都是拖鞋，最后我要去ai文生图生成类似的场景图"
+                        }
+                    ];
+                    saveAgentPromptLib();
+                }
+                renderAgentPromptLib();
+            }
+
+            function saveAgentPromptLib() {
+                localStorage.setItem('nano_prompt_lib', JSON.stringify(agentPromptLib));
+                renderAgentPromptLib();
+            }
+
+            function renderAgentPromptLib() {
+                const list = document.getElementById('prompt-lib-list');
+                const count = document.getElementById('lib-count');
+                count.innerText = agentPromptLib.length;
+                list.innerHTML = '';
+
+                agentPromptLib.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between bg-gray-50 dark:bg-[#27272a] p-2 rounded text-xs group";
+                    div.innerHTML = `
                     <span class="font-bold truncate max-w-[120px] dark:text-gray-300" title="${item.title}">${item.title}</span>
                     <div class="flex gap-1 opacity-60 group-hover:opacity-100 transition">
                         <button onclick="applyPrompt(${index})" class="bg-indigo-500 text-white px-1.5 py-0.5 rounded hover:bg-indigo-600">应用</button>
@@ -2590,98 +2689,98 @@
                         <button onclick="deletePrompt(${index})" class="text-gray-500 hover:text-red-500 px-1"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
-                list.appendChild(div);
-            });
-        }
-
-        function createNewPrompt() {
-            // New prompt logic: Just clear inputs to let user type new one
-            if (confirm("新建提示词会清空当前输入框，是否继续？")) {
-                document.getElementById('agent-meta-prompt').value = "";
-                document.getElementById('agent-user-input').value = "";
+                    list.appendChild(div);
+                });
             }
-        }
 
-        function saveCurrentAsPrompt() {
-            const metaContent = document.getElementById('agent-meta-prompt').value;
-            const userContent = document.getElementById('agent-user-input').value;
+            function createNewPrompt() {
+                // New prompt logic: Just clear inputs to let user type new one
+                if (confirm("新建提示词会清空当前输入框，是否继续？")) {
+                    document.getElementById('agent-meta-prompt').value = "";
+                    document.getElementById('agent-user-input').value = "";
+                }
+            }
 
-            if (!metaContent && !userContent) { alert("当前内容为空，无法保存"); return; }
+            function saveCurrentAsPrompt() {
+                const metaContent = document.getElementById('agent-meta-prompt').value;
+                const userContent = document.getElementById('agent-user-input').value;
 
-            const title = prompt("为当前提示词组合命名:");
-            if (!title) return;
+                if (!metaContent && !userContent) { alert("当前内容为空，无法保存"); return; }
 
-            // Save both Meta and User content
-            agentPromptLib.push({
-                id: Date.now(),
-                title: title,
-                content: metaContent, // Keeping 'content' for backward compat or strictly meta
-                user: userContent
-            });
-            saveAgentPromptLib();
-        }
+                const title = prompt("为当前提示词组合命名:");
+                if (!title) return;
 
-        function deletePrompt(index) {
-            if (confirm("确定删除此提示词吗？")) {
-                agentPromptLib.splice(index, 1);
+                // Save both Meta and User content
+                agentPromptLib.push({
+                    id: Date.now(),
+                    title: title,
+                    content: metaContent, // Keeping 'content' for backward compat or strictly meta
+                    user: userContent
+                });
                 saveAgentPromptLib();
             }
-        }
 
-        function editPrompt(index) {
-            // Load it into the inputs to let user edit, then they can save as new or overwrite (logic simplified to load)
-            const item = agentPromptLib[index];
-            if (confirm(`要将 "${item.title}" 加载到编辑区进行修改吗？\n(修改后请点击“保存当前”并删除旧的，或重新覆盖)`)) {
-                applyPrompt(index);
-            }
-        }
-
-        function applyPrompt(index) {
-            const item = agentPromptLib[index];
-            // Apply to Meta Prompt
-            document.getElementById('agent-meta-prompt').value = item.content || "";
-            // Apply to User Input (Handle old data that might not have 'user' field)
-            document.getElementById('agent-user-input').value = item.user || "";
-        }
-
-        // --- NEW: Main Prompt Library Functions (左侧主提示词库逻辑) ---
-        function toggleMainPromptLibrary() {
-            const panel = document.getElementById('main-prompt-lib-panel');
-            panel.classList.toggle('hidden');
-        }
-
-        function loadMainPromptLib() {
-            const stored = localStorage.getItem('nano_main_prompt_lib');
-            if (stored) {
-                try { mainPromptLib = JSON.parse(stored); } catch (e) { mainPromptLib = []; }
-            } else {
-                mainPromptLib = []; // 默认为空
-                saveMainPromptLib();
-            }
-            renderMainPromptLib();
-        }
-
-        function saveMainPromptLib() {
-            localStorage.setItem('nano_main_prompt_lib', JSON.stringify(mainPromptLib));
-            renderMainPromptLib();
-        }
-
-        function renderMainPromptLib() {
-            const list = document.getElementById('main-prompt-lib-list');
-            list.innerHTML = '';
-
-            if (mainPromptLib.length === 0) {
-                list.innerHTML = '<div class="text-center text-[10px] text-gray-400 py-2 select-none">暂无预设，请先填写提示词后点击“保存当前”</div>';
-                return;
+            function deletePrompt(index) {
+                if (confirm("确定删除此提示词吗？")) {
+                    agentPromptLib.splice(index, 1);
+                    saveAgentPromptLib();
+                }
             }
 
-            mainPromptLib.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between bg-gray-50 dark:bg-[#27272a] p-1.5 rounded text-xs group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20";
-                div.onclick = (e) => {
-                    if (!e.target.closest('button')) applyMainPrompt(index);
-                };
-                div.innerHTML = `
+            function editPrompt(index) {
+                // Load it into the inputs to let user edit, then they can save as new or overwrite (logic simplified to load)
+                const item = agentPromptLib[index];
+                if (confirm(`要将 "${item.title}" 加载到编辑区进行修改吗？\n(修改后请点击“保存当前”并删除旧的，或重新覆盖)`)) {
+                    applyPrompt(index);
+                }
+            }
+
+            function applyPrompt(index) {
+                const item = agentPromptLib[index];
+                // Apply to Meta Prompt
+                document.getElementById('agent-meta-prompt').value = item.content || "";
+                // Apply to User Input (Handle old data that might not have 'user' field)
+                document.getElementById('agent-user-input').value = item.user || "";
+            }
+
+            // --- NEW: Main Prompt Library Functions (左侧主提示词库逻辑) ---
+            function toggleMainPromptLibrary() {
+                const panel = document.getElementById('main-prompt-lib-panel');
+                panel.classList.toggle('hidden');
+            }
+
+            function loadMainPromptLib() {
+                const stored = localStorage.getItem('nano_main_prompt_lib');
+                if (stored) {
+                    try { mainPromptLib = JSON.parse(stored); } catch (e) { mainPromptLib = []; }
+                } else {
+                    mainPromptLib = []; // 默认为空
+                    saveMainPromptLib();
+                }
+                renderMainPromptLib();
+            }
+
+            function saveMainPromptLib() {
+                localStorage.setItem('nano_main_prompt_lib', JSON.stringify(mainPromptLib));
+                renderMainPromptLib();
+            }
+
+            function renderMainPromptLib() {
+                const list = document.getElementById('main-prompt-lib-list');
+                list.innerHTML = '';
+
+                if (mainPromptLib.length === 0) {
+                    list.innerHTML = '<div class="text-center text-[10px] text-gray-400 py-2 select-none">暂无预设，请先填写提示词后点击“保存当前”</div>';
+                    return;
+                }
+
+                mainPromptLib.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center justify-between bg-gray-50 dark:bg-[#27272a] p-1.5 rounded text-xs group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20";
+                    div.onclick = (e) => {
+                        if (!e.target.closest('button')) applyMainPrompt(index);
+                    };
+                    div.innerHTML = `
                     <div class="flex flex-col flex-1 min-w-0 mr-2">
                         <span class="font-bold truncate text-gray-700 dark:text-gray-200" title="${item.title}">${item.title}</span>
                         <span class="text-[9px] text-gray-400 truncate" title="${item.content}">${item.content}</span>
@@ -2690,40 +2789,40 @@
                         <button onclick="event.stopPropagation(); deleteMainPrompt(${index})" class="text-gray-400 hover:text-red-500 px-1"><i class="fa-solid fa-trash text-[10px]"></i></button>
                     </div>
                 `;
-                list.appendChild(div);
-            });
-        }
+                    list.appendChild(div);
+                });
+            }
 
-        function saveCurrentToMainLib() {
-            const content = document.getElementById('prompt-input').value.trim();
-            if (!content) { alert("提示词框为空，无法保存"); return; }
+            function saveCurrentToMainLib() {
+                const content = document.getElementById('prompt-input').value.trim();
+                if (!content) { alert("提示词框为空，无法保存"); return; }
 
-            const title = prompt("为这条提示词命名:");
-            if (!title) return;
+                const title = prompt("为这条提示词命名:");
+                if (!title) return;
 
-            mainPromptLib.push({ id: Date.now(), title: title, content: content });
-            saveMainPromptLib();
-        }
-
-        function deleteMainPrompt(index) {
-            if (confirm("删除此预设?")) {
-                mainPromptLib.splice(index, 1);
+                mainPromptLib.push({ id: Date.now(), title: title, content: content });
                 saveMainPromptLib();
             }
-        }
 
-        function applyMainPrompt(index) {
-            const item = mainPromptLib[index];
-            const box = document.getElementById('prompt-input');
-            if (box.value) {
-                // 如果框里有字，询问是追加还是覆盖，或者默认追加
-                box.value = box.value.trim() + ", " + item.content;
-            } else {
-                box.value = item.content;
+            function deleteMainPrompt(index) {
+                if (confirm("删除此预设?")) {
+                    mainPromptLib.splice(index, 1);
+                    saveMainPromptLib();
+                }
             }
-            toggleMainPromptLibrary(); // 选完自动关闭
-        }
-    </script>
+
+            function applyMainPrompt(index) {
+                const item = mainPromptLib[index];
+                const box = document.getElementById('prompt-input');
+                if (box.value) {
+                    // 如果框里有字，询问是追加还是覆盖，或者默认追加
+                    box.value = box.value.trim() + ", " + item.content;
+                } else {
+                    box.value = item.content;
+                }
+                toggleMainPromptLibrary(); // 选完自动关闭
+            }
+        </script>
 </body>
 
 </html>
