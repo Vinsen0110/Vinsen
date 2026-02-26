@@ -13,7 +13,8 @@
         })();
     </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -790,15 +791,28 @@
         /* Mobile Responsive */
         .sidebar-overlay {
             display: none;
-            position: absolute;
+            position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.4);
             z-index: 90;
         }
 
         @media (max-width: 768px) {
+
+            /* 让 header 高于侧边栏，并支持刘海/状态栏安全区域 */
+            header {
+                z-index: 110 !important;
+                padding-top: env(safe-area-inset-top, 0px);
+                height: calc(56px + env(safe-area-inset-top, 0px));
+            }
+
+            /* body 顶部也留出安全区域，避免内容被状态栏覆盖 */
+            body {
+                padding-top: 0;
+            }
+
             .sidebar {
-                position: absolute;
+                position: fixed;
                 left: 0;
                 top: 0;
                 bottom: 0;
@@ -808,6 +822,8 @@
                 width: 280px !important;
                 border-right: none;
                 box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+                /* 侧边栏顶部也考虑安全区域 */
+                padding-top: env(safe-area-inset-top, 0px);
             }
 
             .dark .sidebar {
@@ -849,6 +865,8 @@
 
             .input-area {
                 padding: 10px 12px;
+                /* 底部安全区域（Home Bar）*/
+                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
             }
 
             .input-wrapper textarea {
@@ -857,6 +875,12 @@
 
             .attach-preview {
                 max-width: 150px;
+            }
+
+            /* 手机端按钮点击区域放大 */
+            header button {
+                min-width: 44px;
+                min-height: 44px;
             }
         }
     </style>
