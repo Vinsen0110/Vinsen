@@ -156,6 +156,10 @@
                     class="bg-violet-50 text-violet-600 border border-violet-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5 hover:bg-violet-100 cursor-pointer">
                     <i class="fa-solid fa-wallet"></i> 余额查询
                 </button>
+                <button onclick="toggleGlobalKeyModal(true)"
+                    class="bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5 hover:bg-blue-100 cursor-pointer">
+                    <i class="fa-solid fa-gear"></i> 设置Key
+                </button>
                 <a href="https://www.w7r.cn/links/AD2DB221" target="_blank"
                     class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full transition flex items-center gap-1.5 hover:bg-emerald-100">
                     <i class="fa-solid fa-key"></i> 注册/Key
@@ -171,6 +175,10 @@
             <button onclick="toggleBalanceModal(true)"
                 class="bg-white hover:bg-violet-50 text-violet-600 border border-violet-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-wallet"></i> 余额查询
+            </button>
+            <button onclick="toggleGlobalKeyModal(true)"
+                class="bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-gear"></i> 设置Key
             </button>
             <a href="https://pay.ldxp.cn/shop/MBANQ019" target="_blank"
                 class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
@@ -486,7 +494,86 @@
         </div>
     </div>
 
+    <!-- 全局Key设置弹窗 -->
+    <div id="global-key-modal" class="fixed inset-0 z-50 hidden">
+        <div id="global-key-modal-backdrop"
+            class="absolute inset-0 bg-gray-900/30 backdrop-blur-sm transition-opacity duration-300 opacity-0"
+            onclick="toggleGlobalKeyModal(false)"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div id="global-key-modal-content"
+                class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 md:p-8 pointer-events-auto relative transform transition-all duration-300 scale-95 opacity-0">
+                <button onclick="toggleGlobalKeyModal(false)"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-1">
+                    <i class="fa-solid fa-gear text-blue-500"></i> 全局 API Key
+                </h3>
+                <p class="text-xs text-gray-400 mb-5">设置后所有工具自动使用此 Key</p>
+                <input type="password" id="global-api-key" placeholder="输入 sk- 开头的密钥"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition mb-3 font-mono"
+                    autocomplete="off">
+                <button onclick="saveGlobalKey()"
+                    class="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl font-bold text-sm transition shadow-md cursor-pointer">
+                    💾 保存并应用
+                </button>
+                <div id="global-key-result" class="mt-3 text-center text-sm font-semibold"></div>
+                <p class="text-[10px] text-gray-300 text-center mt-3">* Key 仅保存在本地浏览器，不会上传</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+
+
+        function toggleGlobalKeyModal(show) {
+            const modal = document.getElementById('global-key-modal');
+            const backdrop = document.getElementById('global-key-modal-backdrop');
+            const content = document.getElementById('global-key-modal-content');
+            if (show) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                requestAnimationFrame(function () {
+                    backdrop.classList.remove('opacity-0');
+                    content.classList.remove('scale-95', 'opacity-0');
+                });
+                // 显示当前已保存的 Key
+                const saved = localStorage.getItem('nano_api_key') || '';
+                if (saved) {
+                    document.getElementById('global-api-key').value = saved;
+                    document.getElementById('global-key-result').innerHTML = '🔑 当前已设置全局 Key';
+                    document.getElementById('global-key-result').style.color = '#6366f1';
+                } else {
+                    document.getElementById('global-api-key').value = '';
+                    document.getElementById('global-key-result').innerHTML = '';
+                }
+            } else {
+                backdrop.classList.add('opacity-0');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(function () {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 280);
+            }
+        }
+
+        function saveGlobalKey() {
+            const key = document.getElementById('global-api-key').value.trim();
+            const resultDiv = document.getElementById('global-key-result');
+            if (!key) {
+                resultDiv.innerHTML = '❌ 请输入 API Key';
+                resultDiv.style.color = '#ef4444';
+                return;
+            }
+            // 写入所有子页面的 localStorage 键名
+            localStorage.setItem('nano_api_key', key);
+            localStorage.setItem('gpt_api_key', key);
+            localStorage.setItem('veo_api_key', key);
+            localStorage.setItem('sora_api_key', key);
+            localStorage.setItem('gemini_api_key', key);
+            resultDiv.innerHTML = '✅ 已保存！所有工具将自动使用此 Key';
+            resultDiv.style.color = '#16a34a';
+        }
 
 
         function toggleBalanceModal(show) {
