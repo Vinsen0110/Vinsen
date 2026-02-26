@@ -1159,9 +1159,8 @@
             cleanExpiredChats();
 
             renderChatList();
-            // Load last chat
-            const ids = Object.keys(conversations).sort((a, b) => b - a);
-            if (ids.length > 0) loadChat(ids[0]);
+            // Always start with a fresh new chat on page load
+            newChat();
             updateSendBtn();
 
             // Paste image
