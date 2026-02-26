@@ -136,7 +136,7 @@
 
 </head>
 
-<body class="bg-[#fafafa] min-h-screen flex flex-col text-gray-800 relative">
+<body class="bg-[#fafafa] md:h-screen md:overflow-hidden flex flex-col text-gray-800 relative">
     <canvas id="bg-canvas"></canvas>
 
 
@@ -178,31 +178,31 @@
             </a>
         </div>
 
-        <div class="flex-1 flex flex-col items-center p-4 md:p-6 pt-4 md:pt-8 pb-10">
+        <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-4 pt-4 md:pt-10 pb-4">
 
-            <div class="text-center mb-6 md:mb-8">
+            <div class="text-center mb-3 md:mb-4">
                 <div
-                    class="inline-flex items-center justify-center px-5 py-2 mb-6 text-sm font-bold text-indigo-600 bg-indigo-50/80 backdrop-blur-sm border border-indigo-100 rounded-full reveal-item shadow-sm hover:bg-indigo-100 transition-colors cursor-default">
+                    class="inline-flex items-center justify-center px-4 py-1.5 mb-3 text-sm font-bold text-indigo-600 bg-indigo-50/80 backdrop-blur-sm border border-indigo-100 rounded-full reveal-item shadow-sm hover:bg-indigo-100 transition-colors cursor-default">
                     AI 创作引擎
                 </div>
                 <h1
-                    class="text-4xl md:text-6xl font-black tracking-tight text-gray-900 mb-6 reveal-item delay-1 drop-shadow-sm">
+                    class="text-4xl md:text-5xl font-black tracking-tight text-gray-900 mb-3 reveal-item delay-1 drop-shadow-sm">
                     选择你的<span class="text-[#6366f1] italic ml-2 relative inline-block">创作工具</span>
                 </h1>
-                <p class="text-gray-400 text-sm md:text-lg reveal-item delay-2 tracking-wide">
+                <p class="text-gray-400 text-sm md:text-base reveal-item delay-2 tracking-wide">
                     聚合全球顶尖AI视觉创作引擎，从图像生成到影片创作，一站掌控
                 </p>
             </div>
 
-            <div class="w-full max-w-4xl space-y-4 md:space-y-6">
+            <div class="w-full max-w-4xl space-y-4 md:space-y-5">
                 <section class="reveal-item delay-2">
-                    <div class="flex items-center gap-2 mb-2 md:mb-4 px-1 section-title-wrap">
+                    <div class="flex items-center gap-2 mb-2 md:mb-2 px-1 section-title-wrap">
                         <div class="w-1 h-5 bg-yellow-500 rounded-full section-bar"></div>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i
                                 class="fa-solid fa-palette text-yellow-500 mr-2"></i>AI 绘画设计</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <a href="nanobanana.html"
                             class="relative overflow-hidden block bg-white rounded-lg md:rounded-xl p-2.5 md:p-4 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-yellow-300 gap-3 md:gap-0 reveal-item delay-3">
 
@@ -214,10 +214,10 @@
                             </div>
 
                             <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/nanobanana.jpg"
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-1 md:mb-3 shrink-0"
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-0.5 md:mb-2 shrink-0"
                                 alt="Icon" onerror="this.src='kitty.png'">
 
-                            <div class="flex-1 min-w-0 md:mb-4">
+                            <div class="flex-1 min-w-0 md:mb-2">
                                 <h3
                                     class="text-[15px] md:text-base font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
                                     Nano Banana Pro</h3>
@@ -246,10 +246,10 @@
                             </div>
 
                             <img src="https://raw.githubusercontent.com/Vinsen0110/Nano2-Pro-Zz/main/gpt.png"
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-1 md:mb-3 shrink-0"
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-0.5 md:mb-2 shrink-0"
                                 alt="GPT Icon" onerror="this.src='kitty.png'">
 
-                            <div class="flex-1 min-w-0 md:mb-4">
+                            <div class="flex-1 min-w-0 md:mb-2">
                                 <h3
                                     class="text-[15px] md:text-base font-bold text-gray-900 group-hover:text-cyan-600 transition-colors">
                                     GPT-image</h3>
@@ -270,13 +270,13 @@
                 </section>
 
                 <section class="reveal-item delay-5">
-                    <div class="flex items-center gap-2 mb-2 md:mb-4 px-1 section-title-wrap">
+                    <div class="flex items-center gap-2 mb-2 md:mb-2 px-1 section-title-wrap">
                         <div class="w-1 h-5 bg-indigo-500 rounded-full section-bar"></div>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i
                                 class="fa-solid fa-film text-indigo-500 mr-2"></i>AI 视频生成</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <a href="veo3.1.html"
                             class="relative overflow-hidden block bg-white rounded-lg md:rounded-xl p-2.5 md:p-4 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-purple-300 gap-3 md:gap-0 reveal-item delay-6">
 
@@ -288,10 +288,10 @@
                             </div>
 
                             <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg"
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-1 md:mb-3 shrink-0"
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-0.5 md:mb-2 shrink-0"
                                 alt="Veo 3.1" onerror="this.src='kitty.png'">
 
-                            <div class="flex-1 min-w-0 md:mb-4">
+                            <div class="flex-1 min-w-0 md:mb-2">
                                 <h3
                                     class="text-[15px] md:text-base font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
                                     Veo 3.1</h3>
@@ -320,10 +320,10 @@
                             </div>
 
                             <img src="sora2.png"
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-1 md:mb-3 shrink-0"
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-0.5 md:mb-2 shrink-0"
                                 alt="Sora 2">
 
-                            <div class="flex-1 min-w-0 md:mb-4">
+                            <div class="flex-1 min-w-0 md:mb-2">
                                 <h3
                                     class="text-[15px] md:text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
                                     Sora 2</h3>
@@ -344,13 +344,13 @@
                 </section>
 
                 <section class="reveal-item delay-8">
-                    <div class="flex items-center gap-2 mb-2 md:mb-4 px-1 section-title-wrap">
+                    <div class="flex items-center gap-2 mb-2 md:mb-2 px-1 section-title-wrap">
                         <div class="w-1 h-5 bg-blue-500 rounded-full section-bar"></div>
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800"><i
                                 class="fa-solid fa-message text-blue-500 mr-2"></i>AI 智能对话</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <a href="gemini.html"
                             class="relative overflow-hidden block bg-white rounded-lg md:rounded-xl p-2.5 md:p-4 border border-gray-100 shadow-sm flex items-center md:flex-col md:items-start h-full card-hover cursor-pointer group transition-all hover:border-blue-300 gap-3 md:gap-0 reveal-item delay-8">
 
@@ -362,10 +362,10 @@
                             </div>
 
                             <img src="https://raw.githubusercontent.com/Vinsen0110/Vinsen/main/gemini.png"
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-1 md:mb-3 shrink-0"
+                                class="w-10 h-10 md:w-12 md:h-12 rounded-md md:rounded-lg shadow-sm object-cover md:mt-0.5 md:mb-2 shrink-0"
                                 alt="Gemini" onerror="this.src='kitty.png'">
 
-                            <div class="flex-1 min-w-0 md:mb-4">
+                            <div class="flex-1 min-w-0 md:mb-2">
                                 <h3
                                     class="text-[15px] md:text-base font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                                     Gemini 3</h3>
@@ -529,21 +529,31 @@
             resultDiv.style.color = '#7c3aed';
 
             try {
-                const response = await fetch('https://api.bltcy.ai/v1/dashboard/billing/subscription', {
+                const response = await fetch('https://api.bltcy.ai/v1/token/quota', {
                     method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + key }
+                    headers: {
+                        'Authorization': 'Bearer ' + key
+                    }
                 });
+
+                const responseText = await response.text();
+
                 if (response.ok) {
-                    const data = await response.json();
-                    const balance = data.hard_limit_usd || 0;
-                    resultDiv.innerHTML = '✅ 当前剩余额度：$' + balance.toFixed(4);
-                    resultDiv.style.color = '#16a34a';
+                    try {
+                        const data = JSON.parse(responseText);
+                        const quota = data.quota;
+                        resultDiv.innerHTML = '✅ 剩余额度：<b>' + (typeof quota === 'number' ? quota.toFixed(2) : quota) + '</b>';
+                        resultDiv.style.color = '#16a34a';
+                    } catch (parseErr) {
+                        resultDiv.innerHTML = '❌ 响应解析失败';
+                        resultDiv.style.color = '#ef4444';
+                    }
                 } else {
-                    resultDiv.innerHTML = '❌ 查询失败：密钥错误或已失效';
+                    resultDiv.innerHTML = '❌ 查询失败 (HTTP ' + response.status + ')：密钥错误或已失效';
                     resultDiv.style.color = '#ef4444';
                 }
             } catch (e) {
-                resultDiv.innerHTML = '❌ 网络连接失败，请检查网络';
+                resultDiv.innerHTML = '❌ 网络错误：' + e.message;
                 resultDiv.style.color = '#ef4444';
             }
         }
