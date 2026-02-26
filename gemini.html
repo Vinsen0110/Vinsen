@@ -873,8 +873,9 @@
                 <i class="fa-solid fa-bars text-lg"></i>
             </button>
             <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-sm shrink-0">
-                <i class="fa-solid fa-bolt text-white text-xs"></i>
+                class="w-8 h-8 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm flex items-center justify-center shrink-0">
+                <img src="https://raw.githubusercontent.com/Vinsen0110/Vinsen/main/gemini.png"
+                    class="w-7 h-7 object-contain" alt="Gemini" onerror="this.style.display='none'">
             </div>
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Gemini</span>
         </div>
@@ -1523,7 +1524,9 @@
             const content = typeof m.content === 'string' ? m.content : '';
             const rendered = renderMarkdown(content);
             return `<div class="msg-ai msg-bubble">
-                <div class="avatar">G</div>
+                <div class="avatar" style="background:white;border:1px solid #e5e7eb;overflow:hidden;padding:2px;">
+                    <img src="https://raw.githubusercontent.com/Vinsen0110/Vinsen/main/gemini.png" style="width:100%;height:100%;object-fit:contain;" alt="G" onerror="this.outerHTML='G'">
+                </div>
                 <div class="bubble">${rendered}</div>
             </div>`;
         }
@@ -1775,7 +1778,7 @@
             const div = document.createElement('div');
             div.id = 'typing-indicator';
             div.className = 'msg-ai msg-bubble';
-            div.innerHTML = `<div class="avatar">G</div><div class="bubble" style="padding:14px 20px;"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+            div.innerHTML = `<div class="avatar" style="background:white;border:1px solid #e5e7eb;overflow:hidden;padding:2px;"><img src="https://raw.githubusercontent.com/Vinsen0110/Vinsen/main/gemini.png" style="width:100%;height:100%;object-fit:contain;" alt="G" onerror="this.outerHTML='G'"></div><div class="bubble" style="padding:14px 20px;"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
             container.appendChild(div);
             scrollToBottom();
         }
@@ -1790,7 +1793,7 @@
             const div = document.createElement('div');
             div.className = 'msg-ai msg-bubble';
             div.id = 'streaming-msg';
-            div.innerHTML = `<div class="avatar">G</div><div class="bubble" id="streaming-bubble"></div>`;
+            div.innerHTML = `<div class="avatar" style="background:white;border:1px solid #e5e7eb;overflow:hidden;padding:2px;"><img src="https://raw.githubusercontent.com/Vinsen0110/Vinsen/main/gemini.png" style="width:100%;height:100%;object-fit:contain;" alt="G" onerror="this.outerHTML='G'"></div><div class="bubble" id="streaming-bubble"></div>`;
             container.appendChild(div);
             scrollToBottom();
         }
