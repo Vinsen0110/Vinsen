@@ -14,7 +14,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gemini 3.1 - Xs的工具箱</title>
+    <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -786,6 +786,79 @@
             font-weight: 700;
             text-transform: uppercase;
         }
+
+        /* Mobile Responsive */
+        .sidebar-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 90;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                width: 280px !important;
+                border-right: none;
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+            }
+
+            .dark .sidebar {
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+                animation: fadeIn 0.3s ease;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .resizer-x {
+                display: none !important;
+            }
+
+            .msg-container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .msg-user .bubble,
+            .msg-ai .bubble {
+                max-width: 95%;
+            }
+
+            .input-area {
+                padding: 10px 12px;
+            }
+
+            .input-wrapper textarea {
+                padding: 10px 12px;
+            }
+
+            .attach-preview {
+                max-width: 150px;
+            }
+        }
     </style>
 </head>
 
@@ -793,8 +866,12 @@
 
     <!-- Unified top header -->
     <header
-        class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50">
-        <div class="flex items-center gap-3">
+        class="h-14 border-b border-gray-200 dark:border-[#27272a] bg-white dark:bg-[#09090b] flex items-center justify-between px-4 shrink-0 z-50 relative">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="toggleSidebar(true)"
+                class="md:hidden w-8 h-8 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] transition shrink-0">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
             <div
                 class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-sm shrink-0">
                 <i class="fa-solid fa-bolt text-white text-xs"></i>
@@ -815,7 +892,10 @@
     </header>
 
     <!-- Content row -->
-    <div class="flex flex-1 min-h-0">
+    <div class="flex flex-1 min-h-0 relative">
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
