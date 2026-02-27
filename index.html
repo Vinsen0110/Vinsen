@@ -185,6 +185,19 @@
                 <i class="fa-solid fa-key"></i> 获取Key
             </a>
         </div>
+        <!-- 公告栏 -->
+        <div class="w-full bg-indigo-50 border-b border-indigo-100 py-2.5 px-4 shadow-sm z-30 relative">
+            <div class="max-w-4xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2 text-indigo-600 text-sm font-medium">
+                    <i class="fa-solid fa-bullhorn animate-bounce"></i>
+                    <span><strong class="font-bold">最新更新公告：</strong> Nano banana 2 价格已调整为 0.1 ¥ / 次。</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.style.display='none'"
+                    class="text-indigo-400 hover:text-indigo-600 cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
 
         <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-4 pt-4 md:pt-10 pb-4">
 
@@ -440,7 +453,7 @@
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
                                     <span class="font-extrabold text-black">Nano banana 2 / Pro</span><span
-                                        class="font-bold text-black">0.06 / 0.2 ¥</span>
+                                        class="font-bold text-black">0.1 / 0.2 ¥</span>
                                 </div>
                                 <div class="flex justify-between items-center whitespace-nowrap"><span
                                         class="font-extrabold text-black">GPT-image</span><span
@@ -766,4 +779,3 @@
 </body>
 
 </html>
-
