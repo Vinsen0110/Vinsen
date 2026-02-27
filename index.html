@@ -439,7 +439,7 @@
                                 </div>
                                 <div
                                     class="flex justify-between items-center border-b border-dashed border-gray-100 pb-1 whitespace-nowrap">
-                                    <span class="font-extrabold text-black">Nanobanana Pro</span><span
+                                    <span class="font-extrabold text-black">Nanobanana</span><span
                                         class="font-bold text-black">0.2 ¥</span>
                                 </div>
                                 <div class="flex justify-between items-center whitespace-nowrap"><span
@@ -574,6 +574,13 @@
             resultDiv.innerHTML = '✅ 已保存！所有工具将自动使用此 Key';
             resultDiv.style.color = '#16a34a';
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('nano_api_key');
+            if (!savedKey) {
+                toggleGlobalKeyModal(true);
+            }
+        });
 
 
         function toggleBalanceModal(show) {
@@ -759,5 +766,3 @@
 </body>
 
 </html>
-
-
