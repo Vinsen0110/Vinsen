@@ -1449,6 +1449,7 @@
                 });
                 toggleModelDropdown(); renderSlots(); updatePromptLockState();
                 updateGenerateButtonPrice();
+                updateModelRestrictions();
             }
 
             // 自定义下拉逻辑 (宽高比)
@@ -1537,14 +1538,21 @@
 
             // --- 核心修改：模型限制逻辑 ---
             function updateModelRestrictions() {
-                const hdOption = document.querySelector('.model-option[data-val="gemini-3.1-flash-image-preview"]');
-                if (!hdOption) return;
-                // 默认端点禁用 HD (此处移除了禁用逻辑，让 Nano Banana 2 可用)
-                // hdOption.classList.add('option-disabled');
                 const currentModel = document.getElementById('model-input').value;
-                if (currentModel === 'gemini-3.1-flash-image-preview') {
-                    // selectModel('nano-banana-2-4k', 'Nano Banana Pro');
-                }
+                const specializedRatios = ['1:4', '4:1', '1:8', '8:1'];
+                document.querySelectorAll('.ratio-option').forEach(opt => {
+                    if (specializedRatios.includes(opt.dataset.val)) {
+                        if (currentModel === 'gemini-3.1-flash-image-preview') {
+                            opt.style.display = '';
+                        } else {
+                            opt.style.display = 'none';
+                            // 如果当前选中是被禁用的比例，退回 Auto
+                            if (document.getElementById('ratio-input').value === opt.dataset.val) {
+                                selectRatio('auto', 'Auto (自动)');
+                            }
+                        }
+                    }
+                });
             }
 
             function saveHistoryToLocal() { if (historyData.length > 50) historyData = historyData.slice(0, 50); localStorage.setItem('nano_history_data', JSON.stringify(historyData)); }
