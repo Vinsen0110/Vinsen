@@ -247,27 +247,33 @@
             </div>
         </div>
 
-        <div class="hidden md:flex absolute top-6 right-6 z-40 items-center gap-2">
-            <button onclick="toggleModal(true)"
-                class="bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                <i class="fa-solid fa-tags"></i> 价格表
-            </button>
-            <button onclick="toggleBalanceModal(true)"
-                class="bg-white hover:bg-violet-50 text-violet-600 border border-violet-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                <i class="fa-solid fa-wallet"></i> 余额查询
-            </button>
-            <button onclick="toggleGlobalKeyModal(true)"
-                class="bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                <i class="fa-solid fa-gear"></i> 设置Key
-            </button>
-            <button onclick="toggleContactModal(true)"
-                class="bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-fuchsia-500/50">
-                <i class="fa-solid fa-users"></i> 联系我们
-            </button>
-            <a href="https://pay.ldxp.cn/shop/MBANQ019" target="_blank"
-                class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
-                <i class="fa-solid fa-key"></i> 获取Key
-            </a>
+        <div class="hidden md:flex absolute top-6 right-6 z-40 flex-col items-end gap-2">
+            <!-- 第一排 -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleContactModal(true)"
+                    class="bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-fuchsia-500/50">
+                    <i class="fa-solid fa-users"></i> 联系我们
+                </button>
+                <a href="https://pay.ldxp.cn/shop/MBANQ019" target="_blank"
+                    class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-emerald-500/50">
+                    <i class="fa-solid fa-key"></i> 获取Key
+                </a>
+            </div>
+            <!-- 第二排 -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleModal(true)"
+                    class="bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-tags"></i> 价格表
+                </button>
+                <button onclick="toggleBalanceModal(true)"
+                    class="bg-white hover:bg-violet-50 text-violet-600 border border-violet-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-wallet"></i> 余额查询
+                </button>
+                <button onclick="toggleGlobalKeyModal(true)"
+                    class="bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-gear"></i> 设置Key
+                </button>
+            </div>
         </div>
 
 
