@@ -798,7 +798,12 @@
                 toggleGlobalKeyModal(true);
             } else {
                 setTimeout(() => {
-                    toggleNoticeModal(true);
+                    const now = new Date();
+                    // 弹窗过期时间：2026年3月13日及以后不再显示 (设定到14日零点过期)
+                    const expireDate = new Date('2026-03-14T00:00:00+08:00');
+                    if (now < expireDate) {
+                        toggleNoticeModal(true);
+                    }
                 }, 400);
             }
         });
