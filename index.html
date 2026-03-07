@@ -191,9 +191,9 @@
             </div>
         </div>
 
-        <!-- 移动端与中小屏幕更新公告 (行内显示) -->
+        <!-- 移动端公告 (仅小屏显示) -->
         <div
-            class="xl:hidden mx-4 md:mx-auto max-w-4xl mt-4 bg-gradient-to-r from-indigo-50/50 to-white/50 border border-indigo-100 rounded-xl p-4 shadow-sm reveal-item transition-all duration-300">
+            class="md:hidden mx-4 mt-4 bg-gradient-to-r from-indigo-50/50 to-white/50 border border-indigo-100 rounded-xl p-4 shadow-sm reveal-item transition-all duration-300">
             <div class="flex items-center mb-3 cursor-pointer"
                 onclick="toggleNotice('mobile-notice-content', 'mobile-notice-icon')">
                 <div class="flex items-center gap-2">
@@ -221,7 +221,7 @@
 
         <!-- 桌面端左侧更新公告悬浮卡 -->
         <div
-            class="hidden xl:flex absolute top-6 left-6 z-40 w-72 flex-col bg-white/80 backdrop-blur-xl border border-white/50 shadow-xl rounded-2xl overflow-hidden reveal-item delay-4 transition-all duration-300">
+            class="hidden md:flex fixed top-6 left-6 z-40 w-64 flex-col bg-white/80 backdrop-blur-xl border border-white/50 shadow-xl rounded-2xl overflow-hidden reveal-item delay-4 transition-all duration-300">
             <div onclick="toggleNotice('desktop-notice-content', 'desktop-notice-icon')"
                 class="px-4 py-2.5 bg-gradient-to-r from-indigo-50/50 to-white/50 border-b border-indigo-100/50 flex items-center justify-between cursor-pointer hover:bg-white/60 transition-colors">
                 <div class="flex items-center gap-2">
