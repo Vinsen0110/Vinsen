@@ -2453,7 +2453,7 @@
             }
 
             async function submitTask() {
-                const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
+                const apiKey = localStorage.getItem('mn_api_key'); if (!apiKey) { openSettings(); return; }
                 let baseUrl = DEFAULT_API_URL;
                 baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
 
@@ -2800,7 +2800,7 @@
             }
 
             async function runAgent() {
-                const apiKey = localStorage.getItem('nano_api_key'); if (!apiKey) { openSettings(); return; }
+                const apiKey = localStorage.getItem('mn_api_key'); if (!apiKey) { openSettings(); return; }
                 let baseUrl = DEFAULT_API_URL;
                 baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
 
