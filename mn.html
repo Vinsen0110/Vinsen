@@ -6,24 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
-    <!-- <script>
-        // 访问保护 (暂时禁用以便调试)
+    <script>
+        // DevTools Protection
         (function () {
-            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) || (e.ctrlKey && ['u', 'U'].includes(e.key))) {
-                    e.preventDefault(); e.stopPropagation(); return false;
-                }
-            }, true);
-            var _dbg = function () {
-                var s = new Date();
-                debugger;
-                if (new Date() - s > 100) { document.body.innerHTML = ''; }
-                setTimeout(_dbg, 100);
-            };
-            _dbg();
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) || (e.ctrlKey && e.key === 'u')) e.preventDefault();
+            });
+            (function loop() { try { (function () { }).constructor('debugger')(); } catch (e) { } setTimeout(loop, 100); })();
         })();
-    </script> -->
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
