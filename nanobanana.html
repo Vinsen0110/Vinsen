@@ -2241,6 +2241,16 @@
             }
 
             function renderSlots() {
+                // 自动扩展逻辑：如果当前可见的上传框都已经填满（没有空位），且还没达到最大数量限制，就自动增加一个空位
+                let hasEmptySlot = false;
+                for (let i = 0; i < visibleSlotCount; i++) {
+                    if (!imageSlots[i]) hasEmptySlot = true;
+                }
+                // 注意：由于 JS 作用域和声明顺序，加上对 MAX_SLOTS 的保险判断
+                if (!hasEmptySlot && typeof MAX_SLOTS !== 'undefined' && visibleSlotCount < MAX_SLOTS) {
+                    visibleSlotCount++;
+                }
+
                 const grid = document.getElementById('slots-grid');
                 const currentModel = document.getElementById('model-input').value;
                 const canDoodle = (currentModel === 'nano-banana-2-4k');
@@ -2262,15 +2272,27 @@
                         };
                         div.ondragend = (e) => {
                             div.classList.remove('opacity-40');
+                            // 拖拽结束时强制清空所有格子的hover状态作为双重保险
+                            document.querySelectorAll('#slots-grid > div').forEach(el => {
+                                el.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
+                            });
                         };
                     }
 
+                    div.ondragenter = (e) => {
+                        e.preventDefault(); // 阻止浏览器显示原生插入提示符(黑线)
+                    };
                     div.ondragover = (e) => {
                         e.preventDefault();
+                        e.dataTransfer.dropEffect = 'copyMove';
                         div.classList.add('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
                     };
                     div.ondragleave = (e) => {
                         e.preventDefault();
+                        // 避免鼠标从父元素进入子元素时误触 leave 导致高亮闪烁/卡住
+                        if (e.relatedTarget && div.contains(e.relatedTarget)) {
+                            return;
+                        }
                         div.classList.remove('border-purple-500', 'bg-purple-100', 'dark:bg-[#27272a]', 'scale-95');
                     };
                     div.ondrop = (e) => {
