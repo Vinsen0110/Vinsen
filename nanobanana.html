@@ -2052,6 +2052,42 @@
             function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
             function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
 
+            window.addEventListener('paste', handleGlobalPaste);
+            function handleGlobalPaste(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (!e.clipboardData || !e.clipboardData.items) return;
+                let imageFile = null;
+                for (let i = 0; i < e.clipboardData.items.length; i++) {
+                    const item = e.clipboardData.items[i];
+                    if (item.type.indexOf('image') !== -1) {
+                        imageFile = item.getAsFile();
+                        break;
+                    }
+                }
+                if (!imageFile) return;
+                
+                let targetIndex = -1;
+                for (let i = 0; i < visibleSlotCount; i++) {
+                    if (imageSlots[i] === null) {
+                        targetIndex = i;
+                        break;
+                    }
+                }
+                
+                if (targetIndex === -1 && visibleSlotCount < MAX_SLOTS) {
+                    targetIndex = visibleSlotCount;
+                    visibleSlotCount++;
+                }
+                
+                if (targetIndex !== -1) {
+                    imageSlots[targetIndex] = imageFile;
+                    renderSlots();
+                    updatePromptLockState();
+                } else {
+                    alert('图片槽位已满，请先清理。');
+                }
+            }
+
             // 修改：清除逻辑
             function clearSlot(index, event) {
                 if (event) event.stopPropagation();
@@ -2592,7 +2628,14 @@
                     console.error("PS Bridge Error:", error);
                 }
             }
-            async function sendCurrentImageToPS() { if (!currentMainImageUrl) { alert("当前没有图片"); return; } sendToPhotoshop(currentMainImageUrl); }
+            async function sendCurrentImageToPS() {
+                if (!currentMainImageUrl) { alert("当前没有图片"); return; }
+                let targetUrl = currentMainImageUrl;
+                if (targetUrl.startsWith('blob:') && historyData.length > 0) {
+                    targetUrl = historyData[0].url;
+                }
+                sendToPhotoshop(targetUrl);
+            }
             async function importCurrentImage() {
                 if (!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
                 const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
