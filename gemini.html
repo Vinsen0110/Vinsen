@@ -3,14 +3,7 @@
 
 <head>
     <script>
-        // DevTools Protection
-        (function () {
-            document.addEventListener('contextmenu', e => e.preventDefault());
-            document.addEventListener('keydown', e => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) || (e.ctrlKey && e.key === 'u')) e.preventDefault();
-            });
-            (function loop() { try { (function () { }).constructor('debugger')(); } catch (e) { } setTimeout(loop, 100); })();
-        })();
+        // DevTools Protection removed
     </script>
     <meta charset="UTF-8">
     <meta name="viewport"
