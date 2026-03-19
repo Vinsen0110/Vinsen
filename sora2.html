@@ -7,22 +7,7 @@
     <title>Xs的工具箱</title>
     <link rel="icon" href="kitty.png">
     <script>
-        // 访问保护
-        (function () {
-            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) || (e.ctrlKey && ['u', 'U'].includes(e.key))) {
-                    e.preventDefault(); e.stopPropagation(); return false;
-                }
-            }, true);
-            var _dbg = function () {
-                var s = new Date();
-                debugger;
-                if (new Date() - s > 100) { document.body.innerHTML = ''; }
-                setTimeout(_dbg, 100);
-            };
-            _dbg();
-        })();
+        // 访问保护已移除
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
