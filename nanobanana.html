@@ -2536,6 +2536,70 @@
                 });
             }
 
+            async function pollTaskResult(taskId, apiKey, baseUrl) {
+                const pollInterval = 3000;
+                const maxAttempts = 100; // 300秒超时
+                const loaderStatus = document.getElementById('loader-status');
+                const loaderDetail = document.getElementById('loader-detail');
+                const loaderBar = document.getElementById('loader-bar');
+                const loaderPercent = document.getElementById('loader-percent');
+
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    try {
+                        const response = await fetch(`${baseUrl}/v1/images/tasks/${taskId}`, {
+                            headers: { 'Authorization': `Bearer ${apiKey}` }
+                        });
+                        const resData = await response.json();
+                        
+                        // 处理 HTTP 错误或接口报错
+                        if (!response.ok || resData.code === 'error' || resData.status === 'error') {
+                            const msg = resData.message || resData.error?.message || "查询任务失败";
+                            throw new Error(msg);
+                        }
+
+                        const task = resData.data;
+                        if (!task) throw new Error("任务数据返回异常");
+
+                        // 统一转大写判断状态
+                        const status = (task.status || "").toUpperCase();
+                        
+                        // 成功状态
+                        if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'FINISHED') {
+                            return task.data.data; 
+                        }
+                        
+                        // 失败状态：扩充关键词，增加 fail_reason 判断
+                        if (['FAILED', 'FAILURE', 'ERROR', 'FAIL', '失败'].includes(status) || task.fail_reason) {
+                            throw new Error(task.fail_reason || `任务生成失败 (状态: ${status})`);
+                        }
+
+                        // 更新轮询进度
+                        if (loaderStatus) loaderStatus.innerText = "图像异步生成中";
+                        const progress = task.progress || (['PENDING', 'QUEUE', 'WAITING'].includes(status) ? '排队中' : '制作中');
+                        if (loaderDetail) loaderDetail.innerText = `进度: ${progress} (ID: ${taskId.slice(0, 8)})`;
+                        
+                        if (loaderBar && task.progress) {
+                            const pVal = parseInt(task.progress);
+                            if (!isNaN(pVal)) {
+                                loaderBar.style.width = pVal + '%';
+                                if (loaderPercent) loaderPercent.innerText = pVal + '%';
+                            }
+                        }
+
+                        await new Promise(r => setTimeout(r, pollInterval));
+                    } catch (e) {
+                        console.error("轮询异常:", e);
+                        // 如果错误消息包含明确的失败标识，或者达到最大尝试次数，则抛出异常停止轮询
+                        if (e.message.includes("失败") || e.message.includes("error") || attempt === maxAttempts - 1) {
+                            throw e;
+                        }
+                        // 网络抖动等其他情况继续重试
+                        await new Promise(r => setTimeout(r, pollInterval));
+                    }
+                }
+                throw new Error("生成任务查询超时，请刷新重试");
+            }
+
             async function submitTask() {
                 const groupElement = document.querySelector('input[name="run_api_group"]:checked');
                 const group = groupElement ? groupElement.value : 'default';
@@ -2588,10 +2652,10 @@
 
                     try {
                         if (isTxt2Img) {
-                            endpoint = `${baseUrl}/v1/images/generations`; headers['Content-Type'] = 'application/json';
+                            endpoint = `${baseUrl}/v1/images/generations?async=true`; headers['Content-Type'] = 'application/json';
                             body = JSON.stringify({ model: requestModelName, prompt: finalPrompt, aspect_ratio: ratio, image_size: size, n: 1, response_format: 'url' });
                         } else {
-                            endpoint = `${baseUrl}/v1/images/edits`; const formData = new FormData();
+                            endpoint = `${baseUrl}/v1/images/edits?async=true`; const formData = new FormData();
                             formData.append('model', requestModelName); formData.append('prompt', finalPrompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', 1); formData.append('response_format', 'url');
                             compressedImages.forEach((file) => formData.append('image', file)); body = formData;
                         }
@@ -2606,6 +2670,9 @@
                                 || /insufficient|balance|quota|credit|payment/i.test(errCode)
                                 || response.status === 402;
                             throw err;
+                        }
+                        if (data.task_id) {
+                            return await pollTaskResult(data.task_id, apiKey, baseUrl);
                         }
                         return data.data || (data.url ? [{ url: data.url }] : []);
                     } catch (e) {
