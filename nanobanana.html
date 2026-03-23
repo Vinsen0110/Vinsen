@@ -1708,9 +1708,30 @@
                 redrawCanvas();
                 canvas.toBlob((blob) => {
                     const newFile = new File([blob], `doodle_${Date.now()}.png`, { type: 'image/png' });
-                    newFile.isDoodled = hasDoodleInSession; imageSlots[editTargetIndex] = newFile;
+                    newFile.isDoodled = hasDoodleInSession;
+                    
+                    // 保持原始图片引用
+                    if (imageSlots[editTargetIndex] && imageSlots[editTargetIndex].originalFile) {
+                        newFile.originalFile = imageSlots[editTargetIndex].originalFile;
+                    } else if (baseImage && !newFile.originalFile) {
+                        // 保险起见，如果没有 originalFile，则将当前编辑的对象作为 originalFile
+                        newFile.originalFile = imageSlots[editTargetIndex] || newFile;
+                    }
+
+                    imageSlots[editTargetIndex] = newFile;
                     renderSlots(); updatePromptLockState(); cancelEdit();
                 });
+            }
+
+            function restoreSlotToOriginal(index, event) {
+                if (event) event.stopPropagation();
+                const file = imageSlots[index];
+                if (!file || !file.originalFile) return;
+                if (!confirm("确定要恢复到初始上传的图片吗？")) return;
+                
+                imageSlots[index] = file.originalFile;
+                renderSlots();
+                updatePromptLockState();
             }
             function setDrawColor(color, btn) {
                 currentColor = color; document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
@@ -2043,6 +2064,14 @@
                 tempCanvas.toBlob((blob) => {
                     const newFile = new File([blob], `crop_${Date.now()}.png`, { type: 'image/png' });
                     newFile.isDoodled = hasDoodleInSession;
+                    
+                    // 保持原始图片引用
+                    if (imageSlots[editTargetIndex] && imageSlots[editTargetIndex].originalFile) {
+                        newFile.originalFile = imageSlots[editTargetIndex].originalFile;
+                    } else if (!newFile.originalFile) {
+                        newFile.originalFile = imageSlots[editTargetIndex] || newFile;
+                    }
+
                     imageSlots[editTargetIndex] = newFile;
                     renderSlots(); updatePromptLockState();
                     hideCropOverlay();
@@ -2168,7 +2197,14 @@
             setupResizers();
 
             function triggerSlotUpload(index) { currentActiveSlot = index; const input = document.getElementById('slot-file-input'); input.value = ''; input.click(); }
-            function handleSlotFile(event) { const file = event.target.files[0]; if (!file) return; imageSlots[currentActiveSlot] = file; renderSlots(); updatePromptLockState(); }
+            function handleSlotFile(event) { 
+                const file = event.target.files[0]; 
+                if (!file) return; 
+                if (!file.originalFile) file.originalFile = file;
+                imageSlots[currentActiveSlot] = file; 
+                renderSlots(); 
+                updatePromptLockState(); 
+            }
 
             window.addEventListener('paste', handleGlobalPaste);
             function handleGlobalPaste(e) {
@@ -2198,6 +2234,7 @@
                 }
                 
                 if (targetIndex !== -1) {
+                    if (!imageFile.originalFile) imageFile.originalFile = imageFile;
                     imageSlots[targetIndex] = imageFile;
                     renderSlots();
                     updatePromptLockState();
@@ -2435,6 +2472,7 @@
                             // 外部文件拖入
                             const droppedFile = e.dataTransfer.files[0];
                             if (droppedFile.type.startsWith('image/')) {
+                                if (!droppedFile.originalFile) droppedFile.originalFile = droppedFile;
                                 imageSlots[index] = droppedFile; renderSlots(); updatePromptLockState();
                             } else { alert("请拖入图片格式的文件"); }
                         }
@@ -2444,10 +2482,17 @@
                         const reader = new FileReader(); reader.onload = (e) => {
                             let doodleBadge = file.isDoodled ? `<div class="absolute bottom-1 right-1 text-xs text-indigo-400 font-bold z-10"><i class="fa-solid fa-pen-nib"></i></div>` : "";
                             let editBtn = '';
+                            let restoreBtn = '';
+                            const hasOriginal = file.originalFile && file.originalFile !== file;
+
                             if (canDoodle) {
                                 editBtn = `<div onclick="openEditor(${index}, event, false)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="涂鸦编辑"><i class="fa-solid fa-paintbrush text-[10px]"></i></div>`;
                             } else if (canCropOnly) {
                                 editBtn = `<div onclick="openEditor(${index}, event, true)" class="absolute bottom-1 left-1 w-5 h-5 bg-indigo-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-indigo-400" title="裁剪"><i class="fa-solid fa-crop-simple text-[10px]"></i></div>`;
+                            }
+
+                            if (hasOriginal) {
+                                restoreBtn = `<div onclick="restoreSlotToOriginal(${index}, event)" class="absolute bottom-1 left-7 w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm z-20 hover:scale-110 hover:bg-amber-400" title="恢复原图"><i class="fa-solid fa-arrow-rotate-left text-[10px]"></i></div>`;
                             }
 
                             // 删除按钮
@@ -2458,7 +2503,7 @@
                                 deleteIcon = `<div onclick="clearSlot(${index}, event)" class="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-sm z-20 hover:scale-110"><i class="fa-solid fa-xmark text-[10px]"></i></div>`;
                             }
 
-                            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn} ${doodleBadge}${deleteIcon}<div onclick="viewOriginal('${e.target.result}')" class="absolute inset-0 z-0"></div>`;
+                            div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none"><div class="absolute top-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1.5 rounded backdrop-blur-sm z-10">图 ${slotNum}</div>${editBtn}${restoreBtn} ${doodleBadge}${deleteIcon}<div onclick="viewOriginal('${e.target.result}')" class="absolute inset-0 z-0"></div>`;
                         }; reader.readAsDataURL(file);
                     } else {
                         div.onclick = () => triggerSlotUpload(index);
@@ -2882,7 +2927,14 @@
             async function importCurrentImage() {
                 if (!currentMainImageUrl) { alert("当前没有可导入的图片"); return; }
                 const emptyIndex = imageSlots.findIndex(slot => slot === null); if (emptyIndex === -1) { alert("格子已满 (9张)，请先删除一些图片"); return; }
-                try { const r = await fetch(currentMainImageUrl); const b = await r.blob(); const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); imageSlots[emptyIndex] = f; renderSlots(); } catch (e) { alert("导入失败"); }
+                try { 
+                    const r = await fetch(currentMainImageUrl); 
+                    const b = await r.blob(); 
+                    const f = new File([b], `import_${Date.now()}.jpg`, { type: b.type }); 
+                    f.originalFile = f; // 导入的图作为该槽位的原图
+                    imageSlots[emptyIndex] = f; 
+                    renderSlots(); 
+                } catch (e) { alert("导入失败"); }
             }
 
             /* --- Agent Window Functions --- */
