@@ -1050,6 +1050,10 @@
                         <i class="fa-solid fa-arrow-left"></i> <span class="hidden md:inline">导入</span>
                     </button>
                     <div class="flex items-center gap-3">
+                        <button onclick="window.location.href='nanobanana://start'" title="如果PS后台服务未开启，点击唤醒"
+                            class="bg-white hover:bg-orange-50 text-orange-500 border border-orange-200 text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-plug"></i> <span class="hidden md:inline">打开导入</span>PS服务
+                        </button>
                         <button onclick="sendCurrentImageToPS()"
                             class="bg-gradient-to-r from-orange-400 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer ring-1 ring-orange-500/30">发送至 PS <i class="fa-brands fa-adobe"></i></button>
                         <button onclick="downloadCurrentImage()"
@@ -2912,7 +2916,7 @@
                     const result = await response.json();
                     if (result.success) { alert("成功发送到 PS！"); } else { alert("发送失败：" + result.error); }
                 } catch (error) {
-                    alert("无法连接到本地 PS 服务！请确保 ps_server.py 正在后台运行。");
+                    alert("无法连接到后台 PS 服务！\n\n1. 如果您已下载应用，请点击上方【打开导入PS服务】按钮启动它。\n2. 并在弹出的浏览器提示中允许打开该服务程序。");
                     console.error("PS Bridge Error:", error);
                 }
             }
