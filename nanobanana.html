@@ -680,6 +680,55 @@
         #preview-section-wrapper button:hover {
             transform: scale(1.08);
         }
+
+        /* ========== Settings Modal Transition ========== */
+        #settings-modal {
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            transition: background 0.4s cubic-bezier(0.16,1,0.3,1),
+                        backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1),
+                        -webkit-backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        #settings-modal.modal-active {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        #settings-modal .settings-dialog {
+            transform: translateY(40px) scale(0.92); opacity: 0;
+            transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease-out;
+        }
+        #settings-modal.modal-active .settings-dialog {
+            transform: translateY(0) scale(1); opacity: 1;
+        }
+        #settings-modal.modal-closing .settings-dialog {
+            transform: translateY(20px) scale(0.96); opacity: 0;
+            transition: transform 0.25s cubic-bezier(0.55,0,1,0.45), opacity 0.2s ease-in;
+        }
+        @keyframes gearSpin {
+            0%   { transform: rotate(0deg) scale(1); }
+            50%  { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .gear-spinning .fa-gear { animation: gearSpin 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes settingsItemIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        #settings-modal.modal-active .settings-stagger > * {
+            animation: settingsItemIn 0.4s ease-out both;
+        }
+        #settings-modal.modal-active .settings-stagger > *:nth-child(1) { animation-delay: 0.06s; }
+        #settings-modal.modal-active .settings-stagger > *:nth-child(2) { animation-delay: 0.12s; }
+        #settings-modal.modal-active .settings-stagger > *:nth-child(3) { animation-delay: 0.18s; }
+        #settings-modal.modal-active .settings-stagger > *:nth-child(4) { animation-delay: 0.24s; }
+        #settings-modal .settings-close-btn:hover i { transform: rotate(90deg); }
+        #settings-modal .settings-close-btn i { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes orbFloat {
+            0%, 100% { opacity: 0.18; transform: scale(1) translate(0,0); }
+            50%      { opacity: 0.35; transform: scale(1.15) translate(5px,-5px); }
+        }
+        #settings-modal .settings-orb { animation: orbFloat 3s ease-in-out infinite; }
+        #settings-modal .settings-orb-2 { animation: orbFloat 3s ease-in-out infinite; animation-delay: 1.5s; }
     </style>
 </head>
 
@@ -1358,14 +1407,15 @@
         </div>
     </div>
 
-    <div id="settings-modal"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center transition-all duration-300 opacity-0 scale-95"
-        style="transition-property: opacity, transform;">
+
+    <div id="settings-modal" onclick="if(event.target===this)closeSettings()"
+        class="fixed inset-0 z-50 hidden flex items-center justify-center bg-transparent"
+        >
         <div
-            class="bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-xl p-8 rounded-[1.5rem] w-[26rem] shadow-[0_20px_50px_rgba(139,92,246,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 dark:border-white/10 transition-all transform duration-300 relative overflow-hidden">
+            class="settings-dialog bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-xl p-8 rounded-[1.5rem] w-[26rem] shadow-[0_20px_50px_rgba(139,92,246,0.15)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 dark:border-white/10 relative overflow-hidden">
             
-            <div class="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="settings-orb absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="settings-orb-2 absolute -bottom-20 -left-20 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="relative z-10">
                 <div class="flex justify-between items-center mb-6">
@@ -1373,14 +1423,14 @@
                         <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> API 偏好设置
                     </h3>
                     <button onclick="closeSettings()"
-                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-200">
+                        class="settings-close-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-200">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
                 
-                <div class="space-y-5">
+                <div class="space-y-5 settings-stagger">
                     <div class="group">
-                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider group-focus-within:text-purple-500 transition-colors flex items-center justify-between">
+                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wider group-focus-within:text-purple-500 transition-colors flex items-center justify-between">
                             <span>Default API Key</span>
                             <span class="text-[10px] bg-gray-200/50 dark:bg-gray-700/50 px-2 py-0.5 rounded-full text-gray-500 dark:text-gray-400">基础配置</span>
                         </label>
@@ -1395,7 +1445,7 @@
                     </div>
 
                     <div class="group">
-                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider group-focus-within:text-indigo-500 transition-colors flex items-center justify-between">
+                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wider group-focus-within:text-indigo-500 transition-colors flex items-center justify-between">
                             <span>Gemini优质 API Key</span>
                             <span class="text-[10px] bg-gradient-to-r from-purple-500/10 to-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold tracking-normal text-xs">💎 高级选项</span>
                         </label>
@@ -2101,19 +2151,28 @@
             }
             function openSettings() {
                 const modal = document.getElementById('settings-modal');
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0', 'scale-95');
-                    modal.classList.add('opacity-100', 'scale-100');
-                }, 10);
+
+                const btn = document.querySelector('button[onclick="openSettings()"]');
+                if (btn) { btn.classList.add('gear-spinning'); setTimeout(() => btn.classList.remove('gear-spinning'), 600); }
+                modal.classList.remove('hidden', 'modal-closing');
+
+                void modal.offsetWidth;
+                requestAnimationFrame(() => {
+
+                    modal.classList.add('modal-active');
+                });
             }
             function closeSettings() {
                 const modal = document.getElementById('settings-modal');
-                modal.classList.remove('opacity-100', 'scale-100');
-                modal.classList.add('opacity-0', 'scale-95');
+
+                modal.classList.remove('modal-active');
+                modal.classList.add('modal-closing');
+
                 setTimeout(() => {
                     modal.classList.add('hidden');
-                }, 300);
+                    modal.classList.remove('modal-closing');
+
+                }, 320);
             }
             function showBalanceAlert() {
                 const loader = document.getElementById('custom-loader');
