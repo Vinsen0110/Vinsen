@@ -745,6 +745,13 @@
             <span class="font-bold text-lg tracking-tight text-gray-900 dark:text-gray-100">Nano Banana</span>
         </div>
         <div class="flex items-center gap-3 text-sm">
+            <!-- Balance Display -->
+            <div id="balance-display" onclick="updateBalance()" title="点击刷新余额"
+                class="hidden md:flex items-center gap-2 px-3.5 h-9 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800/50 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-800/40 transition-all group shadow-sm hover:shadow-md active:scale-95 origin-right ring-1 ring-transparent hover:ring-indigo-300 dark:hover:ring-indigo-700">
+                <i class="fa-solid fa-wallet text-indigo-600 dark:text-indigo-400 text-sm"></i>
+                <span id="balance-val" class="text-xs font-black text-indigo-700 dark:text-indigo-300 tracking-wide">余额: --</span>
+                <i id="balance-refresh-icon" class="fa-solid fa-rotate-right text-[10px] text-indigo-400/70 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-transform"></i>
+            </div>
             <a href="index.html" title="返回主页"
                class="flex items-center justify-center gap-2 px-4 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow hover:shadow-md transition-all font-medium">
                 <i class="fa-solid fa-house"></i>
@@ -1561,6 +1568,9 @@
                 // Initialize Libs
                 loadAgentPromptLib();
                 loadMainPromptLib();
+
+                // Initialize Balance
+                updateBalance();
             });
 
             // 自定义下拉逻辑 (模型)
@@ -1669,7 +1679,77 @@
                 });
             }
 
-            // 工具函数 (URL 已固定，不再需要 fillApiUrl / updateApiDisplay)
+            // 工具函数
+            async function updateBalance() {
+                const groupElement = document.querySelector('input[name="run_api_group"]:checked');
+                const group = groupElement ? groupElement.value : 'default';
+                const apiKey = localStorage.getItem(`nano_api_key_${group}`);
+                const display = document.getElementById('balance-display');
+                const valSpan = document.getElementById('balance-val');
+                const refreshIcon = document.getElementById('balance-refresh-icon');
+
+                if (!apiKey) {
+                    display.classList.add('hidden');
+                    return;
+                }
+
+                display.classList.remove('hidden');
+                refreshIcon.classList.add('fa-spin', 'text-indigo-500');
+                valSpan.innerText = "刷新中...";
+
+                try {
+                    let baseUrl = DEFAULT_API_URL;
+                    baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+                    
+                    const response = await fetch(`${baseUrl}/v1/token/quota`, {
+                        headers: { 'Authorization': `Bearer ${apiKey}` }
+                    });
+                    const data = await response.json();
+                    
+                    // 兼容多种中转接口格式 (One API / New API 等)
+                    let quota = data.remain_quota !== undefined ? data.remain_quota : data.quota;
+                    
+                    // 如果都没有，尝试从 total_quota - total_usage 计算
+                    if (quota === undefined && data.total_quota !== undefined) {
+                        quota = data.total_quota - (data.total_usage || 0);
+                    }
+
+                    if (response.ok && quota !== undefined) {
+                        const label = (group === 'default') ? 'D' : 'G';
+                        
+                        // 处理“无限”额度 (通常为 -1, 或非常大的数字，或者某些中专站用负数表示无限已用额度)
+                        if (quota === -1 || quota > 1000000000 || quota < -0.01) {
+                            valSpan.innerText = `[${label}] 余额: 无限 ¥`;
+                        } else {
+                            // 逻辑调整：如果原始额度小于 1000，通常说明接口直接返回的就是金额（美元或人民币），不需要除以 500000
+                            let balance;
+                            if (quota < 1000) {
+                                balance = quota.toFixed(2);
+                            } else {
+                                balance = (quota / 500000).toFixed(2);
+                            }
+                            valSpan.innerText = `[${label}] 余额: ${balance} ¥`;
+                        }
+                        display.title = `原始额度: ${quota}\n点击刷新`;
+                    } else {
+                        valSpan.innerText = "格式错误";
+                        console.log("Balance Data:", data);
+                    }
+                } catch (e) {
+                    console.error("Balance Check Error:", e);
+                    valSpan.innerText = "网络错误";
+                } finally {
+                    refreshIcon.classList.remove('fa-spin', 'text-indigo-500');
+                }
+            }
+
+            // 自定义按钮组逻辑 (覆盖原来的，增加余额刷新)
+            document.querySelectorAll('input[name="run_api_group"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    updateGenerateButtonPrice();
+                    updateBalance();
+                });
+            });
 
             // --- 核心修改：模型限制逻辑 ---
             function updateModelRestrictions() {
@@ -2194,6 +2274,7 @@
                 updateModelRestrictions();
                 closeSettings();
                 updateGenerateButtonPrice();
+                updateBalance();
             }
 
             function setupResizers() {
@@ -2819,10 +2900,10 @@
                     if (err.isBalanceError) { showBalanceAlert(); }
                     else { alert("错误: " + err.message); }
                     document.getElementById('custom-loader').classList.add('hidden');
-                }
-                finally {
+                } finally {
                     btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); icon.classList.add('hidden');
                     updateGenerateButtonPrice();
+                    updateBalance();
                 }
             }
 
