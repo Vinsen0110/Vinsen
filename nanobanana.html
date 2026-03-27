@@ -1706,6 +1706,12 @@
                     });
                     const data = await response.json();
                     
+                    if (!response.ok) {
+                        valSpan.innerText = "接口报错";
+                        display.title = `Error: ${data.error?.message || response.statusText}\n点击刷新`;
+                        return;
+                    }
+
                     // 兼容多种中转接口格式 (One API / New API 等)
                     let quota = data.remain_quota !== undefined ? data.remain_quota : data.quota;
                     
@@ -1714,7 +1720,7 @@
                         quota = data.total_quota - (data.total_usage || 0);
                     }
 
-                    if (response.ok && quota !== undefined) {
+                    if (quota !== undefined) {
                         const label = (group === 'default') ? 'D' : 'G';
                         
                         // 处理“无限”额度 (通常为 -1, 或非常大的数字，或者某些中专站用负数表示无限已用额度)
@@ -1732,8 +1738,9 @@
                         }
                         display.title = `原始额度: ${quota}\n点击刷新`;
                     } else {
-                        valSpan.innerText = "格式错误";
-                        console.log("Balance Data:", data);
+                        valSpan.innerText = "格式未知";
+                        console.log("Balance Data (Format Unknown):", data);
+                        display.title = `返回数据格式不符合预期，请查看控制台\n点击刷新`;
                     }
                 } catch (e) {
                     console.error("Balance Check Error:", e);
