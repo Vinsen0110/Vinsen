@@ -3137,16 +3137,42 @@
 
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> 思考中...';
-                outputArea.value = "正在连接 AI 模型...";
+                outputArea.value = "正在压缩图片并连接 AI 模型...";
 
+                // Handle Image Compression if exists
+                let finalImageBase64 = agentBase64Img;
+                if (agentBase64Img && agentBase64Img.length > 500000) { // If > 500KB
+                    try {
+                        const imgObj = await new Promise((resolve, reject) => {
+                            const i = new Image();
+                            i.onload = () => resolve(i);
+                            i.onerror = reject;
+                            i.src = agentBase64Img;
+                        });
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        let w = imgObj.width, h = imgObj.height;
+                        const maxSide = 1024;
+                        if (w > maxSide || h > maxSide) {
+                            if (w > h) { h = (h / w) * maxSide; w = maxSide; }
+                            else { w = (w / h) * maxSide; h = maxSide; }
+                        }
+                        canvas.width = w; canvas.height = h;
+                        ctx.drawImage(imgObj, 0, 0, w, h);
+                        finalImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    } catch (e) { console.warn("Compression failed, using original", e); }
+                }
+
+                outputArea.value = "正在请求 AI 模型...";
+                
                 // Build Messages
                 let messages = [];
                 if (meta) messages.push({ role: 'system', content: meta });
 
                 let userContent = [];
                 if (user) userContent.push({ type: "text", text: user });
-                if (agentBase64Img) {
-                    userContent.push({ type: "image_url", image_url: { url: agentBase64Img } });
+                if (finalImageBase64) {
+                    userContent.push({ type: "image_url", image_url: { url: finalImageBase64 } });
                 }
 
                 // If strictly text, can simplify content string for compatibility, but object array is standard for multimodal
@@ -3176,6 +3202,7 @@
 
                     const resultText = data.choices[0]?.message?.content || "无返回内容";
                     outputArea.value = resultText;
+                    updateBalance(); // 成功后刷新余额
                 } catch (e) {
                     outputArea.value = "错误: " + e.message;
                 } finally {
