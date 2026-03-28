@@ -751,11 +751,18 @@
                 <span class="hidden sm:inline">主页</span>
             </a>
             <!-- Balance Display -->
-            <div id="balance-display" onclick="updateBalance()" title="点击刷新余额"
+            <div id="balance-display" onclick="updateBalance()" title="点击刷新Key余额"
                 class="hidden md:flex items-center gap-2 px-3.5 h-9 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800/50 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-800/40 transition-all group shadow-sm hover:shadow-md active:scale-95 origin-right ring-1 ring-transparent hover:ring-indigo-300 dark:hover:ring-indigo-700">
                 <i class="fa-solid fa-wallet text-indigo-600 dark:text-indigo-400 text-sm"></i>
-                <span id="balance-val" class="text-xs font-black text-indigo-700 dark:text-indigo-300 tracking-wide">余额: --</span>
+                <span id="balance-val" class="text-xs font-black text-indigo-700 dark:text-indigo-300 tracking-wide">Key: --</span>
                 <i id="balance-refresh-icon" class="fa-solid fa-rotate-right text-[10px] text-indigo-400/70 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-transform"></i>
+            </div>
+            <!-- Account Balance Display -->
+            <div id="account-balance-display" onclick="updateBalance()" title="点击刷新账户余额"
+                class="hidden items-center gap-2 px-3.5 h-9 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800/50 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-800/40 transition-all group shadow-sm hover:shadow-md active:scale-95 origin-right ring-1 ring-transparent hover:ring-emerald-300 dark:hover:ring-emerald-700">
+                <i class="fa-solid fa-user text-emerald-600 dark:text-emerald-400 text-sm"></i>
+                <span id="account-balance-val" class="text-xs font-black text-emerald-700 dark:text-emerald-300 tracking-wide">账户: --</span>
+                <i id="account-balance-refresh-icon" class="fa-solid fa-rotate-right text-[10px] text-emerald-400/70 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-transform"></i>
             </div>
             <div class="w-[1px] h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
             <button onclick="toggleTheme()" title="切换深色/浅色模式"
@@ -1466,6 +1473,36 @@
                         </div>
                     </div>
 
+                    <div class="group">
+                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wider group-focus-within:text-emerald-500 transition-colors flex items-center justify-between">
+                            <span>查询余额 Key</span>
+                            <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold tracking-normal text-xs">💰 账户查询</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="modal-api-key-query"
+                                class="w-full bg-gray-50/50 dark:bg-black/30 border border-gray-200 focus:border-emerald-500 dark:border-gray-700/50 rounded-2xl py-3 pl-10 pr-4 text-sm text-gray-800 dark:text-gray-200 outline-none focus:ring-[3px] focus:ring-emerald-500/20 transition-all shadow-inner"
+                                placeholder="系统令牌（非API令牌）" autocomplete="new-password">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass-dollar text-gray-400 group-focus-within:text-emerald-500 transition-colors drop-shadow-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wider group-focus-within:text-emerald-500 transition-colors flex items-center justify-between">
+                            <span>用户 ID</span>
+                            <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold tracking-normal text-xs">🆔 个人中心查看</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="modal-user-id"
+                                class="w-full bg-gray-50/50 dark:bg-black/30 border border-gray-200 focus:border-emerald-500 dark:border-gray-700/50 rounded-2xl py-3 pl-10 pr-4 text-sm text-gray-800 dark:text-gray-200 outline-none focus:ring-[3px] focus:ring-emerald-500/20 transition-all shadow-inner"
+                                placeholder="在个人中心查看，如 79084" autocomplete="off">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-id-badge text-gray-400 group-focus-within:text-emerald-500 transition-colors drop-shadow-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="pt-3">
                         <button onclick="saveSettings()"
                             class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 hover:shadow-xl hover:shadow-purple-500/30 text-white font-bold py-3 rounded-2xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 relative overflow-hidden group">
@@ -1487,6 +1524,8 @@
                 
             document.getElementById('modal-api-key-default').value = localStorage.getItem('nano_api_key_default') || "";
             document.getElementById('modal-api-key-gemini').value = localStorage.getItem('nano_api_key_gemini') || "";
+            document.getElementById('modal-api-key-query').value = localStorage.getItem('nano_api_key_query') || "";
+            document.getElementById('modal-user-id').value = localStorage.getItem('nano_user_id') || "";
                 
             const groupElement = document.querySelector('input[name="run_api_group"]:checked');
             const group = groupElement ? groupElement.value : 'default';
@@ -1680,74 +1719,117 @@
             }
 
             // 工具函数
-            async function updateBalance() {
+            async function updateBalance(skipAccount = false) {
                 const groupElement = document.querySelector('input[name="run_api_group"]:checked');
                 const group = groupElement ? groupElement.value : 'default';
                 const apiKey = localStorage.getItem(`nano_api_key_${group}`);
+                const queryKey = localStorage.getItem('nano_api_key_query');
+                const userId = localStorage.getItem('nano_user_id');
+                
                 const display = document.getElementById('balance-display');
                 const valSpan = document.getElementById('balance-val');
                 const refreshIcon = document.getElementById('balance-refresh-icon');
 
-                if (!apiKey) {
-                    display.classList.add('hidden');
-                    return;
-                }
+                const accountDisplay = document.getElementById('account-balance-display');
+                const accountValSpan = document.getElementById('account-balance-val');
+                const accountRefreshIcon = document.getElementById('account-balance-refresh-icon');
 
-                display.classList.remove('hidden');
-                refreshIcon.classList.add('fa-spin', 'text-indigo-500');
-                valSpan.innerText = "刷新中...";
+                // 并行执行两个余额查询
+                const tasks = [];
 
-                try {
-                    let baseUrl = DEFAULT_API_URL;
-                    baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
-                    
-                    const response = await fetch(`${baseUrl}/v1/token/quota`, {
-                        headers: { 'Authorization': `Bearer ${apiKey}` }
-                    });
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        valSpan.innerText = "接口报错";
-                        display.title = `Error: ${data.error?.message || response.statusText}\n点击刷新`;
+                // 任务1: Key 余额
+                tasks.push((async () => {
+                    if (!apiKey) {
+                        display.classList.add('hidden');
                         return;
                     }
-
-                    // 兼容多种中转接口格式 (One API / New API 等)
-                    let quota = data.remain_quota !== undefined ? data.remain_quota : data.quota;
-                    
-                    // 如果都没有，尝试从 total_quota - total_usage 计算
-                    if (quota === undefined && data.total_quota !== undefined) {
-                        quota = data.total_quota - (data.total_usage || 0);
-                    }
-
-                    if (quota !== undefined) {
-                        const label = (group === 'default') ? 'D' : 'G';
-                        
-                        // 处理“无限”额度 (通常为 -1, 或非常大的数字，或者某些中专站用负数表示无限已用额度)
-                        if (quota === -1 || quota > 1000000000 || quota < -0.01) {
-                            valSpan.innerText = `[${label}] 余额: 无限 ¥`;
+                    display.classList.remove('hidden');
+                    refreshIcon.classList.add('fa-spin', 'text-indigo-500');
+                    valSpan.innerText = "刷新中...";
+                    try {
+                        let baseUrl = DEFAULT_API_URL;
+                        baseUrl = baseUrl.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+                        const response = await fetch(`${baseUrl}/v1/token/quota?_t=${Date.now()}`, {
+                            headers: { 'Authorization': `Bearer ${apiKey}` },
+                            cache: 'no-store'
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            valSpan.innerText = "接口报错";
+                            display.title = `Error: ${data.error?.message || response.statusText}\n点击刷新`;
                         } else {
-                            // 逻辑调整：如果原始额度小于 1000，通常说明接口直接返回的就是金额（美元或人民币），不需要除以 500000
-                            let balance;
-                            if (quota < 1000) {
-                                balance = quota.toFixed(2);
-                            } else {
-                                balance = (quota / 500000).toFixed(2);
+                            let quota = data.remain_quota !== undefined ? data.remain_quota : data.quota;
+                            if (quota === undefined && data.total_quota !== undefined) {
+                                quota = data.total_quota - (data.total_usage || 0);
                             }
-                            valSpan.innerText = `[${label}] 余额: ${balance} ¥`;
+                            if (quota !== undefined) {
+                                const label = (group === 'default') ? 'D' : 'G';
+                                if (quota === -1 || quota > 1000000000 || quota < -0.01) {
+                                    valSpan.innerText = `[${label}] Key: 无限 ¥`;
+                                } else {
+                                    let balance = (quota < 1000) ? quota.toFixed(2) : (quota / 500000).toFixed(2);
+                                    valSpan.innerText = `[${label}] Key: ${balance} ¥`;
+                                }
+                                display.title = `原始额度: ${quota}\n点击刷新`;
+                            } else {
+                                valSpan.innerText = "格式未知";
+                            }
                         }
-                        display.title = `原始额度: ${quota}\n点击刷新`;
-                    } else {
-                        valSpan.innerText = "格式未知";
-                        console.log("Balance Data (Format Unknown):", data);
-                        display.title = `返回数据格式不符合预期，请查看控制台\n点击刷新`;
+                    } catch (e) {
+                        valSpan.innerText = "网络错误";
+                    } finally {
+                        refreshIcon.classList.remove('fa-spin', 'text-indigo-500');
                     }
-                } catch (e) {
-                    console.error("Balance Check Error:", e);
-                    valSpan.innerText = "网络错误";
-                } finally {
-                    refreshIcon.classList.remove('fa-spin', 'text-indigo-500');
-                }
+                })());
+
+                // 任务2: 账户余额（可通过参数跳过）
+                if (!skipAccount) tasks.push((async () => {
+                    if (!queryKey) {
+                        accountDisplay.style.display = 'none';
+                        accountDisplay.classList.remove('md:flex');
+                        return;
+                    }
+                    accountDisplay.style.display = '';
+                    accountDisplay.classList.add('md:flex');
+                    accountRefreshIcon.classList.add('fa-spin', 'text-emerald-500');
+                    accountValSpan.innerText = "刷新中...";
+                    try {
+                        let baseUrl = DEFAULT_API_URL.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+                        const headers = { 'Authorization': `Bearer ${queryKey}` };
+                        if (userId) {
+                            headers['New-API-User'] = userId;
+                        }
+                        const response = await fetch(`${baseUrl}/api/user/self?_t=${Date.now()}`, { headers, cache: 'no-store' });
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                accountValSpan.innerText = "认证失败";
+                                accountDisplay.title = `错误 401: 请检查：\n1. 查询余额 Key 是否为【系统令牌】（非API令牌）\n2. 用户 ID 是否正确填写\n点击重试`;
+                            } else {
+                                accountValSpan.innerText = `失败: ${response.status}`;
+                                accountDisplay.title = `接口错误: ${response.status} ${response.statusText}\n点击重试`;
+                            }
+                        } else {
+                            const data = await response.json();
+                            if (data && data.success && data.data) {
+                                let quota = data.data.quota;
+                                let balance = (quota / 500000).toFixed(2);
+                                accountValSpan.innerText = `账户: ${balance} ¥`;
+                                accountDisplay.title = `用户名: ${data.data.username}\n原始余额: ${quota}\n点击刷新`;
+                            } else {
+                                accountValSpan.innerText = "格式异常";
+                                accountDisplay.title = `返回数据: ${JSON.stringify(data).substring(0, 200)}\n点击重试`;
+                            }
+                        }
+                    } catch (e) {
+                        accountValSpan.innerText = "网络/跨域";
+                        accountDisplay.title = `连接失败: ${e.message}\n请检查网络或安装"Allow CORS"插件。`;
+                        console.error("Account Balance Error:", e);
+                    } finally {
+                        accountRefreshIcon.classList.remove('fa-spin', 'text-emerald-500');
+                    }
+                })());
+
+                await Promise.allSettled(tasks);
             }
 
             // 自定义按钮组逻辑 (覆盖原来的，增加余额刷新)
@@ -2269,9 +2351,22 @@
             function saveSettings() {
                 const keyDefault = document.getElementById('modal-api-key-default').value.trim();
                 const keyGemini = document.getElementById('modal-api-key-gemini').value.trim();
+                const keyQuery = document.getElementById('modal-api-key-query').value.trim();
+                const userId = document.getElementById('modal-user-id').value.trim();
                 
                 if (keyDefault) localStorage.setItem('nano_api_key_default', keyDefault);
                 if (keyGemini) localStorage.setItem('nano_api_key_gemini', keyGemini);
+                
+                if (keyQuery) {
+                    localStorage.setItem('nano_api_key_query', keyQuery);
+                } else {
+                    localStorage.removeItem('nano_api_key_query');
+                }
+                if (userId) {
+                    localStorage.setItem('nano_user_id', userId);
+                } else {
+                    localStorage.removeItem('nano_user_id');
+                }
 
                 if (!keyDefault && !keyGemini) {
                     alert("请至少填入一个 API Key！");
@@ -2910,7 +3005,29 @@
                 } finally {
                     btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); icon.classList.add('hidden');
                     updateGenerateButtonPrice();
-                    updateBalance();
+                    updateBalance(true); // 立即只刷新 Key 余额
+                    // 10秒后独立刷新账户余额
+                    setTimeout(async () => {
+                        try {
+                            const qk = localStorage.getItem('nano_api_key_query');
+                            const uid = localStorage.getItem('nano_user_id');
+                            if (!qk) return;
+                            let bu = DEFAULT_API_URL.replace(/\/v1\/images\/(edits|generations)\/?$/, '').replace(/\/+$/, '');
+                            const hd = { 'Authorization': `Bearer ${qk}` };
+                            if (uid) hd['New-API-User'] = uid;
+                            const r = await fetch(`${bu}/api/user/self?_t=${Date.now()}`, { headers: hd, cache: 'no-store' });
+                            if (r.ok) {
+                                const d = await r.json();
+                                if (d && d.success && d.data) {
+                                    const bal = (d.data.quota / 500000).toFixed(2);
+                                    const el = document.getElementById('account-balance-val');
+                                    const dp = document.getElementById('account-balance-display');
+                                    if (el) el.innerText = `账户: ${bal} ¥`;
+                                    if (dp) dp.title = `用户名: ${d.data.username}\n原始余额: ${d.data.quota}\n点击刷新`;
+                                }
+                            }
+                        } catch(e) { console.error('延迟刷新账户余额失败:', e); }
+                    }, 10000);
                 }
             }
 
