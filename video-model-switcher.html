@@ -1,0 +1,2012 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xs的工具箱</title>
+    <link rel="icon" href="kitty.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --text: #0f172a;
+            --muted: #64748b;
+            --line: rgba(148, 163, 184, 0.28);
+            --panel: rgba(255,255,255,0.88);
+            --panel-strong: rgba(255,255,255,0.96);
+            --shell-surface: rgba(255,255,255,0.96);
+            --shell-gap: 14px;
+            --shadow: 0 24px 64px rgba(15, 23, 42, 0.14);
+            --accent: #4f46e5;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(129, 140, 248, 0.22), transparent 28%),
+                radial-gradient(circle at top right, rgba(45, 212, 191, 0.16), transparent 24%),
+                linear-gradient(180deg, #f8faff 0%, #eef2ff 58%, #e5edff 100%);
+        }
+
+        body {
+            overflow: hidden;
+            padding: 20px;
+            transition: background-color .2s ease, color .2s ease;
+        }
+
+        body.shell-dark {
+            --shell-surface: #0f172a;
+            background:
+                radial-gradient(circle at top left, rgba(79, 70, 229, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(45, 212, 191, 0.12), transparent 24%),
+                linear-gradient(180deg, #09090b 0%, #111827 60%, #0f172a 100%);
+            color: #e5e7eb;
+        }
+
+        .app-shell {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            gap: var(--shell-gap);
+            height: calc(100vh - 40px);
+            position: relative;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px 0 18px; /* 搴曢儴鍐呰竟璺濊涓?锛屼互渚挎爣绛捐创杩戠洅瀛?*/
+            background: var(--panel);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 28px;
+            box-shadow: none;
+            backdrop-filter: blur(16px);
+            transition: background-color .2s ease, border-color .2s ease;
+            position: relative;
+            z-index: 20;
+        }
+
+        body.shell-dark .toolbar {
+            background: rgba(17, 24, 39, 0.82);
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+            width: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .nav-cluster,
+        .action-cluster {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.78);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+        }
+
+        .nav-cluster {
+            flex: 0 0 auto;
+            align-self: end;
+            padding: 0;
+            margin-bottom: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            position: relative;
+            z-index: 25;
+        }
+
+        .action-cluster {
+            margin-left: auto;
+            flex: 0 0 auto;
+        }
+
+        body.shell-dark .action-cluster {
+            background: rgba(15, 23, 42, 0.78);
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .model-tabs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: -1px;
+        }
+
+
+        .model-tab {
+            appearance: none;
+            border: 1px solid transparent;
+            background: transparent;
+            border-radius: 16px;
+            padding: 10px 14px;
+            min-width: 146px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            position: relative;
+            isolation: isolate;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+        }
+
+        .model-tab:hover {
+            transform: translateY(-1px);
+        }
+
+        .model-tab.active {
+            border-color: rgba(148, 163, 184, 0.22);
+            border-bottom-color: transparent;
+            background: #ffffff;
+            color: var(--accent);
+            border-radius: 12px 12px 0 0;
+            box-shadow: none;
+            position: relative;
+            z-index: 30;
+            transform: translateY(1px); /* 鍚戜笅绉诲姩 1px 浠ヨ鐩栦笅鏂圭殑杈规绾?*/
+        }
+
+        /* 鏂囦欢澶规爣绛惧弽鍚戝渾瑙?(Shoulders) */
+        .model-tab.active::before,
+        .model-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 16px;
+            height: 16px;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        .model-tab.active::before {
+            left: -17px;
+            border-bottom-right-radius: 12px;
+            box-shadow: 6px 6px 0 6px #ffffff;
+        }
+
+        .model-tab.active::after {
+            right: -17px;
+            border-bottom-left-radius: 12px;
+            box-shadow: -6px 6px 0 6px #ffffff;
+        }
+
+        body.shell-dark .model-tab.active {
+            background: #0f172a;
+            border-color: rgba(255,255,255,0.08);
+            border-bottom-color: transparent;
+            color: #818cf8;
+        }
+
+        body.shell-dark .model-tab.active::before {
+            box-shadow: 6px 6px 0 6px #0f172a;
+        }
+
+        body.shell-dark .model-tab.active::after {
+            box-shadow: -6px 6px 0 6px #0f172a;
+        }
+
+        .model-tab.active {
+            margin-bottom: 0;
+            transform: none;
+            border: 2px solid transparent;
+            border-radius: 16px 16px 0 0;
+            background:
+                linear-gradient(var(--shell-surface), var(--shell-surface)) padding-box,
+                linear-gradient(135deg, #8b5cf6 0%, #6366f1 52%, #60a5fa 100%) border-box;
+            box-shadow: 0 14px 28px rgba(99, 102, 241, 0.16);
+        }
+
+        .model-tab.active::before {
+            content: none;
+        }
+
+        .model-tab.active::after {
+            content: '';
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: calc(-1 * (var(--shell-gap) + 4px));
+            height: calc(var(--shell-gap) + 8px);
+            background: var(--shell-surface);
+            border-left: 2px solid rgba(99, 102, 241, 0.30);
+            border-right: 2px solid rgba(96, 165, 250, 0.30);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body.shell-dark .model-tab.active {
+            background:
+                linear-gradient(var(--shell-surface), var(--shell-surface)) padding-box,
+                linear-gradient(135deg, #a78bfa 0%, #818cf8 52%, #60a5fa 100%) border-box;
+            box-shadow: 0 16px 30px rgba(15, 23, 42, 0.34);
+        }
+
+        body.shell-dark .model-tab.active::after {
+            border-left-color: rgba(167, 139, 250, 0.36);
+            border-right-color: rgba(96, 165, 250, 0.36);
+        }
+
+        /* 瑕嗙洊鏃у竷灞€锛氶《閮ㄩ」鐩瀭鐩村眳涓紝褰撳墠鏍囩杩炴帴妗ユ洿骞插噣 */
+        .toolbar {
+            padding: 14px 18px;
+        }
+
+        .nav-cluster,
+        .action-cluster {
+            align-self: center;
+        }
+
+        .model-tab.active {
+            transform: translateY(1px);
+        }
+
+        .model-tab.active::before {
+            content: none;
+            width: 0;
+            height: 0;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .model-tab.active::after {
+            left: 14px;
+            right: 14px;
+            bottom: calc(-1 * (var(--shell-gap) + 16px));
+            height: calc(var(--shell-gap) + 18px);
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        body.shell-dark .model-tab.active::after {
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        /* 鏈€缁堢粨鏋勮鐩栵細
+           1. 涓婁笅鍖哄煙淇濇寔闅斿紑
+           2. 鍙湁褰撳墠鏍囩璺ㄨ繃绌洪殭骞跺帇浣忓唴瀹瑰尯涓婅竟绾?*/
+        .app-shell {
+            gap: var(--shell-gap) !important;
+        }
+
+        .toolbar {
+            padding: 14px 18px !important;
+            border-radius: 28px !important;
+            overflow: visible !important;
+        }
+
+        .nav-cluster,
+        .action-cluster {
+            align-self: center !important;
+        }
+
+        .content-shell {
+            border-radius: 28px !important;
+            margin-top: 0 !important;
+        }
+
+        .model-tab.active {
+            transform: translateY(calc(var(--shell-gap) + 1px)) !important;
+            border-bottom-color: var(--shell-surface) !important;
+            box-shadow: none !important;
+            z-index: 40 !important;
+        }
+
+        .model-tab.active::before,
+        .model-tab.active::after {
+            content: none !important;
+        }
+
+        /* 鏈€缁堣瑙夎鍒欙細
+           椤堕儴妯″瀷濮嬬粓灞呬腑鎺掑垪锛屼笉鍐嶄笅鍘嬶紱褰撳墠妯″瀷浠呯敤楂樹寒鎬佽〃绀?*/
+        .app-shell {
+            gap: var(--shell-gap) !important;
+        }
+
+        .toolbar {
+            padding: 14px 18px !important;
+            border-radius: 28px !important;
+            overflow: visible !important;
+        }
+
+        .nav-cluster,
+        .action-cluster {
+            align-self: center !important;
+        }
+
+        .model-tabs {
+            margin-bottom: 0 !important;
+        }
+
+        .content-shell {
+            border-radius: 28px !important;
+            margin-top: 0 !important;
+        }
+
+        .model-tab {
+            border-width: 2px !important;
+            border-style: solid !important;
+            transform: none !important;
+            background: transparent !important;
+        }
+
+        .model-tab.active {
+            transform: none !important;
+            border-color: rgba(99, 102, 241, 0.32) !important;
+            border-bottom-color: rgba(96, 165, 250, 0.32) !important;
+            border-radius: 16px !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            z-index: 40 !important;
+        }
+
+        body.shell-dark .model-tab.active {
+            border-color: rgba(167, 139, 250, 0.36) !important;
+            border-bottom-color: rgba(96, 165, 250, 0.36) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .model-tab.active::before {
+            content: none !important;
+        }
+
+        .model-tab.active::after {
+            content: none !important;
+        }
+
+        .tab-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex: 0 0 auto;
+            background: #f1f5f9;
+        }
+
+        .tab-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tab-copy {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            line-height: 1.12;
+        }
+
+        .tab-copy strong {
+            font-size: 14px;
+            font-weight: 800;
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        .model-tab.active .tab-icon {
+            background: #f1f5f9;
+            box-shadow: none;
+        }
+
+        .tab-copy span {
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .model-tab.active .tab-copy strong {
+            color: #111827;
+        }
+
+        .model-tab.active .tab-copy span:last-child {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        body.shell-dark .tab-copy strong { color: #e5e7eb; }
+        body.shell-dark .tab-copy span { color: #94a3b8; }
+        body.shell-dark .model-tab.active .tab-icon {
+            background: #1e293b;
+            box-shadow: none;
+        }
+        body.shell-dark .model-tab.active .tab-copy strong { color: #e5e7eb; }
+        body.shell-dark .model-tab.active .tab-copy span:last-child { color: #94a3b8; }
+
+        /* Final tab overrides: keep tabs centered, active tab outlined only, and let dark mode win */
+        .toolbar {
+            padding: 14px 18px !important;
+            border-radius: 28px !important;
+            overflow: visible !important;
+        }
+
+        .nav-cluster,
+        .action-cluster {
+            align-self: center !important;
+        }
+
+        .model-tabs {
+            margin-bottom: 0 !important;
+        }
+
+        .content-shell {
+            border-radius: 28px !important;
+            margin-top: 0 !important;
+        }
+
+        .model-tab {
+            transform: none !important;
+            background: transparent !important;
+            border: 1px solid transparent !important;
+            border-radius: 16px !important;
+            box-shadow: none !important;
+        }
+
+        .model-tab:hover {
+            transform: translateY(-1px) !important;
+        }
+
+        .model-tab.active {
+            transform: none !important;
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.42) !important;
+            z-index: 4 !important;
+        }
+
+        .model-tab.active::before,
+        .model-tab.active::after {
+            content: none !important;
+            display: none !important;
+        }
+
+        .model-tab.active .tab-icon {
+            background: #f1f5f9 !important;
+            box-shadow: none !important;
+        }
+
+        .model-tab.active .tab-copy strong {
+            color: #111827 !important;
+        }
+
+        .model-tab.active .tab-copy span:last-child {
+            color: var(--muted) !important;
+        }
+
+        body.shell-dark .model-tab {
+            background: transparent !important;
+        }
+
+        body.shell-dark .tab-icon {
+            background: rgba(30, 41, 59, 0.92) !important;
+        }
+
+        body.shell-dark .tab-copy strong {
+            color: #e5e7eb !important;
+        }
+
+        body.shell-dark .tab-copy span {
+            color: #94a3b8 !important;
+        }
+
+        body.shell-dark .model-tab.active {
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.68) !important;
+        }
+
+        body.shell-dark .model-tab.active .tab-icon {
+            background: rgba(30, 41, 59, 0.96) !important;
+        }
+
+        body.shell-dark .model-tab.active .tab-copy strong {
+            color: #f8fafc !important;
+        }
+
+        body.shell-dark .model-tab.active .tab-copy span:last-child {
+            color: #a5b4fc !important;
+        }
+
+        .tool-chip,
+        .icon-btn {
+            appearance: none;
+            border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+            border-radius: 16px;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+        }
+
+        .tool-chip:hover,
+        .icon-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .tool-chip {
+            padding: 0 14px;
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(248, 250, 252, 0.92);
+            font-size: 13px;
+            font-weight: 800;
+            white-space: nowrap;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .tool-chip.key-chip { 
+            color: #4338ca; 
+            background: rgba(238, 242, 255, 0.92);
+            border-color: rgba(199, 210, 254, 0.5);
+        }
+        .tool-chip.account-chip { 
+            color: #047857; 
+            background: rgba(236, 253, 245, 0.92);
+            border-color: rgba(167, 243, 208, 0.5);
+        }
+
+        body.shell-dark .tool-chip.key-chip {
+            background: rgba(49, 46, 129, 0.45);
+            border-color: rgba(129, 140, 248, 0.2);
+            color: #c7d2fe;
+        }
+        body.shell-dark .tool-chip.account-chip {
+            background: rgba(6, 78, 59, 0.45);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+        }
+
+        .tool-chip.contact-chip {
+            color: #a21caf;
+            background: rgba(250, 232, 255, 0.92);
+            border-color: rgba(240, 171, 252, 0.46);
+        }
+
+        .tool-chip.price-chip {
+            color: #c2410c;
+            background: rgba(255, 247, 237, 0.94);
+            border-color: rgba(253, 186, 116, 0.48);
+        }
+
+        body.shell-dark .tool-chip.contact-chip {
+            background: rgba(112, 26, 117, 0.36);
+            border-color: rgba(217, 70, 239, 0.22);
+            color: #f5d0fe;
+        }
+
+        body.shell-dark .tool-chip.price-chip {
+            background: rgba(124, 45, 18, 0.36);
+            border-color: rgba(251, 146, 60, 0.22);
+            color: #fdba74;
+        }
+
+        .tool-chip.hidden,
+        .icon-btn.hidden {
+            display: none !important;
+        }
+
+        .icon-btn {
+            width: 42px;
+            padding: 0 14px;
+            border-color: rgba(148, 163, 184, 0.18);
+            background: rgba(248, 250, 252, 0.92);
+            font-size: 14px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        body.shell-dark .icon-btn {
+            background: rgba(30, 41, 59, 0.78);
+            border-color: rgba(255,255,255,0.08);
+            color: #e5e7eb;
+        }
+
+        .refresh-spin {
+            animation: hubSpin 1s linear infinite;
+        }
+
+        @keyframes hubSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .content-shell {
+            position: relative;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: var(--shell-surface);
+            box-shadow: var(--shadow);
+            min-height: 0;
+            margin-top: 0;
+            transition: background-color .2s ease, border-color .2s ease;
+        }
+
+        body.shell-dark .content-shell {
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .content-frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: transparent;
+            display: none;
+        }
+
+        .content-frame.active {
+            display: block;
+        }
+
+
+        #video-settings-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+            transition: background 0.4s cubic-bezier(0.16,1,0.3,1),
+                        backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1),
+                        -webkit-backdrop-filter 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        #video-settings-modal.modal-active {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+
+        #video-settings-modal.hidden {
+            display: none !important;
+        }
+
+        #video-settings-modal .settings-dialog {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px);
+            padding: 1.75rem 2rem;
+            border-radius: 1.5rem;
+            width: 26rem;
+            max-width: calc(100vw - 2rem);
+            box-shadow: 0 20px 50px rgba(139,92,246,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(40px) scale(0.92); opacity: 0;
+            transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease-out;
+        }
+
+        body.shell-dark #video-settings-modal .settings-dialog {
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        #video-settings-modal.modal-active .settings-dialog {
+            transform: translateY(0) scale(1); opacity: 1;
+        }
+
+        #video-settings-modal.modal-closing .settings-dialog {
+            transform: translateY(20px) scale(0.96); opacity: 0;
+            transition: transform 0.25s cubic-bezier(0.55,0,1,0.45), opacity 0.2s ease-in;
+        }
+
+        #video-settings-modal .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        #video-settings-modal .settings-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #9333ea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        body.shell-dark #video-settings-modal .settings-title {
+            color: #a855f7;
+        }
+
+
+
+        .settings-orb {
+            position: absolute; -top: -80px; -right: -80px; width: 160px; height: 160px;
+            background: rgba(139, 92, 246, 0.2); border-radius: 50%; filter: blur(40px);
+            pointer-events: none; animation: hubOrbFloat 3s ease-in-out infinite; z-index: 0;
+        }
+
+        .settings-orb-2 {
+            position: absolute; -bottom: -80px; -left: -80px; width: 160px; height: 160px;
+            background: rgba(79, 70, 229, 0.2); border-radius: 50%; filter: blur(40px);
+            pointer-events: none; animation: hubOrbFloat 3s ease-in-out infinite; animation-delay: 1.5s; z-index: 0;
+        }
+
+        @keyframes hubOrbFloat {
+            0%, 100% { opacity: 0.2; transform: scale(1) translate(0, 0); }
+            50% { opacity: 0.4; transform: scale(1.15) translate(8px, -8px); }
+        }
+
+        .settings-header-group {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: relative; z-index: 10;
+        }
+
+        .settings-title {
+            font-size: 20px; font-weight: 800; background: linear-gradient(to right, #9333ea, #4f46e5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        body.shell-dark .settings-title {
+            background: linear-gradient(to right, #c084fc, #818cf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .settings-field-group {
+            margin-bottom: 1.25rem; position: relative; z-index: 10;
+        }
+
+        .settings-field-label {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 0.5rem;
+            letter-spacing: 0.05em; transition: color 0.2s;
+        }
+
+        body.shell-dark .settings-field-label { color: #9ca3af; }
+
+        .settings-field-group:focus-within .settings-field-label span:first-child {
+            color: #9333ea;
+        }
+
+        .settings-field-label-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-help-link {
+            font-size: 10px;
+            font-weight: 600;
+            color: #8b5cf6;
+            text-decoration: none;
+            transition: color .18s ease;
+        }
+
+        .settings-help-link:hover {
+            color: #7c3aed;
+            text-decoration: underline;
+        }
+
+        body.shell-dark .settings-help-link {
+            color: #a78bfa;
+        }
+
+        body.shell-dark .settings-help-link:hover {
+            color: #c4b5fd;
+        }
+
+        .settings-input-wrap {
+            position: relative;
+        }
+
+        .settings-input {
+            width: 100%; box-sizing: border-box; background: rgba(249, 250, 251, 0.5);
+            border: 1px solid #e5e7eb; border-radius: 1rem; padding: 0.75rem 1rem 0.75rem 2.5rem;
+            font-size: 14px; color: #1f2937; outline: none; transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        body.shell-dark .settings-input {
+            background: rgba(0, 0, 0, 0.3); border-color: rgba(63, 63, 70, 0.5); color: #e5e7eb;
+        }
+
+        .settings-input:focus {
+            border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+        }
+
+        .settings-input-icon {
+            position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
+            color: #9ca3af; font-size: 14px; transition: color 0.2s; pointer-events: none;
+        }
+
+        .settings-field-group:focus-within .settings-input-icon {
+            color: #9333ea;
+        }
+
+        .settings-pill {
+            font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+        }
+
+        .settings-pill-gray { background: rgba(229, 231, 235, 0.5); color: #6b7280; }
+        .settings-pill-purple { background: rgba(147, 51, 234, 0.1); color: #9333ea; }
+        .settings-pill-emerald { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+        body.shell-dark .settings-pill-gray { background: rgba(63, 63, 70, 0.5); color: #9ca3af; }
+        body.shell-dark .settings-pill-emerald { background: rgba(6, 78, 59, 0.3); color: #34d399; }
+
+        .settings-save-btn {
+            width: 100%; border: none; border-radius: 1rem; padding: 0.875rem;
+            background: linear-gradient(to right, #8b5cf6, #4f46e5); color: white;
+            font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden;
+        }
+
+        .settings-save-btn:hover {
+            opacity: 0.95; transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
+        }
+
+        .settings-save-btn:active { transform: scale(0.98); }
+
+        .settings-save-btn::after {
+            content: ''; position: absolute; width: 0; height: 0; background: rgba(255,255,255,0.1);
+            border-radius: 50%; transition: width 0.6s, height 0.6s;
+        }
+        .settings-save-btn:hover::after { width: 400px; height: 400px; }
+
+        /* 寮圭獥鍏抽棴鎸夐挳 - 瀵归綈 Nanobanana 椋庢牸 */
+        .settings-close-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            color: #6b7280;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 50;
+            padding: 0;
+            outline: none;
+        }
+
+        .settings-close-btn:hover {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            transform: rotate(90deg);
+        }
+
+        .settings-close-btn i {
+            font-size: 14px;
+        }
+
+        body.shell-dark .settings-close-btn {
+            background-color: #374151;
+            color: #9ca3af;
+        }
+
+        body.shell-dark .settings-close-btn:hover {
+            background-color: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .settings-close-btn i { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+        .settings-close-btn:hover i { transform: rotate(90deg); }
+
+        .shell-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 110;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            transition: background 0.18s ease, backdrop-filter 0.18s ease, -webkit-backdrop-filter 0.18s ease;
+            will-change: background, backdrop-filter;
+        }
+
+        .shell-modal.hidden {
+            display: none !important;
+        }
+
+        .shell-modal.modal-active {
+            background: rgba(15, 23, 42, 0.26);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        .shell-modal-panel {
+            width: min(100%, 460px);
+            max-height: min(88vh, 860px);
+            overflow: auto;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 24px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+            padding: 24px;
+            position: relative;
+            transform: translate3d(0, 18px, 0) scale(0.985);
+            opacity: 0;
+            transition: transform 0.14s ease, opacity 0.12s ease;
+            will-change: transform, opacity;
+            contain: layout paint;
+            backface-visibility: hidden;
+        }
+
+        .shell-modal.modal-active .shell-modal-panel {
+            transform: translate3d(0, 0, 0) scale(1);
+            opacity: 1;
+        }
+
+        .shell-modal.modal-closing .shell-modal-panel {
+            transform: translate3d(0, 12px, 0) scale(0.99);
+            opacity: 0;
+        }
+
+        body.shell-dark .shell-modal-panel {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(255,255,255,0.08);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+        }
+
+        .shell-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(241, 245, 249, 0.95);
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform .18s ease, background-color .18s ease, color .18s ease;
+        }
+
+        .shell-modal-close:hover {
+            transform: rotate(90deg);
+            background: rgba(226, 232, 240, 0.95);
+            color: #0f172a;
+        }
+
+        body.shell-dark .shell-modal-close {
+            background: rgba(30, 41, 59, 0.96);
+            color: #cbd5e1;
+        }
+
+        body.shell-dark .shell-modal-close:hover {
+            background: rgba(51, 65, 85, 0.96);
+            color: #f8fafc;
+        }
+
+        .shell-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 6px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #111827;
+        }
+
+        .shell-modal-desc {
+            margin: 0 0 18px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        body.shell-dark .shell-modal-title {
+            color: #f8fafc;
+        }
+
+        body.shell-dark .shell-modal-desc {
+            color: #94a3b8;
+        }
+
+        .price-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(248, 250, 252, 0.92);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .price-row strong {
+            font-size: 14px;
+            color: #111827;
+        }
+
+        .price-row span {
+            font-size: 13px;
+            font-weight: 800;
+            color: #c2410c;
+            white-space: nowrap;
+        }
+
+        body.shell-dark .price-row {
+            background: rgba(30, 41, 59, 0.92);
+            border-color: rgba(51, 65, 85, 0.9);
+        }
+
+        body.shell-dark .price-row strong {
+            color: #f8fafc;
+        }
+
+        body.shell-dark .price-row span {
+            color: #fdba74;
+        }
+
+        .price-note {
+            margin-top: 14px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .contact-card {
+            display: grid;
+            gap: 14px;
+        }
+
+        .contact-qr {
+            width: 100%;
+            border-radius: 20px;
+            padding: 10px;
+            background: rgba(248, 250, 252, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .contact-qr img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: 14px;
+        }
+
+        .contact-note {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(250, 245, 255, 0.92);
+            border: 1px solid rgba(233, 213, 255, 0.9);
+            color: #7e22ce;
+            font-size: 13px;
+            line-height: 1.7;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        body.shell-dark .contact-qr {
+            background: rgba(30, 41, 59, 0.92);
+            border-color: rgba(51, 65, 85, 0.9);
+        }
+
+        body.shell-dark .contact-note {
+            background: rgba(88, 28, 135, 0.32);
+            border-color: rgba(147, 51, 234, 0.28);
+            color: #e9d5ff;
+        }
+
+        @media (max-width: 1180px) {
+            body { padding: 12px; overflow: auto; }
+            .app-shell { height: auto; min-height: calc(100vh - 24px); }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar-right { justify-content: stretch; flex-wrap: wrap; }
+            .nav-cluster, .action-cluster { width: 100%; justify-content: center; flex-wrap: wrap; margin-left: 0; }
+            .model-tabs { width: 100%; justify-content: center; }
+            .model-tab { min-width: 0; flex: 1 1 180px; }
+            .content-shell { min-height: 78vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="toolbar">
+            <div class="toolbar-right">
+                <div class="nav-cluster">
+                    <nav class="model-tabs" id="model-tabs" aria-label="Model Tabs"></nav>
+                </div>
+
+                <div class="action-cluster">
+                    <button id="balance-display" class="tool-chip key-chip" onclick="refreshBalances()" title="刷新 Key 余额">
+                        <i id="balance-refresh-icon" class="fa-solid fa-wallet"></i>
+                        <span id="key-balance-text">Key: --</span>
+                    </button>
+
+                    <button id="account-balance-display" class="tool-chip account-chip hidden" onclick="refreshBalances()" title="刷新账户余额">
+                        <i id="account-refresh-icon" class="fa-solid fa-user"></i>
+                        <span id="account-balance-text">账户: --</span>
+                    </button>
+
+                    <button id="contact-btn" class="tool-chip contact-chip" type="button" title="联系我">
+                        <i class="fa-solid fa-users"></i>
+                        <span>联系我</span>
+                    </button>
+                    <button id="price-btn" class="tool-chip price-chip" type="button" title="价格表">
+                        <i class="fa-solid fa-tags"></i>
+                        <span>价格表</span>
+                    </button>
+
+                    <button id="theme-btn" class="icon-btn" title="切换深色/浅色模式">
+                        <i id="theme-btn-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                    
+                    <button id="settings-btn" class="icon-btn" title="设置">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div id="video-settings-modal" onclick="if(event.target===this)closeVideoSettings()"
+            class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/20 backdrop-blur-sm">
+            
+            <div class="settings-dialog">
+                <div class="settings-orb"></div>
+                <div class="settings-orb-2"></div>
+
+                <div class="settings-header-group">
+                    <h3 class="settings-title">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> API 偏好设置
+                    </h3>
+                    <button type="button" id="video-settings-close" class="settings-close-btn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="settings-field-group">
+                    <label class="settings-field-label">
+                        <span>默认 API Key</span>
+                        <span class="settings-pill settings-pill-gray">基础</span>
+                    </label>
+                    <div class="settings-input-wrap">
+                        <i class="fa-solid fa-key settings-input-icon"></i>
+                        <input type="password" id="nano-api-key-default" class="settings-input" placeholder="sk-xxxx">
+                    </div>
+                </div>
+
+                <div class="settings-field-group">
+                    <label class="settings-field-label">
+                        <span>Gemini 优质 API Key</span>
+                        <span class="settings-pill settings-pill-purple">高级</span>
+                    </label>
+                    <div class="settings-input-wrap">
+                        <i class="fa-solid fa-key settings-input-icon"></i>
+                        <input type="password" id="nano-api-key-gemini" class="settings-input" placeholder="sk-xxxx">
+                    </div>
+                </div>
+
+                <div class="settings-field-group">
+                    <label class="settings-field-label">
+                        <span>余额查询 Key</span>
+                        <span class="settings-pill settings-pill-emerald">账户</span>
+                    </label>
+                    <div class="settings-input-wrap">
+                        <i class="fa-solid fa-magnifying-glass-dollar settings-input-icon"></i>
+                        <input type="password" id="nano-api-key-query" class="settings-input" placeholder="系统令牌（非 API 令牌）">
+                    </div>
+                </div>
+
+                <div class="settings-field-group">
+                    <label class="settings-field-label">
+                        <span>用户 ID</span>
+                        <span class="settings-pill settings-pill-emerald">资料</span>
+                    </label>
+                    <div class="settings-input-wrap">
+                        <i class="fa-solid fa-id-badge settings-input-icon"></i>
+                        <input type="text" id="nano-user-id" class="settings-input" placeholder="例如 79084">
+                    </div>
+                </div>
+
+                <div class="settings-field-group">
+                    <label class="settings-field-label">
+                        <span>ImgBB Key</span>
+                        <span class="settings-field-label-inline">
+                            <a href="https://api.imgbb.com/" target="_blank" rel="noreferrer" class="settings-help-link">获取免费Key</a>
+                            <span class="settings-pill settings-pill-gray">图床</span>
+                        </span>
+                    </label>
+                    <div class="settings-input-wrap">
+                        <i class="fa-solid fa-image settings-input-icon"></i>
+                        <input type="password" id="veo-imgbb-key" class="settings-input" placeholder="用于图片托管">
+                    </div>
+                </div>
+
+                <div style="padding-top: 0.5rem;">
+                    <button id="video-settings-save" class="settings-save-btn">
+                        <i class="fa-solid fa-check"></i> 保存设置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="price-modal" class="shell-modal hidden" onclick="if(event.target===this)closePriceModal()">
+            <div class="shell-modal-panel">
+                <button type="button" class="shell-modal-close" aria-label="关闭价格表" onclick="closePriceModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <h3 class="shell-modal-title">
+                    <i class="fa-solid fa-file-invoice-dollar" style="color:#f59e0b;"></i>
+                    <span>价格表</span>
+                </h3>
+                <div class="price-list">
+                    <div class="price-row"><strong>Nano Banana 2 / Pro</strong><span>0.1 / 0.2 $</span></div>
+                    <div class="price-row"><strong>Veo 3.1 Fast</strong><span>0.2 $</span></div>
+                    <div class="price-row"><strong>Veo 3.1 / Com / Pro</strong><span>0.3 / 0.3 / 1 $</span></div>
+                    <div class="price-row"><strong>Veo 3.1 / Com / Pro (4K)</strong><span>0.5 / 0.5 / 2 $</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact-modal" class="shell-modal hidden" onclick="if(event.target===this)closeContactModal()">
+            <div class="shell-modal-panel" style="width:min(100%, 380px);">
+                <button type="button" class="shell-modal-close" aria-label="关闭联系我" onclick="closeContactModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <h3 class="shell-modal-title">
+                    <i class="fa-solid fa-users" style="color:#d946ef;"></i>
+                    <span>联系我</span>
+                </h3>
+                <div class="contact-card">
+                    <div class="contact-qr">
+                        <img src="geren.png" alt="联系二维码" onerror="this.style.display='none'">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="content-shell">
+            <iframe id="frame-grok" class="content-frame" title="Grok 3 Video" data-src="./grok3%20video.html?embedded=1" loading="lazy"></iframe>
+            <iframe id="frame-veo" class="content-frame" title="Veo 3.1 Video" data-src="./veo3.1.html?embedded=1" loading="lazy"></iframe>
+            <iframe id="frame-nano" class="content-frame" title="Nano Banana" data-src="./nanobanana.html?embedded=1" loading="lazy"></iframe>
+        </section>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'video_model_switcher_active_tab';
+        const MODELS = [
+            { id: 'nano', label: 'Nano Banana', desc: 'Image', logo: 'nanobanana.jpg', frameId: 'frame-nano' },
+            { id: 'grok', label: 'Grok 3', desc: 'Video', logo: 'grok.png', frameId: 'frame-grok' },
+            { id: 'veo', label: 'Veo 3.1', desc: 'Video', logo: 'veo3.1.png', frameId: 'frame-veo' }
+        ];
+
+        const BALANCE_CACHE_KEY = 'video_model_switcher_balance_cache';
+        const FRAME_UNLOAD_DELAY = 45000;
+        let activeModelId = null;
+        let balanceCache = loadBalanceCache();
+        let lastRefreshTime = 0; // 鐢ㄤ簬闃叉姈鎺у埗锛岄槻姝?29棰戠巼閿欒
+        let pendingBalanceRefreshTimer = null;
+        let pendingBalanceForce = false;
+        const frameUnloadTimers = {};
+
+        const tabsRoot = document.getElementById('model-tabs');
+        const frames = Object.fromEntries(MODELS.map(model => [model.id, document.getElementById(model.frameId)]));
+        const keyBalanceChip = document.getElementById('balance-display');
+        const keyBalanceText = document.getElementById('key-balance-text');
+        const balanceRefreshIcon = document.getElementById('balance-refresh-icon');
+        const accountBalanceChip = document.getElementById('account-balance-display');
+        const accountBalanceText = document.getElementById('account-balance-text');
+        const accountRefreshIcon = document.getElementById('account-refresh-icon');
+        const contactBtn = document.getElementById('contact-btn');
+        const priceBtn = document.getElementById('price-btn');
+        const themeBtn = document.getElementById('theme-btn');
+        const themeBtnIcon = document.getElementById('theme-btn-icon');
+        const settingsBtn = document.getElementById('settings-btn');
+        const videoSettingsModal = document.getElementById('video-settings-modal');
+        const videoSettingsSave = document.getElementById('video-settings-save');
+        const videoSettingsClose = document.getElementById('video-settings-close');
+        const priceModal = document.getElementById('price-modal');
+        const contactModal = document.getElementById('contact-modal');
+
+        // 鏂?ID 鏄犲皠鍙橀噺
+        const getSettingInputs = () => ({
+            default: document.getElementById('nano-api-key-default'),
+            gemini: document.getElementById('nano-api-key-gemini'),
+            query: document.getElementById('nano-api-key-query'),
+            userId: document.getElementById('nano-user-id'),
+            imgbb: document.getElementById('veo-imgbb-key')
+        });
+
+        // 鐩戝惉鏉ヨ嚜瀛愰〉闈㈢殑鍒锋柊淇″彿
+        function handleBalanceRefreshMessage(event) {
+            if (!event.data || event.data.type !== 'HUB_REFRESH_BALANCE') return;
+            const delay = Number(event.data.delay || 0);
+            const force = !!event.data.force;
+            console.log('[Hub] Received refresh balance signal', { delay, force });
+            queueBalanceRefresh(force, delay);
+        }
+
+        window.addEventListener('message', handleBalanceRefreshMessage);
+
+        function renderTabs(activeId) {
+            tabsRoot.innerHTML = MODELS.map(model => {
+                const activeClass = model.id === activeId ? ' active' : '';
+                const isActive = model.id === activeId;
+                return `
+                    <button class="model-tab${activeClass}" type="button" data-model-id="${model.id}" aria-current="${isActive ? 'page' : 'false'}">
+                        <div class="tab-icon">
+                            <img src="${model.logo}" alt="${model.label}" onerror="this.src='kitty.png'">
+                        </div>
+                        <span class="tab-copy">
+                            <strong>${model.label}</strong>
+                            <span>${model.desc}</span>
+                        </span>
+                    </button>
+                `;
+            }).join('');
+
+            tabsRoot.querySelectorAll('.model-tab').forEach(button => {
+                button.addEventListener('click', () => activateModel(button.dataset.modelId));
+            });
+        }
+
+        function getActiveFrame() {
+            return frames[activeModelId] || null;
+        }
+
+        function ensureFrameLoaded(modelId) {
+            const frame = frames[modelId];
+            if (!frame) return;
+            const src = frame.dataset.src;
+            clearTimeout(frameUnloadTimers[modelId]);
+            frame.dataset.unloaded = '0';
+            if (src && frame.getAttribute('src') !== src) {
+                frame.setAttribute('src', src);
+            }
+        }
+
+        function unloadFrame(modelId) {
+            const frame = frames[modelId];
+            if (!frame || modelId === activeModelId) return;
+            clearTimeout(frameUnloadTimers[modelId]);
+            try {
+                frame.contentWindow?.postMessage({ type: 'HUB_FRAME_VISIBILITY', active: false }, '*');
+            } catch (error) {}
+            frame.dataset.unloaded = '1';
+            if (frame.getAttribute('src')) {
+                frame.setAttribute('src', 'about:blank');
+            }
+        }
+
+        function scheduleFrameUnload(modelId) {
+            const frame = frames[modelId];
+            if (!frame || modelId === activeModelId || !frame.getAttribute('src')) return;
+            clearTimeout(frameUnloadTimers[modelId]);
+            frameUnloadTimers[modelId] = setTimeout(() => unloadFrame(modelId), FRAME_UNLOAD_DELAY);
+        }
+
+        function queueBalanceRefresh(force = false, delay = 0) {
+            pendingBalanceForce = pendingBalanceForce || !!force;
+            clearTimeout(pendingBalanceRefreshTimer);
+            pendingBalanceRefreshTimer = setTimeout(() => {
+                const shouldForce = pendingBalanceForce;
+                pendingBalanceForce = false;
+                pendingBalanceRefreshTimer = null;
+                refreshBalances(shouldForce);
+            }, Math.max(0, delay));
+        }
+
+        function getActiveWindow() {
+            const frame = getActiveFrame();
+            if (!frame) return null;
+            try {
+                return frame.contentWindow;
+            } catch {
+                return null;
+            }
+        }
+
+        function syncFrameVisibility(activeId) {
+            Object.entries(frames).forEach(([id, frame]) => {
+                try {
+                    frame.contentWindow?.postMessage({
+                        type: 'HUB_FRAME_VISIBILITY',
+                        active: id === activeId
+                    }, '*');
+                } catch (error) {}
+            });
+        }
+
+        function hideFrameHeaderControls(frame) {
+            try {
+                const doc = frame.contentDocument;
+                if (!doc || !doc.body) return;
+                doc.body.classList.add('embedded-shell');
+            } catch (error) {
+                console.warn('Hide frame header controls failed:', error);
+            }
+        }
+
+        function wrapFrameMethod(frame, methodName, afterCall) {
+            try {
+                const win = frame.contentWindow;
+                if (!win || typeof win[methodName] !== 'function') return;
+                const marker = `__hub_wrapped_${methodName}`;
+                if (win[marker]) return;
+                const original = win[methodName];
+                win[methodName] = function (...args) {
+                    const result = original.apply(this, args);
+                    if (result && typeof result.then === 'function') {
+                        return result.finally(() => setTimeout(() => afterCall(), 180));
+                    }
+                    setTimeout(() => afterCall(), 180);
+                    return result;
+                };
+                win[marker] = true;
+            } catch (error) {
+                console.warn(`Wrap ${methodName} failed:`, error);
+            }
+        }
+
+        function loadBalanceCache() {
+            try {
+                const raw = localStorage.getItem(BALANCE_CACHE_KEY);
+                const parsed = raw ? JSON.parse(raw) : {};
+                const serialized = JSON.stringify(parsed);
+                if (/[鐐瑰嚮鍒锋柊|璐︽埛|閿欒|鏃犻檺|妤糪]/.test(serialized)) {
+                    localStorage.removeItem(BALANCE_CACHE_KEY);
+                    return {};
+                }
+                return parsed;
+            } catch {
+                return {};
+            }
+        }
+
+        function persistBalanceCache() {
+            localStorage.setItem(BALANCE_CACHE_KEY, JSON.stringify(balanceCache));
+        }
+
+        function cacheBalanceSnapshot(modelId, snapshot) {
+            balanceCache[modelId] = { ...(balanceCache[modelId] || {}), ...snapshot };
+            persistBalanceCache();
+        }
+
+        function clearBalanceSnapshot(modelIds) {
+            modelIds.forEach((modelId) => delete balanceCache[modelId]);
+            persistBalanceCache();
+        }
+
+        function applyBalanceSnapshot(modelId) {
+            const snap = balanceCache[modelId] || {
+                keyText: `Key: --`,
+                accountText: '账户: --',
+                accountHidden: true
+            };
+            
+            keyBalanceText.innerText = snap.keyText;
+            keyBalanceChip.title = snap.keyTitle || '点击刷新';
+            
+            accountBalanceText.innerText = snap.accountText;
+            accountBalanceChip.title = snap.accountTitle || '点击刷新';
+            
+            accountBalanceChip.classList.toggle('hidden', !!snap.accountHidden);
+        }
+
+        function setChipLoading(loading) {
+            if (loading) {
+                balanceRefreshIcon.classList.add('fa-spin');
+                accountRefreshIcon.classList.add('fa-spin');
+            } else {
+                balanceRefreshIcon.classList.remove('fa-spin');
+                accountRefreshIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function getVideoSuccessCount(frame) {
+            try {
+                return frame.contentWindow.eval('Array.isArray(taskList) ? taskList.filter(t => t.status === "SUCCESS").length : 0');
+            } catch {
+                return 0;
+            }
+        }
+
+        function wrapVideoCompletionRefresh(frame) {
+            try {
+                const win = frame.contentWindow;
+                if (!win || typeof win.checkStatus !== 'function' || win.__hub_wrapped_checkStatus) return;
+                const original = win.checkStatus;
+                win.checkStatus = async function (...args) {
+                    const before = getVideoSuccessCount(frame);
+                    const result = await original.apply(this, args);
+                    const after = getVideoSuccessCount(frame);
+                    if (after > before) {
+                        setTimeout(() => refreshBalances(), 300);
+                    }
+                    return result;
+                };
+                win.__hub_wrapped_checkStatus = true;
+            } catch (error) {
+                console.warn('Wrap video completion failed:', error);
+            }
+        }
+
+        function enhanceFrame(frame) {
+            hideFrameHeaderControls(frame);
+            
+            // 寮哄姏鍚屾锛氬姞杞芥椂绔嬪嵆搴旂敤澶栧３褰撳墠鐨勪富棰?
+            const isShellDark = document.body.classList.contains('shell-dark');
+            try {
+                const win = frame.contentWindow;
+                const docEl = win.document.documentElement;
+                docEl.classList.toggle('dark', isShellDark);
+                win.document.body.classList.toggle('dark', isShellDark);
+                // 鍙戦€佹秷鎭互渚垮瓙椤甸潰鍐呴儴閫昏緫鍝嶅簲
+                win.postMessage({ type: 'HUB_THEME_CHANGE', isDark: isShellDark }, '*');
+            } catch(e) {}
+
+            // 寮哄姏鍒锋柊娉ㄥ叆锛氳瀛愰〉闈㈠湪浠讳綍浣欓鍙樺姩鎴栦换鍔℃垚鍔熸椂閫氱煡澶栧３
+            try {
+                const win = frame.contentWindow;
+                const injectBridge = () => {
+                    // 鍔寔 updateBalance (鐢ㄤ簬 Nano)
+                    // 绉婚櫎浜嗗姭鎸?updateBalance 浠ラ槻浜х敓鏃犻檺寰幆
+                    // 浠呭綋鐢ㄦ埛鎵嬪姩鎿嶄綔鎴栫敓鎴愭垚鍔熸椂鎵嶇敱瀛愰〉闈㈡樉寮忛€氱煡鍒锋柊
+                    // 鍔寔 submitTask (鐢ㄤ簬鎵€鏈夋ā鍨嬪悓姝?
+                    if (win.submitTask) {
+                        const originalSubmit = win.submitTask;
+                        win.submitTask = async function(...args) {
+                            const res = await originalSubmit.apply(this, args);
+                            // 鎸夌収鐢ㄦ埛瑕佹眰锛氱敓鎴愬悗寤惰繜 10 绉掑埛鏂颁綑棰?
+                            setTimeout(() => {
+                                window.parent.postMessage({ type: 'HUB_REFRESH_BALANCE', force: true }, '*');
+                            }, 10000);
+                            return res;
+                        };
+                    }
+                };
+                
+                if (win.document.readyState === 'complete') injectBridge();
+                else win.addEventListener('load', injectBridge);
+            } catch(e) {}
+            
+            // 绉婚櫎浜嗗姭鎸侀€昏緫涓殑鑷姩鍒锋柊锛屾敼涓虹粺涓€鐢?10s 寤惰繜瑙﹀彂
+            // wrapFrameMethod(frame, 'saveSettings', () => { syncShellThemeFromFrame(); refreshBalances(); });
+            wrapFrameMethod(frame, 'saveSettings', () => syncShellThemeFromFrame());
+            wrapFrameMethod(frame, 'toggleTheme', () => syncShellThemeFromFrame());
+            
+            // wrapFrameMethod(frame, 'selectModel', () => setTimeout(() => refreshBalances(), 100));
+
+            if (frame.id === 'frame-grok' || frame.id === 'frame-veo') {
+                // wrapVideoCompletionRefresh(frame); // 绉婚櫎浜嗗啑浣欏寘瑁?
+            }
+        }
+
+        function normalizeBaseUrl(baseUrl) {
+            return String(baseUrl || '')
+                .replace(/\/v1\/images\/(edits|generations)\/?$/, '')
+                .replace(/\/v1\/videos\/generations\/?$/, '')
+                .replace(/\/v2\/videos\/generations\/?$/, '')
+                .replace(/\/+$/, '');
+        }
+
+        const _c = ["aHR0cHM", "6Ly9hcGku", "Ymx0Y3kuYWk="];
+        const DEFAULT_API_URL = atob(_c[0] + _c[1] + _c[2]);
+
+        async function fetchKeyBalance(baseUrl, apiKey) {
+            const root = normalizeBaseUrl(baseUrl);
+            if (!root || !apiKey) return null;
+            try {
+                const response = await fetch(`${root}/v1/token/quota?_t=${Date.now()}`, {
+                    headers: { 'Authorization': `Bearer ${apiKey}` },
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || response.statusText);
+                
+                let quota = data.remain_quota !== undefined ? data.remain_quota : data.quota;
+                if (quota === undefined && data.total_quota !== undefined) {
+                    quota = data.total_quota - (data.total_usage || 0);
+                }
+                return { quota, title: `原始额度: ${quota}` };
+            } catch (err) {
+                console.error("Key Balance Fetch Error", err);
+                return { error: err.message };
+            }
+        }
+
+        async function fetchAccountBalance(baseUrl, queryKey, userId) {
+            const root = normalizeBaseUrl(baseUrl);
+            if (!root || !queryKey) return null;
+            try {
+                const headers = { 'Authorization': `Bearer ${queryKey}` };
+                if (userId) headers['New-API-User'] = userId;
+                
+                const response = await fetch(`${root}/api/user/self?_t=${Date.now()}`, {
+                    headers,
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error?.message || response.statusText);
+                
+                if (data && data.success && data.data) {
+                    return {
+                        quota: data.data.quota,
+                        username: data.data.username,
+                        title: `用户名: ${data.data.username}\n点击刷新`
+                    };
+                }
+                return { error: "格式异常" };
+            } catch (err) {
+                console.error("Account Balance Fetch Error", err);
+                return { error: err.message };
+            }
+        }
+
+        function getBalanceConfig() {
+            const baseUrl = DEFAULT_API_URL;
+            let apiKey = localStorage.getItem('nano_api_key_default') || '';
+            
+            if (activeModelId === 'nano') {
+                try {
+                    const win = getActiveWindow();
+                    const selectedGroup = win?.document?.querySelector('input[name="run_api_group"]:checked')?.value || 'default';
+                    apiKey = localStorage.getItem(`nano_api_key_${selectedGroup}`) || '';
+                } catch (e) {}
+            }
+            
+            return {
+                label: activeModelId === 'nano' ? 'Nano' : (activeModelId === 'grok' ? 'Grok' : 'Veo'),
+                baseUrl,
+                apiKey,
+                queryKey: localStorage.getItem('nano_api_key_query') || '',
+                userId: localStorage.getItem('nano_user_id') || ''
+            };
+        }
+
+        async function refreshBalances(force = false) {
+            // 寮哄姏闃叉姈锛氶槻姝?429 Too Many Requests
+            const now = Date.now();
+            if (!force && now - lastRefreshTime < 3000) {
+                console.log('[Hub] Refresh throttled to prevent 429');
+                return;
+            }
+            lastRefreshTime = now;
+
+            const config = getBalanceConfig();
+            if (!config) {
+                applyBalanceSnapshot(activeModelId);
+                return;
+            }
+
+            setChipLoading(true);
+            const { baseUrl, apiKey, queryKey, userId, label } = config;
+
+            const [keyRes, accRes] = await Promise.all([
+                fetchKeyBalance(baseUrl, apiKey),
+                fetchAccountBalance(baseUrl, queryKey, userId)
+            ]);
+
+            let keyText = `Key: --`;
+            let keyTitle = '';
+            if (keyRes) {
+                if (keyRes.error) {
+                    keyText = `Key: 错误`;
+                    keyTitle = keyRes.error;
+                } else {
+                    const quota = keyRes.quota;
+                    if (quota === -1 || quota > 1000000000 || quota < -0.01) {
+                        keyText = `Key: 无限`;
+                    } else {
+                        let balance = (quota < 1000) ? quota.toFixed(2) : (quota / 500000).toFixed(2);
+                        keyText = `Key: ${balance} $`;
+                    }
+                    keyTitle = keyRes.title;
+                }
+            }
+
+            let accountText = `账户: --`;
+            let accountTitle = '';
+            let accountHidden = !queryKey;
+
+            if (accRes) {
+                if (accRes.error) {
+                    accountText = `账户: 错误`;
+                    accountTitle = accRes.error;
+                } else {
+                    let balance = (accRes.quota / 500000).toFixed(2);
+                    accountText = `账户: ${balance} $`;
+                    accountTitle = accRes.title;
+                }
+            }
+
+            cacheBalanceSnapshot(activeModelId, {
+                keyText,
+                keyTitle,
+                accountText,
+                accountTitle,
+                accountHidden
+            });
+
+            applyBalanceSnapshot(activeModelId);
+            setChipLoading(false);
+        }
+
+        // 鐩戝惉鏉ヨ嚜鍚勫锛堝挨鍏舵槸瀛愰〉闈級鐨勫埛鏂颁俊鍙?
+        function syncShellThemeFromFrame() {
+            const win = getActiveWindow();
+            if (!win || !win.document) return;
+            const isDark = win.document.documentElement.classList.contains('dark') || 
+                          win.document.body.classList.contains('dark') ||
+                          localStorage.getItem('nano_theme') === 'dark' ||
+                          localStorage.getItem('veo_theme') === 'dark';
+            
+            applyThemeToShell(isDark);
+        }
+
+        function applyThemeToShell(isDark) {
+            document.body.classList.toggle('shell-dark', isDark);
+            themeBtnIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('hub_shell_theme', isDark ? 'dark' : 'light');
+            // 鍚屾椂鍚屾缁欏瓙椤甸潰鐨勫瓨鍌ㄦ爣璇?
+            localStorage.setItem('nano_theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('veo_theme', isDark ? 'dark' : 'light');
+        }
+
+        function toggleTheme() {
+            const isCurrentlyDark = document.body.classList.contains('shell-dark');
+            const targetDark = !isCurrentlyDark;
+            
+            applyThemeToShell(targetDark);
+            
+            // 寮哄姏鍒嗗彂锛氶亶鍘嗘墍鏈?iframe 杩涜 DOM 绾ц鐩?
+            Object.values(frames).forEach(frame => {
+                try {
+                    const win = frame.contentWindow;
+                    if (!win) return;
+                    
+                    // 1. 鐩存帴鎿嶄綔瀛愰〉闈?DOM (鏈€绋冲Ε)
+                    win.document.documentElement.classList.toggle('dark', targetDark);
+                    win.document.body.classList.toggle('dark', targetDark);
+                    win.postMessage({ type: 'HUB_THEME_CHANGE', isDark: targetDark }, '*');
+                } catch(e) {}
+            });
+        }
+
+        function callActiveFrameMethod(methodName) {
+            const win = getActiveWindow();
+            if (win && typeof win[methodName] === 'function') {
+                win[methodName]();
+            }
+        }
+
+        function showShellModal(modal) {
+            if (!modal) return;
+            modal.classList.remove('hidden', 'modal-closing');
+            requestAnimationFrame(() => {
+                modal.classList.add('modal-active');
+            });
+        }
+
+        function hideShellModal(modal) {
+            if (!modal || modal.classList.contains('hidden')) return;
+            modal.classList.remove('modal-active');
+            modal.classList.add('modal-closing');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('modal-closing');
+            }, 140);
+        }
+
+        function openVideoSettings() {
+            const inputs = getSettingInputs();
+            inputs.imgbb.value = localStorage.getItem('veo_imgbb_key') || '';
+            inputs.default.value = localStorage.getItem('nano_api_key_default') || '';
+            inputs.gemini.value = localStorage.getItem('nano_api_key_gemini') || '';
+            inputs.query.value = localStorage.getItem('nano_api_key_query') || '';
+            inputs.userId.value = localStorage.getItem('nano_user_id') || '';
+            showShellModal(videoSettingsModal);
+        }
+
+        function closeVideoSettings() {
+            hideShellModal(videoSettingsModal);
+        }
+
+        function openPriceModal() {
+            showShellModal(priceModal);
+        }
+
+        function closePriceModal() {
+            hideShellModal(priceModal);
+        }
+
+        function openContactModal() {
+            showShellModal(contactModal);
+        }
+
+        function closeContactModal() {
+            hideShellModal(contactModal);
+        }
+
+        function syncVideoFrameSettings() {
+            ['grok', 'veo'].forEach((modelId) => {
+                const frame = frames[modelId];
+                const win = frame?.contentWindow;
+                if (!win) return;
+                try {
+                    if (typeof win.loadSettings === 'function') win.loadSettings();
+                    if (typeof win.updateGenerateButtonPrice === 'function') win.updateGenerateButtonPrice();
+                } catch (error) {
+                    console.warn('Sync video frame settings failed:', error);
+                }
+            });
+        }
+
+        function syncNanoFrameSettings() {
+            const win = frames.nano?.contentWindow;
+            if (!win) return;
+            try {
+                if (typeof win.initApiKeys === 'function') win.initApiKeys();
+                if (typeof win.updateModelRestrictions === 'function') win.updateModelRestrictions();
+                if (typeof win.updateGenerateButtonPrice === 'function') win.updateGenerateButtonPrice();
+                if (typeof win.updateBalance === 'function') win.updateBalance();
+            } catch (error) {
+                console.warn('Sync nano frame settings failed:', error);
+            }
+        }
+
+        function saveVideoSettings() {
+            const inputs = getSettingInputs();
+            const nanoDefaultKey = inputs.default.value.trim();
+            const nanoGeminiKey = inputs.gemini.value.trim();
+            const nanoQueryKey = inputs.query.value.trim();
+            const nanoUserId = inputs.userId.value.trim();
+            const videoImgbbKey = inputs.imgbb.value.trim();
+
+            if (nanoDefaultKey) {
+                localStorage.setItem('nano_api_key_default', nanoDefaultKey);
+                localStorage.setItem('veo_api_key', nanoDefaultKey);
+            } else {
+                localStorage.removeItem('nano_api_key_default');
+                localStorage.removeItem('veo_api_key');
+            }
+
+            if (nanoGeminiKey) localStorage.setItem('nano_api_key_gemini', nanoGeminiKey);
+            else localStorage.removeItem('nano_api_key_gemini');
+
+            if (nanoQueryKey) localStorage.setItem('nano_api_key_query', nanoQueryKey);
+            else localStorage.removeItem('nano_api_key_query');
+
+            if (nanoUserId) localStorage.setItem('nano_user_id', nanoUserId);
+            else localStorage.removeItem('nano_user_id');
+
+            if (videoImgbbKey) localStorage.setItem('veo_imgbb_key', videoImgbbKey);
+            else localStorage.removeItem('veo_imgbb_key');
+
+            clearBalanceSnapshot(['grok', 'veo', 'nano']);
+            syncVideoFrameSettings();
+            syncNanoFrameSettings();
+            closeVideoSettings();
+
+            if (activeModelId === 'nano') {
+                setTimeout(() => refreshBalances(true), 220);
+            } else {
+                refreshBalances(true);
+            }
+        }
+
+        function activateModel(modelId) {
+            const nextId = MODELS.some(model => model.id === modelId) ? modelId : 'grok';
+            activeModelId = nextId;
+            renderTabs(nextId);
+            ensureFrameLoaded(nextId);
+
+            Object.entries(frames).forEach(([id, frame]) => {
+                frame.classList.toggle('active', id === nextId);
+            });
+
+            syncFrameVisibility(nextId);
+            Object.keys(frames).forEach((id) => {
+                if (id === nextId) {
+                    clearTimeout(frameUnloadTimers[id]);
+                } else {
+                    scheduleFrameUnload(id);
+                }
+            });
+
+            localStorage.setItem(STORAGE_KEY, nextId);
+            const nextModel = MODELS.find(model => model.id === nextId);
+            document.title = 'Xs的工具箱';
+            syncShellThemeFromFrame();
+
+            applyBalanceSnapshot(nextId);
+            queueBalanceRefresh(true, 120);
+        }
+
+        MODELS.forEach(model => {
+            const frame = frames[model.id];
+            frame.addEventListener('load', () => {
+                if (frame.dataset.unloaded === '1' && frame.getAttribute('src') === 'about:blank') return;
+                enhanceFrame(frame);
+                syncFrameVisibility(activeModelId);
+                if (model.id === activeModelId) {
+                    syncShellThemeFromFrame();
+                    if (model.id === 'nano') {
+                        queueBalanceRefresh(true, 120);
+                    } else {
+                        applyBalanceSnapshot(model.id);
+                    }
+                }
+            });
+        });
+
+        contactBtn.addEventListener('click', openContactModal);
+        priceBtn.addEventListener('click', openPriceModal);
+        themeBtn.addEventListener('click', toggleTheme);
+        settingsBtn.addEventListener('click', openVideoSettings);
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            closeVideoSettings();
+            closePriceModal();
+            closeContactModal();
+        });
+        
+        // 寮哄姏鐩戝惉锛氭帴鏀舵潵鑷?iframe 鐨勫埛鏂版寚浠?
+        window.addEventListener('DOMContentLoaded', () => {
+            function initShell() {
+                const savedTheme = localStorage.getItem('hub_shell_theme') || 
+                                  localStorage.getItem('nano_theme') || 
+                                  localStorage.getItem('veo_theme');
+                if (savedTheme === 'dark') {
+                    applyThemeToShell(true);
+                }
+
+                renderTabs(activeModelId);
+                setTimeout(() => syncShellThemeFromFrame(), 300);
+            }
+            initShell();
+            activateModel(localStorage.getItem(STORAGE_KEY) || MODELS[0].id);
+        });
+        videoSettingsClose.addEventListener('click', closeVideoSettings);
+        videoSettingsSave.addEventListener('click', saveVideoSettings);
+        videoSettingsModal.addEventListener('click', (event) => {
+            if (event.target === videoSettingsModal) {
+                closeVideoSettings();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
