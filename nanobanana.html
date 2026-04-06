@@ -189,7 +189,7 @@
         }
 
         .resizer-y::before {
-            content: "鈥⑩€⑩€?;
+            content: "...";
             color: #9ca3af;
             font-size: 10px;
             letter-spacing: 2px;
@@ -522,7 +522,7 @@
             }
         }
 
-        /* ========== 浜掑姩 UI 鍔ㄦ晥 ========== */
+        /* ========== 互动 UI 动效 ========== */
         #dropdown-options:not(.hidden),
         #ratio-options:not(.hidden) {
             animation: dropdownIn 0.22s ease-out forwards;
@@ -812,7 +812,7 @@
             <button onclick="toggleTheme()" title="切换深色/浅色模式"
                 class="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[#18181b] transition"><i
                     id="theme-icon" class="fa-solid fa-moon text-gray-800 dark:text-amber-400"></i></button>
-            <button onclick="openSettings()" title="璁剧疆"
+            <button onclick="openSettings()" title="设置"
                 class="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-[#18181b] dark:text-gray-400 transition"><i
                     class="fa-solid fa-gear text-lg"></i></button>
         </div>
@@ -1404,7 +1404,7 @@
             <button onclick="cancelEdit()"
                 class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full text-sm font-bold shadow-lg transition">取消</button>
             <button onclick="saveEdit()"
-                class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full text-sm font-bold shadow-lg shadow-indigo-500/30 transition">纭淇敼</button>
+                class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full text-sm font-bold shadow-lg shadow-indigo-500/30 transition">确认修改</button>
         </div>
         <div id="canvas-wrapper"
             class="relative flex items-center justify-center bg-[#111] rounded-xl overflow-hidden border border-gray-800"
@@ -1478,7 +1478,7 @@
             <div class="relative z-10">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 flex items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> API 鍋忓ソ璁剧疆
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> API 偏好设置
                     </h3>
                     <button onclick="closeSettings()"
                         class="settings-close-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 hover:text-gray-800 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-200">
@@ -1490,7 +1490,7 @@
                     <div class="group">
                         <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wider group-focus-within:text-purple-500 transition-colors flex items-center justify-between">
                             <span>Default API Key</span>
-                            <span class="text-[10px] bg-gray-200/50 dark:bg-gray-700/50 px-2 py-0.5 rounded-full text-gray-500 dark:text-gray-400">鍩虹閰嶇疆</span>
+                            <span class="text-[10px] bg-gray-200/50 dark:bg-gray-700/50 px-2 py-0.5 rounded-full text-gray-500 dark:text-gray-400">基础配置</span>
                         </label>
                         <div class="relative">
                             <input type="password" id="modal-api-key-default"
@@ -1540,7 +1540,7 @@
                         <div class="relative">
                             <input type="text" id="modal-user-id"
                                 class="w-full bg-gray-50/50 dark:bg-black/30 border border-gray-200 focus:border-emerald-500 dark:border-gray-700/50 rounded-2xl py-3 pl-10 pr-4 text-sm text-gray-800 dark:text-gray-200 outline-none focus:ring-[3px] focus:ring-emerald-500/20 transition-all shadow-inner"
-                                placeholder="鍦ㄤ釜浜轰腑蹇冩煡鐪嬶紝濡?79084" autocomplete="off">
+                                placeholder="在个人中心查看，例如 79084" autocomplete="off">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-id-badge text-gray-400 group-focus-within:text-emerald-500 transition-colors drop-shadow-sm"></i>
                             </div>
@@ -1791,9 +1791,7 @@
                 initApiKeys();
 
                 const savedTheme = localStorage.getItem('nano_theme');
-                const icon = document.getElementById('theme-icon');
-                if (savedTheme === 'dark') { document.documentElement.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; }
-                else { document.documentElement.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; }
+                applyThemeState(savedTheme === 'dark');
                 ctx = canvas.getContext('2d');
                 document.getElementById('text-tool-input').addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') finalizeText();
@@ -2024,12 +2022,12 @@
                     accountValSpan.innerText = `账户: ${balance} $`;
                                 accountDisplay.title = `用户: ${data.data.username}\n原始余额: ${quota}\n点击刷新`;
                             } else {
-                                accountValSpan.innerText = "鏍煎紡寮傚父";
+                                accountValSpan.innerText = "格式异常";
                                 accountDisplay.title = `返回数据: ${JSON.stringify(data).substring(0, 200)}\n点击重试`;
                             }
                         }
                     } catch (e) {
-                        accountValSpan.innerText = "缃戠粶/璺ㄥ煙";
+                        accountValSpan.innerText = "网络/跨域";
                         accountDisplay.title = `连接失败: ${e.message}\n请检查网络或浏览器跨域设置`;
                         console.error("Account Balance Error:", e);
                     } finally {
@@ -2280,7 +2278,7 @@
                     startCropDrag(e, 'move');
                 }, { passive: false });
 
-                // 鎷栨嫿鎵嬫焺
+                // 拖拽手柄
                 document.querySelectorAll('.crop-handle').forEach(handle => {
                     handle.addEventListener('mousedown', (e) => {
                         e.stopPropagation();
@@ -2325,7 +2323,7 @@
                     nx = Math.max(0, Math.min(nx, cw - nw));
                     ny = Math.max(0, Math.min(ny, ch - nh));
                 } else {
-                    // 鎵嬫焺鎷栨嫿
+                    // 手柄拖拽
                     if (cropDragType.includes('l')) {
                         nx = cropBoxStart.x + dx;
                         nw = cropBoxStart.w - dx;
@@ -2527,10 +2525,15 @@
             }
             function unlockPrompt() { manualUnlock = true; updatePromptLockState(); }
 
+            function applyThemeState(isDark) {
+                document.documentElement.classList.toggle('dark', isDark);
+                if (document.body) document.body.classList.toggle('dark', isDark);
+                const icon = document.getElementById('theme-icon');
+                if (icon) icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-gray-800';
+                localStorage.setItem('nano_theme', isDark ? 'dark' : 'light');
+            }
             function toggleTheme() {
-                const html = document.documentElement; const icon = document.getElementById('theme-icon');
-                if (html.classList.contains('dark')) { html.classList.remove('dark'); icon.className = 'fa-solid fa-moon text-gray-800'; localStorage.setItem('nano_theme', 'light'); }
-                else { html.classList.add('dark'); icon.className = 'fa-solid fa-sun text-amber-400'; localStorage.setItem('nano_theme', 'dark'); }
+                applyThemeState(!document.documentElement.classList.contains('dark'));
             }
             function openSettings() {
                 const modal = document.getElementById('settings-modal');
@@ -2557,10 +2560,71 @@
 
                 }, 320);
             }
-            function showBalanceAlert() {
+            let loaderHideTimer = null;
+            function hideCustomLoader() {
                 const loader = document.getElementById('custom-loader');
                 if (loader) loader.classList.add('hidden');
+            }
+            function showBalanceAlert() {
+                if (loaderHideTimer) {
+                    clearTimeout(loaderHideTimer);
+                    loaderHideTimer = null;
+                }
+                hideCustomLoader();
                 document.getElementById('balance-alert-modal').classList.remove('hidden');
+            }
+            function resetLoaderState() {
+                ensureLoaderExists();
+                const loader = document.getElementById('custom-loader');
+                const loaderStatus = document.getElementById('loader-status');
+                const loaderDetail = document.getElementById('loader-detail');
+                const loaderBar = document.getElementById('loader-bar');
+                const loaderPercent = document.getElementById('loader-percent');
+
+                if (loaderHideTimer) {
+                    clearTimeout(loaderHideTimer);
+                    loaderHideTimer = null;
+                }
+                if (loader) loader.classList.remove('hidden');
+                if (loaderStatus) loaderStatus.innerText = 'AI 生成中...';
+                if (loaderDetail) loaderDetail.innerText = '正在请求 API...';
+                if (loaderBar) {
+                    loaderBar.style.width = '0%';
+                    loaderBar.classList.remove('bg-red-500');
+                    loaderBar.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-indigo-600');
+                }
+                if (loaderPercent) loaderPercent.innerText = '...';
+            }
+            function normalizeTaskErrorMessage(err) {
+                const rawMessage = String(err?.message || '').trim();
+                if (!rawMessage) return '生成失败，请稍后重试';
+                if (/饱和|繁忙|稍后再试|过载|overload|overloaded|busy|capacity/i.test(rawMessage)) {
+                    return `上游饱和：${rawMessage}`;
+                }
+                return rawMessage;
+            }
+            function showTaskFailure(message) {
+                ensureLoaderExists();
+                const loader = document.getElementById('custom-loader');
+                const loaderStatus = document.getElementById('loader-status');
+                const loaderDetail = document.getElementById('loader-detail');
+                const loaderBar = document.getElementById('loader-bar');
+                const loaderPercent = document.getElementById('loader-percent');
+
+                if (loader) loader.classList.remove('hidden');
+                if (loaderStatus) loaderStatus.innerText = '生成失败';
+                if (loaderDetail) loaderDetail.innerText = message;
+                if (loaderBar) {
+                    loaderBar.style.width = '100%';
+                    loaderBar.classList.remove('bg-gradient-to-r', 'from-purple-500', 'to-indigo-600');
+                    loaderBar.classList.add('bg-red-500');
+                }
+                if (loaderPercent) loaderPercent.innerText = 'FAIL';
+                if (loaderHideTimer) clearTimeout(loaderHideTimer);
+                loaderHideTimer = setTimeout(() => {
+                    hideCustomLoader();
+                    loaderHideTimer = null;
+                }, 1500);
             }
             function saveSettings() {
                 const keyDefault = document.getElementById('modal-api-key-default').value.trim();
@@ -3061,12 +3125,15 @@
             }
 
             async function pollTaskResult(taskId, apiKey, baseUrl) {
-                const pollInterval = 3000;
-                const maxAttempts = 100; // 300绉掕秴鏃?
+                const pollInterval = 5000;
+                const maxPollDuration = 20 * 60 * 1000; // 最长轮询 20 分钟，避免慢任务被误判失败
+                const maxAttempts = Math.ceil(maxPollDuration / pollInterval);
+                const pollStartedAt = Date.now();
                 const loaderStatus = document.getElementById('loader-status');
                 const loaderDetail = document.getElementById('loader-detail');
                 const loaderBar = document.getElementById('loader-bar');
                 const loaderPercent = document.getElementById('loader-percent');
+                const shortTaskId = taskId.slice(0, 8);
 
                 for (let attempt = 0; attempt < maxAttempts; attempt++) {
                     try {
@@ -3078,7 +3145,9 @@
                         // 处理 HTTP 错误或接口报错
                         if (!response.ok || resData.code === 'error' || resData.status === 'error') {
                             const msg = resData.message || resData.error?.message || "查询任务失败";
-                            throw new Error(msg);
+                            const err = new Error(msg);
+                            err.isTerminal = true;
+                            throw err;
                         }
 
                         const task = resData.data;
@@ -3088,19 +3157,24 @@
                         const status = (task.status || "").toUpperCase();
                         
                         // 成功状态
-                        if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'FINISHED') {
+                        if (['SUCCESS', 'SUCCEEDED', 'COMPLETED', 'FINISHED', 'DONE'].includes(status)) {
                             return task.data.data; 
                         }
                         
                         // 失败状态：扩充关键词，增加 fail_reason 判断
                         if (['FAILED', 'FAILURE', 'ERROR', 'FAIL', '失败'].includes(status) || task.fail_reason) {
-                            throw new Error(task.fail_reason || `任务生成失败 (状态: ${status})`);
+                            const err = new Error(task.fail_reason || `任务生成失败 (状态: ${status})`);
+                            err.isTerminal = true;
+                            err.taskStatus = status;
+                            err.isSaturated = /饱和|繁忙|稍后再试|过载|overload|overloaded|busy|capacity/i.test(err.message);
+                            throw err;
                         }
 
                         // 更新轮询进度
                         if (loaderStatus) loaderStatus.innerText = "图像生成中...";
-                        const progress = task.progress || (['PENDING', 'QUEUE', 'WAITING'].includes(status) ? '排队中' : '制作中');
-                        if (loaderDetail) loaderDetail.innerText = `进度: ${progress} (ID: ${taskId.slice(0, 8)})`;
+                        const elapsedSeconds = Math.floor((Date.now() - pollStartedAt) / 1000);
+                        const progress = task.progress || (['PENDING', 'QUEUE', 'WAITING', 'PROCESSING', 'RUNNING', 'IN_PROGRESS'].includes(status) ? '排队中' : '制作中');
+                        if (loaderDetail) loaderDetail.innerText = `进度: ${progress} | 任务ID: ${shortTaskId} | 已等待: ${elapsedSeconds}s`;
                         
                         if (loaderBar && task.progress) {
                             const pVal = parseInt(task.progress);
@@ -3112,16 +3186,16 @@
 
                         await new Promise(r => setTimeout(r, pollInterval));
                     } catch (e) {
-                        console.error("杞寮傚父:", e);
+                        console.error("轮询异常:", e);
                         // 如果错误消息包含明确的失败标识，或者达到最大尝试次数，则抛出异常停止轮询
-                        if (e.message.includes("失败") || e.message.includes("error") || attempt === maxAttempts - 1) {
+                        if (e.isTerminal || e.message.includes("失败") || e.message.includes("error") || attempt === maxAttempts - 1) {
                             throw e;
                         }
                         // 网络抖动等其他情况继续重试
                         await new Promise(r => setTimeout(r, pollInterval));
                     }
                 }
-                throw new Error("生成任务查询超时，请刷新重试");
+                throw new Error(`任务轮询超时，但任务可能仍在后台继续执行。请先到中转站确认任务 ${shortTaskId} 是否已完成，不要立即重复提交。`);
             }
 
             async function submitTask() {
@@ -3147,6 +3221,7 @@
                 if (!finalPrompt) { alert("请输入提示词"); return; }
 
                 ensureLoaderExists();
+                resetLoaderState();
                 btn.disabled = true; btn.classList.add('opacity-70', 'cursor-not-allowed'); icon.classList.remove('hidden');
 
                 const validImages = imageSlots.filter(item => item !== null); originalRefImage = null;
@@ -3169,46 +3244,47 @@
                 document.getElementById('loader-detail').innerText = "正在请求 API...";
 
                 const startTime = Date.now();
-                const sendRequest = async (retryCount = 0) => {
+                const sendRequest = async () => {
                     const isTxt2Img = compressedImages.length === 0; let endpoint, body, headers;
                     headers = { 'Authorization': `Bearer ${apiKey}` };
 
                     let requestModelName = modelName;
 
-                    try {
-                        if (isTxt2Img) {
-                            endpoint = `${baseUrl}/v1/images/generations?async=true`; headers['Content-Type'] = 'application/json';
-                            body = JSON.stringify({ model: requestModelName, prompt: finalPrompt, aspect_ratio: ratio, image_size: size, n: 1, response_format: 'url' });
-                        } else {
-                            endpoint = `${baseUrl}/v1/images/edits?async=true`; const formData = new FormData();
-                            formData.append('model', requestModelName); formData.append('prompt', finalPrompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', 1); formData.append('response_format', 'url');
-                            compressedImages.forEach((file) => formData.append('image', file)); body = formData;
-                        }
-                        const response = await fetch(endpoint, { method: 'POST', headers: headers, body: body });
-                        const data = await response.json();
-                        if (!response.ok) {
-                            const msg = data.error?.message || "请求失败";
-                            const errCode = (data.error?.code || data.error?.type || "").toLowerCase();
-                            const err = new Error(msg);
-                            // 余额不足检测：消息关键词 + 错误码 + HTTP 402
-                            err.isBalanceError = /insufficient|quota|balance|credit|余额|欠费|用量|limit exceeded|not enough/i.test(msg)
-                                || /insufficient|balance|quota|credit|payment/i.test(errCode)
-                                || response.status === 402;
-                            throw err;
-                        }
-                        if (data.task_id) {
-                            return await pollTaskResult(data.task_id, apiKey, baseUrl);
-                        }
-                        return data.data || (data.url ? [{ url: data.url }] : []);
-                    } catch (e) {
-                        if (e.isBalanceError) throw e; // 余额不足直接抛出，不重试
-                        if (retryCount < 1) { // 简单重试逻辑
-                            console.warn("请求失败，尝试重试...");
-                            await new Promise(r => setTimeout(r, 2000));
-                            return sendRequest(retryCount + 1);
-                        }
-                        throw e;
+                    if (isTxt2Img) {
+                        endpoint = `${baseUrl}/v1/images/generations?async=true`; headers['Content-Type'] = 'application/json';
+                        body = JSON.stringify({ model: requestModelName, prompt: finalPrompt, aspect_ratio: ratio, image_size: size, n: 1, response_format: 'url' });
+                    } else {
+                        endpoint = `${baseUrl}/v1/images/edits?async=true`; const formData = new FormData();
+                        formData.append('model', requestModelName); formData.append('prompt', finalPrompt); formData.append('aspect_ratio', ratio); formData.append('image_size', size); formData.append('n', 1); formData.append('response_format', 'url');
+                        compressedImages.forEach((file) => formData.append('image', file)); body = formData;
                     }
+                    let response;
+                    try {
+                        response = await fetch(endpoint, { method: 'POST', headers: headers, body: body });
+                    } catch (networkError) {
+                        throw new Error(`任务提交失败。为避免重复创建任务，页面已停止自动重试；请先到中转站确认是否已经生成任务。${networkError?.message ? ` 原因: ${networkError.message}` : ''}`);
+                    }
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        const msg = data.error?.message || "请求失败";
+                        const errCode = (data.error?.code || data.error?.type || "").toLowerCase();
+                        const err = new Error(msg);
+                        // 余额不足检测：消息关键词 + 错误码 + HTTP 402
+                        err.isBalanceError = /insufficient|quota|balance|credit|余额|欠费|用量|limit exceeded|not enough/i.test(msg)
+                            || /insufficient|balance|quota|credit|payment/i.test(errCode)
+                            || response.status === 402;
+                        throw err;
+                    }
+
+                    if (data.task_id) {
+                        if (document.getElementById('loader-detail')) {
+                            document.getElementById('loader-detail').innerText = `任务已提交，任务ID: ${data.task_id.slice(0, 8)}，正在等待处理...`;
+                        }
+                        return await pollTaskResult(data.task_id, apiKey, baseUrl);
+                    }
+
+                    return data.data || (data.url ? [{ url: data.url }] : []);
                 };
 
                 try {
@@ -3216,9 +3292,14 @@
                     const outcomes = await Promise.allSettled(requestPromises);
                     const allResults = [];
                     let hasBalErr = false;
+                    let firstError = null;
                     outcomes.forEach(outcome => {
                         if (outcome.status === 'fulfilled') { allResults.push(...outcome.value); }
-                        else { console.error("部分请求失败:", outcome.reason); if (outcome.reason?.isBalanceError) hasBalErr = true; }
+                        else {
+                            console.error("部分请求失败:", outcome.reason);
+                            if (!firstError) firstError = outcome.reason;
+                            if (outcome.reason?.isBalanceError) hasBalErr = true;
+                        }
                     });
                     const duration = ((Date.now() - startTime) / 1000).toFixed(1) + 's';
 
@@ -3233,14 +3314,20 @@
                         if (window.innerWidth < 768) { setTimeout(() => { document.getElementById('preview-section-wrapper').scrollIntoView({ behavior: 'smooth' }); }, 100); }
                     } else {
                         if (hasBalErr) { showBalanceAlert(); }
-                        else { alert("生成失败，请检查设置或稍后重试"); }
-                        document.getElementById('custom-loader').classList.add('hidden');
+                        else {
+                            const failureMessage = normalizeTaskErrorMessage(firstError);
+                            showTaskFailure(failureMessage);
+                            alert(failureMessage);
+                        }
                     }
                 } catch (err) {
                     console.error(err);
                     if (err.isBalanceError) { showBalanceAlert(); }
-                    else { alert("错误: " + err.message); }
-                    document.getElementById('custom-loader').classList.add('hidden');
+                    else {
+                        const failureMessage = normalizeTaskErrorMessage(err);
+                        showTaskFailure(failureMessage);
+                        alert(failureMessage);
+                    }
                 } finally {
                     btn.disabled = false; btn.classList.remove('opacity-70', 'cursor-not-allowed'); icon.classList.add('hidden');
                     updateGenerateButtonPrice();
@@ -3626,7 +3713,7 @@
                     agentPromptLib = [
                         {
                             id: Date.now(),
-                            title: "浜虹墿鍦烘櫙",
+                            title: "人物场景",
                             content: "你是一名专业的商业视觉分析师，请帮助我拆解图片中的构图、光线、主体位置和风格关键词。",
                             user: "请详细分析这张图片的画面内容、人物动作、镜头角度、光影关系和整体色调，并整理成适合继续生成相似图片的提示词。"
                         }
@@ -3795,10 +3882,7 @@
             window.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'HUB_THEME_CHANGE') {
                     const isDark = event.data.isDark;
-                    document.documentElement.classList.toggle('dark', isDark);
-                    localStorage.setItem('nano_theme', isDark ? 'dark' : 'light');
-                    if (typeof applyTheme === 'function') applyTheme(isDark);
-                    else if (typeof toggleTheme === 'function' && document.documentElement.classList.contains('dark') !== isDark) toggleTheme();
+                    applyThemeState(!!isDark);
                 }
             });
         </script>
