@@ -2324,7 +2324,7 @@
                 if (quota === undefined && data.total_quota !== undefined) {
                     quota = data.total_quota - (data.total_usage || 0);
                 }
-                return { quota, title: `原始额度: ${quota}` };
+                return { quota, title: `原始额度: ${quota}`, raw: data };
             } catch (err) {
                 console.error("Key Balance Fetch Error", err);
                 return { error: err.message };
@@ -2419,7 +2419,13 @@
                     keyTitle = keyRes.error;
                 } else {
                     const quota = keyRes.quota;
-                    if (quota === -1 || quota > 1000000000 || quota < -0.01) {
+                    const raw = keyRes.raw || {};
+                    const hasUsedFields = raw.total_usage !== undefined || raw.used_quota !== undefined || raw.used !== undefined || raw.consumed_quota !== undefined;
+                    const explicitUnlimited = raw.unlimited === true || raw.is_unlimited === true || raw.total_quota === -1 || raw.remain_quota === -1;
+                    // 兼容部分中转站：无限令牌返回 quota=0，但会同时返回已用额度字段
+                    const zeroQuotaButUnlimited = Number(quota) === 0 && hasUsedFields && (raw.remain_quota === undefined && raw.total_quota === undefined);
+
+                    if (explicitUnlimited || zeroQuotaButUnlimited || quota === -1 || quota > 1000000000 || quota < -0.01) {
                         keyText = `Key: 无限`;
                     } else {
                         let balance = (quota < 1000) ? quota.toFixed(2) : (quota / 500000).toFixed(2);
