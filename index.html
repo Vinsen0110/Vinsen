@@ -1352,12 +1352,12 @@
                 </div>
 
                 <div class="action-cluster">
-                    <button id="balance-display" class="tool-chip key-chip" onclick="refreshBalances()" title="刷新 Key 余额">
+                    <button id="balance-display" class="tool-chip key-chip" onclick="refreshBalances(true)" title="刷新 Key 余额">
                         <i id="balance-refresh-icon" class="fa-solid fa-wallet"></i>
                         <span id="key-balance-text">Key: --</span>
                     </button>
 
-                    <button id="account-balance-display" class="tool-chip account-chip hidden" onclick="refreshBalances()" title="刷新账户余额">
+                    <button id="account-balance-display" class="tool-chip account-chip hidden" onclick="refreshBalances(true)" title="刷新账户余额">
                         <i id="account-refresh-icon" class="fa-solid fa-user"></i>
                         <span id="account-balance-text">账户: --</span>
                     </button>
@@ -2117,18 +2117,45 @@
             localStorage.setItem(BALANCE_CACHE_KEY, JSON.stringify(balanceCache));
         }
 
+        function getModelGroupAlias(modelId) {
+            if (modelId !== 'nano' && modelId !== 'gpt-image-2') return '';
+            try {
+                const frame = frames[modelId];
+                const win = frame?.contentWindow;
+                const raw = win?.document?.querySelector('input[name="run_api_group"]:checked')?.value || 'default';
+                const group = String(raw).trim().toLowerCase();
+                if (!group || group === 'default') return 'default';
+                if (group.includes('gemini')) return 'gemini';
+                return 'default';
+            } catch {
+                return 'default';
+            }
+        }
+
+        function getBalanceSnapshotKey(modelId) {
+            const alias = getModelGroupAlias(modelId);
+            return alias ? `${modelId}|${alias}` : modelId;
+        }
+
         function cacheBalanceSnapshot(modelId, snapshot) {
-            balanceCache[modelId] = { ...(balanceCache[modelId] || {}), ...snapshot };
+            const key = getBalanceSnapshotKey(modelId);
+            balanceCache[key] = { ...(balanceCache[key] || {}), ...snapshot };
             persistBalanceCache();
         }
 
         function clearBalanceSnapshot(modelIds) {
-            modelIds.forEach((modelId) => delete balanceCache[modelId]);
+            modelIds.forEach((modelId) => {
+                delete balanceCache[modelId];
+                Object.keys(balanceCache).forEach((key) => {
+                    if (key.startsWith(`${modelId}|`)) delete balanceCache[key];
+                });
+            });
             persistBalanceCache();
         }
 
         function applyBalanceSnapshot(modelId) {
-            const snap = balanceCache[modelId] || {
+            const key = getBalanceSnapshotKey(modelId);
+            const snap = balanceCache[key] || balanceCache[modelId] || {
                 keyText: `Key: --`,
                 accountText: '账户: --',
                 accountHidden: true
@@ -2220,6 +2247,16 @@
                         setTimeout(() => win.renderSlots(), 260);
                     }
 
+                    if ((frame.id === 'frame-nano' || frame.id === 'frame-gpt-image-2') && !win.__hub_group_change_listener) {
+                        win.document.addEventListener('change', (event) => {
+                            const target = event.target;
+                            if (target && target.matches && target.matches('input[name="run_api_group"]')) {
+                                setTimeout(() => refreshBalances(true), 80);
+                            }
+                        });
+                        win.__hub_group_change_listener = true;
+                    }
+
                     // 只在真实提交完成后通知主壳刷新余额，避免循环刷新
                     if (win.submitTask && !win.__hub_wrapped_submitTask) {
                         const originalSubmit = win.submitTask;
@@ -2294,6 +2331,13 @@
             }
         }
 
+        function mapRunGroupToKeyAlias(rawGroup) {
+            const group = String(rawGroup || '').trim().toLowerCase();
+            if (!group || group === 'default') return 'default';
+            if (group.includes('gemini')) return 'gemini';
+            return 'default';
+        }
+
         async function fetchAccountBalance(baseUrl, queryKey, userId) {
             const root = normalizeBaseUrl(baseUrl);
             if (!root || !queryKey) return null;
@@ -2330,7 +2374,8 @@
                 try {
                     const win = getActiveWindow();
                     const selectedGroup = win?.document?.querySelector('input[name="run_api_group"]:checked')?.value || 'default';
-                    apiKey = localStorage.getItem(`nano_api_key_${selectedGroup}`) || '';
+                    const keyAlias = mapRunGroupToKeyAlias(selectedGroup);
+                    apiKey = localStorage.getItem(`nano_api_key_${keyAlias}`) || localStorage.getItem('nano_api_key_default') || '';
                 } catch (e) {}
             }
             
