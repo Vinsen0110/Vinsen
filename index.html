@@ -2032,6 +2032,7 @@
                 .replace(/const RATIO_OPTIONS = \[[\s\S]*?\];/, "const RATIO_OPTIONS = [\n                    ['square', '1:1'],\n                    ['portrait', '2:3'],\n                    ['landscape', '3:2'],\n                    ['tall', '1:3'],\n                    ['widescreen', '3:1'],\n                    ['auto', 'auto']\n                ];")
                 .replace("if (ratioInput) ratioInput.value = 'portrait';", "if (ratioInput) ratioInput.value = 'auto';")
                 .replace("if (ratioText) ratioText.textContent = 'portrait';", "if (ratioText) ratioText.textContent = 'auto';")
+                .replace("const active = idx === 2;", "const active = (v === 'auto');")
                 .replace(/<i class="fa-solid fa-wand-magic-sparkles"><\/i>\s*立即生成 - /g, '✨ 立即生成 - ');
         }
 
