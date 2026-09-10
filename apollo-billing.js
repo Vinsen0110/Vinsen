@@ -5,8 +5,8 @@ export const APOLLO_BILLING_GROUP_UNKNOWN = "unknown";
 
 export const APOLLO_BILLING_GROUP_OPTIONS = [
     { value: APOLLO_BILLING_GROUP_AUTO, label: "自动检测（仅明确分组）" },
-    { value: APOLLO_BILLING_GROUP_DEFAULT, label: "Default（0.06/张）" },
-    { value: APOLLO_BILLING_GROUP_OFFICIAL_MIX, label: "Gemini 优质（0.30/张）" },
+    { value: APOLLO_BILLING_GROUP_DEFAULT, label: "Default" },
+    { value: APOLLO_BILLING_GROUP_OFFICIAL_MIX, label: "Gemini 优质" },
 ];
 
 export function normalizeApolloBillingGroup(value) {
@@ -48,6 +48,13 @@ export function apolloGptImagePrice(key) {
     if (group === APOLLO_BILLING_GROUP_OFFICIAL_MIX) return 0.3;
     return null;
 }
+export function apolloGptImage25Price(key) {
+    const group = effectiveApolloBillingGroup(key);
+    if (group === APOLLO_BILLING_GROUP_DEFAULT) return 0.15;
+    if (group === APOLLO_BILLING_GROUP_OFFICIAL_MIX) return 0.3;
+    return null;
+}
+
 
 export function apolloBillingGroupLabel(key) {
     const group = effectiveApolloBillingGroup(key);
