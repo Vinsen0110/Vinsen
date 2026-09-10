@@ -32,8 +32,12 @@ test("text generation panels use the same outer-frame resize contract", () => {
     assert.match(indexHtml, /\.canvas-generation-panel\[data-canvas-resize-ready="true"\] textarea,[\s\S]*?width: 100% !important;[^}]*min-width: 0 !important;[^}]*min-height: 0 !important;[^}]*max-width: none !important;/s);
 });
 
-test("generation panels share the standard text-editor width before a user resize", () => {
-    assert.match(indexHtml, /\.canvas-generation-panel \{[\s\S]*?width: min\(660px, calc\(100vw - 32px\)\);/s);
+test("generation panels derive their default width from visible controls before a user resize", () => {
+    assert.match(
+        indexHtml,
+        /\.canvas-generation-panel \{[\s\S]*?width: min\(var\(--canvas-panel-auto-width, 660px\), calc\(100vw - 32px\)\) !important;/s,
+    );
+    assert.match(indexHtml, /var updateAutoWidth = function \(panel\)/);
     assert.match(bundle, /canvasTextBoxResizeStyle\(636,96\)/);
     assert.match(bundle, /canvasTextBoxResizeStyle\(636,132\)/);
 });

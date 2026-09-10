@@ -352,7 +352,50 @@ test("canvas copy reads the current selection and synchronizes click selection i
     assert.match(bundle, /function sanitizeCanvasNodeClone\(e\)\{const t=\{\.\.\.e,position:\{\.\.\.e\.position\},metadata:e\.metadata\?\{\.\.\.e\.metadata\}:void 0\}/);
 });
 
+test("canvas prompt edits update the immediate copy snapshot before generation", () => {
+    assert.match(
+        bundle,
+        /\$f=c\.useCallback\(\(O,K\)=>\{const le=vn\.current\.map\(Ee=>Ee\.id===O\?\{\.\.\.Ee,metadata:\{\.\.\.Ee\.metadata,prompt:K\}\}:Ee\);vn\.current=le,_\(Q=>Q\.map\(Ee=>Ee\.id===O\?\{\.\.\.Ee,metadata:\{\.\.\.Ee\.metadata,prompt:K\}\}:Ee\)\)\},\[\]\)/,
+    );
+});
+
+test("canvas content edits update the immediate copy snapshot before generation", () => {
+    assert.match(
+        bundle,
+        /Sv=c\.useCallback\(\(O,K\)=>\{const le=vn\.current\.map\(Ee=>Ee\.id===O\?\{\.\.\.Ee,metadata:\{\.\.\.Ee\.metadata,content:K\}\}:Ee\);vn\.current=le,_\(Q=>Q\.map\(Ee=>Ee\.id===O\?\{\.\.\.Ee,metadata:\{\.\.\.Ee\.metadata,content:K\}\}:Ee\)\)\},\[\]\)/,
+    );
+});
+
+test("Ctrl/Cmd+C inside an unselected canvas prompt copies the node, not browser text", () => {
+    assert.match(
+        bundle,
+        /if\(le&&!K\.altKey&&Q==="c"&&editable\)\{const targetText=K\.target instanceof HTMLInputElement\|\|K\.target instanceof HTMLTextAreaElement\?K\.target:null,hasSelection=!!targetText&&typeof targetText\.selectionStart==="number"&&targetText\.selectionStart!==targetText\.selectionEnd,nodeElement=Ee\?\.closest\("\[data-node-id\]"\),nodeId=nodeElement\?\.getAttribute\("data-node-id"\);if\(!hasSelection&&nodeId\)\{oo\.current=new Set\(\[nodeId\]\);Ih\(\)&&\(K\.preventDefault\(\),K\.stopPropagation\(\)\)\}return\}/,
+    );
+});
+
+test("editing a generated image prompt updates the copyable node metadata", () => {
+    assert.match(
+        bundle,
+        /const N=z=>\{\$\(z\),\(v==="image"\|\|!C\)&&n\(e\.id,z\)\}/,
+    );
+});
+
 test("Alt-click duplication suppresses the browser's native save action", () => {
     assert.match(bundle, /O\.altKey&&O\.preventDefault\(\)/);
     assert.match(bundle, /onClick:_e=>\{_e\.altKey&&\(_e\.preventDefault\(\),_e\.stopPropagation\(\)\)\}/);
+});
+
+test("Alt-click duplication refreshes the synchronous canvas copy snapshot", () => {
+    const start = bundle.indexOf("Rn.length&&");
+    const end = bundle.indexOf("oo.current=gt", start);
+    assert.ok(start >= 0 && end > start);
+    assert.match(bundle.slice(start, end), /Mt=\[\.\.\.le,\.\.\.Rn\]/);
+    assert.match(bundle.slice(start, end), /vn\.current=Mt,ye\(gt\)/);
+});
+
+test("pasted canvas nodes refresh the synchronous copy snapshot", () => {
+    const start = bundle.indexOf("Cf=c.useCallback");
+    const end = bundle.indexOf("c.useCallback(()=>{ue", start);
+    assert.ok(start >= 0 && end > start);
+    assert.match(bundle.slice(start, end), /return _\(tt=>\{const le=\[\.\.\.tt,\.\.\.Mt\];return vn\.current=le,le\}\)/);
 });

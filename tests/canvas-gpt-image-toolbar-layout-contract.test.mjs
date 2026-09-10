@@ -5,11 +5,12 @@ import test from "node:test";
 const indexHtml = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
 
-test("gpt-image-2 generation panels widen without changing other model panels", () => {
+test("generation panel width follows visible controls instead of model-specific constants", () => {
     assert.match(
         indexHtml,
-        /\.canvas-generation-panel:has\(\.canvas-model-select\[title\^="gpt-image-2"\]\) \{[^}]*width: min\(740px, calc\(100vw - 32px\)\) !important;[^}]*max-width: calc\(100vw - 32px\) !important;/s,
+        /var updateAutoWidth = function \(panel\) \{[\s\S]*?Math\.min\(getMinimumWidth\(panel\), viewportWidth\)[\s\S]*?--canvas-panel-auto-width/s,
     );
+    assert.doesNotMatch(indexHtml, /width: min\((?:900|860|760)px, calc\(100vw - 32px\)\)/);
 });
 
 test("gpt-image-2 toolbar stays on one row and official mode gets enough width", () => {
@@ -19,7 +20,7 @@ test("gpt-image-2 toolbar stays on one row and official mode gets enough width",
     );
     assert.match(
         indexHtml,
-        /\.canvas-generation-panel:has\(\.canvas-generation-toolbar\.is-apimart-official\) \{[^}]*width: min\(860px, calc\(100vw - 32px\)\) !important;[^}]*min-width: 860px;/s,
+        /\.canvas-generation-panel:has\(\.canvas-model-select\[title\^="gpt-image-2"\]\) \.canvas-generation-toolbar > div:first-child \{[^}]*justify-content: space-between;/s,
     );
 });
 

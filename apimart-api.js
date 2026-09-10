@@ -1,12 +1,15 @@
 export const APIMART_ORIGIN = "https://api.apimart.ai";
 export const APIMART_SITE_ID = "apimart";
 export const APIMART_SITE_NAME = "Mart";
-export const APIMART_SITE_MODELS = ["nano-banana-pro", "gpt-image-2"];
+export const APIMART_SITE_MODELS = ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"];
 export const APIMART_IMAGE_MODELS = APIMART_SITE_MODELS;
 export const APIMART_TEXT_MODELS = [];
 export const APIMART_BACKEND_MODEL = "gemini-3-pro-image-preview";
 export const APIMART_GPT_FIXED_BACKEND_MODEL = "gpt-image-2";
 export const APIMART_GPT_OFFICIAL_BACKEND_MODEL = "gpt-image-2-official";
+export const APIMART_GPT25_DEFAULT_BACKEND_MODEL = "gpt-image-2.5-flare";
+export const APIMART_GPT25_SUNBURST_BACKEND_MODEL = "gpt-image-2.5-sunburst";
+export const APIMART_GPT25_FIXED_BACKEND_MODEL = "gpt-image-2.5-ext";
 export const APIMART_GPT_FIXED_QUALITY = "fixed";
 export const APIMART_GPT_DEFAULT_OUTPUT_FORMAT = "png";
 export const APIMART_GPT_DEFAULT_BACKGROUND = "auto";
@@ -32,6 +35,12 @@ const GPT_ASPECT_RATIOS = new Set([
 ]);
 
 const GPT_FIXED_PRICE_USD = {
+    "1k": 0.0085,
+    "2k": 0.014,
+    "4k": 0.021,
+};
+
+const GPT25_FIXED_PRICE_USD = {
     "1k": 0.0085,
     "2k": 0.014,
     "4k": 0.021,
@@ -96,7 +105,15 @@ function apiMartResolutionKey(config) {
 
 export function apiMartGptImageQuality(config) {
     const value = String(config?.gptImageQuality || APIMART_GPT_FIXED_QUALITY).trim().toLowerCase();
-    return ["low", "medium", "high"].includes(value) ? value : APIMART_GPT_FIXED_QUALITY;
+    const is25 = modelName(config) === "gpt-image-2.5";
+    const allowed = is25 ? ["fixed", "auto", "low", "medium", "high", "xhigh", "max"] : ["auto", "low", "medium", "high"];
+    return allowed.includes(value) ? value : (is25 ? "auto" : APIMART_GPT_FIXED_QUALITY);
+}
+
+export function apiMartGpt25BackendModel(config) {
+    return String(config?.apimartGpt25Variant || "flare").trim().toLowerCase() === "sunburst"
+        ? APIMART_GPT25_SUNBURST_BACKEND_MODEL
+        : APIMART_GPT25_DEFAULT_BACKEND_MODEL;
 }
 
 export function apiMartGptBackground(config) {
@@ -117,7 +134,13 @@ export function apiMartGptOutputFormat(config) {
 }
 
 export function apiMartImagePrice(config) {
-    if (modelName(config) !== "gpt-image-2") {
+    const model = modelName(config);
+    if (model === "gpt-image-2.5") {
+        return apiMartGptImageQuality(config) === APIMART_GPT_FIXED_QUALITY
+            ? GPT25_FIXED_PRICE_USD[apiMartResolutionKey(config)]
+            : null;
+    }
+    if (model !== "gpt-image-2") {
         return apiMartResolution(config) === "4K" ? 0.04 : 0.03;
     }
     const resolution = apiMartResolutionKey(config);
@@ -130,32 +153,38 @@ export function apiMartImagePrice(config) {
 
 export function apiMartImageRequestSpec(config, prompt, imageUrls = []) {
     const model = modelName(config);
-    if (!["nano-banana-pro", "gpt-image-2"].includes(model)) {
-        throw new Error("APIMart 当前只支持 Nano Banana Pro 和 GPT Image 2");
+    if (!["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"].includes(model)) {
+        throw new Error("APIMart 当前只支持 Nano Banana Pro、GPT Image 2 和 GPT Image 2.5");
     }
-    const maxReferences = model === "gpt-image-2" ? GPT_MAX_REFERENCE_IMAGES : NANO_MAX_REFERENCE_IMAGES;
-    if (imageUrls.length > maxReferences) throw new Error(`APIMart ${model === "gpt-image-2" ? "GPT Image 2" : "Nano Banana Pro"} 最多支持 ${maxReferences} 张参考图`);
+    const maxReferences = model === "gpt-image-2" || model === "gpt-image-2.5" ? 16 : NANO_MAX_REFERENCE_IMAGES;
+    if (imageUrls.length > maxReferences) throw new Error(`APIMart ${model === "gpt-image-2" ? "GPT Image 2" : model === "gpt-image-2.5" ? "GPT Image 2.5" : "Nano Banana Pro"} 最多支持 ${maxReferences} 张参考图`);
     const size = String(config?.size || "auto").trim().toLowerCase();
-    const supportedRatios = model === "gpt-image-2" ? GPT_ASPECT_RATIOS : NANO_ASPECT_RATIOS;
+    const supportedRatios = model === "gpt-image-2" || model === "gpt-image-2.5" ? GPT_ASPECT_RATIOS : NANO_ASPECT_RATIOS;
     if (!supportedRatios.has(size) && !/^\d+x\d+$/.test(size)) throw new Error(`APIMart 不支持尺寸比例 ${size}`);
 
-    if (model === "gpt-image-2") {
+    if (model === "gpt-image-2" || model === "gpt-image-2.5") {
         const quality = apiMartGptImageQuality(config);
+        const is25 = model === "gpt-image-2.5";
+        const isFixed25 = is25 && quality === APIMART_GPT_FIXED_QUALITY;
         return {
             endpoint: "/images/generations",
             body: {
-                model: quality === APIMART_GPT_FIXED_QUALITY
-                    ? APIMART_GPT_FIXED_BACKEND_MODEL
-                    : APIMART_GPT_OFFICIAL_BACKEND_MODEL,
+                model: is25
+                    ? (isFixed25 ? APIMART_GPT25_FIXED_BACKEND_MODEL : apiMartGpt25BackendModel(config))
+                    : quality === APIMART_GPT_FIXED_QUALITY
+                        ? APIMART_GPT_FIXED_BACKEND_MODEL
+                        : APIMART_GPT_OFFICIAL_BACKEND_MODEL,
                 prompt: String(prompt || "").trim(),
                 size,
                 resolution: apiMartResolutionKey(config),
                 n: 1,
-                ...(quality === APIMART_GPT_FIXED_QUALITY ? {} : {
+                ...(isFixed25 ? {
+                    version: String(config?.apimartGpt25Variant || "flare").trim().toLowerCase() === "sunburst" ? "sunburst" : "flare",
+                } : is25 || quality !== APIMART_GPT_FIXED_QUALITY ? {
                     quality,
                     output_format: apiMartGptOutputFormat(config),
                     background: apiMartGptBackground(config),
-                }),
+                } : {}),
                 ...(imageUrls.length ? { image_urls: imageUrls } : {}),
             },
         };
