@@ -9,6 +9,208 @@
     <link rel="preload" href="./assets/index-B2KJ37fm.js" as="script">
         <title>老屋作坊</title>
         <script>
+(function(){
+  // === Vinsen: localStorage → IndexedDB migration ===
+  var DB_NAME = 'vinsen-storage';
+  var STORE_NAME = 'kv';
+  var MEM = Object.create(null);
+  var MIGRATED = false;
+  
+  // Memory-only mode: get/set from MEM, persist to original localStorage sync
+  // IndexedDB writes happen async in background
+  var origGet = Storage.prototype.getItem;
+  var origSet = Storage.prototype.setItem;
+  var origRem = Storage.prototype.removeItem;
+  var origKey = Storage.prototype.key;
+  var origClear = Storage.prototype.clear;
+  
+  // Open IndexedDB asynchronously  
+  function openDB() {
+    return new Promise(function(resolve, reject) {
+      if (typeof indexedDB === 'undefined') return reject(new Error('no indexedDB'));
+      var req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = function() {
+        if (!req.result.objectStoreNames.contains(STORE_NAME)) {
+          req.result.createObjectStore(STORE_NAME);
+        }
+      };
+      req.onsuccess = function() { resolve(req.result); };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+  
+  function dbGet(db, key) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_NAME, 'readonly');
+      var store = tx.objectStore(STORE_NAME);
+      var req = store.get(key);
+      req.onsuccess = function() { resolve(req.result); };
+      req.onerror = function() { reject(req.error); };
+    });
+  }
+  
+  function dbPut(db, key, value) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      var store = tx.objectStore(STORE_NAME);
+      store.put(value, key);
+      tx.oncomplete = resolve;
+      tx.onerror = function() { reject(tx.error); };
+    });
+  }
+  
+  function dbDel(db, key) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      var store = tx.objectStore(STORE_NAME);
+      store.delete(key);
+      tx.oncomplete = resolve;
+      tx.onerror = function() { reject(tx.error); };
+    });
+  }
+  
+  function dbGetAll(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(STORE_NAME, 'readonly');
+      var store = tx.objectStore(STORE_NAME);
+      var keysReq = store.getAllKeys();
+      var valsReq = store.getAll();
+      var keys, vals;
+      keysReq.onsuccess = function() { keys = keysReq.result; check(); };
+      valsReq.onsuccess = function() { vals = valsReq.result; check(); };
+      function check() {
+        if (keys !== undefined && vals !== undefined) {
+          var result = {};
+          for (var i = 0; i < keys.length; i++) result[keys[i]] = vals[i];
+          resolve(result);
+        }
+      }
+      keysReq.onerror = function() { reject(keysReq.error); };
+      valsReq.onerror = function() { reject(valsReq.error); };
+    });
+  }
+  
+  // Write queue to batch IndexedDB writes
+  var writeQueue = {};
+  var writeTimer = null;
+  
+  function queueWrite(key, value) {
+    if (value === undefined) {
+      delete writeQueue[key];
+    } else {
+      writeQueue[key] = value;
+    }
+    if (!writeTimer) {
+      writeTimer = setTimeout(flushWrites, 300);
+    }
+  }
+  
+  function flushWrites() {
+    writeTimer = null;
+    var snapshot = writeQueue;
+    writeQueue = {};
+    openDB().then(function(db) {
+      var tx = db.transaction(STORE_NAME, 'readwrite');
+      var store = tx.objectStore(STORE_NAME);
+      for (var key in snapshot) {
+        if (snapshot[key] === null) {
+          store.delete(key);
+        } else {
+          store.put(snapshot[key], key);
+        }
+      }
+      tx.oncomplete = function() { db.close(); };
+    }).catch(function(e) {
+      // Silently fail - original localStorage already has the data
+    });
+  }
+  
+  // Migration: copy localStorage → IndexedDB
+  function migrateOnce() {
+    if (MIGRATED) return;
+    MIGRATED = true;
+    openDB().then(function(db) {
+      // First, check if we already have data in IndexedDB
+      dbGetAll(db).then(function(idbData) {
+        var hasIdbData = Object.keys(idbData).length > 0;
+        
+        if (!hasIdbData) {
+          // First migration: copy everything from localStorage
+          var tx = db.transaction(STORE_NAME, 'readwrite');
+          var store = tx.objectStore(STORE_NAME);
+          for (var i = 0; i < window.localStorage.length; i++) {
+            var k = window.localStorage.key(i);
+            if (k) {
+              var v = origGet.call(window.localStorage, k);
+              if (v !== null) store.put(v, k);
+            }
+          }
+        } else {
+          // Restore from IndexedDB to localStorage (sync missing items)
+          for (var key in idbData) {
+            if (window.localStorage.getItem(key) === null) {
+              origSet.call(window.localStorage, key, idbData[key]);
+            }
+          }
+        }
+        db.close();
+      });
+    }).catch(function() {});
+  }
+  
+
+  // Override Storage.prototype
+  Storage.prototype.getItem = function(key) {
+    // Memory cache is fastest
+    if (key in MEM) return MEM[key];
+    var v = origGet.call(this, key);
+    MEM[key] = v;
+    return v;
+  };
+  
+  Storage.prototype.setItem = function(key, value) {
+    MEM[key] = value;
+    origSet.call(this, key, value);
+    queueWrite(key, value);
+  };
+  
+  Storage.prototype.removeItem = function(key) {
+    delete MEM[key];
+    origRem.call(this, key);
+    queueWrite(key, null);
+  };
+  
+  Storage.prototype.clear = function() {
+    MEM = Object.create(null);
+    // Don't clear IndexedDB - too destructive, user can do it manually
+    // Just clear original localStorage for compatibility
+    var keys = [];
+    for (var i = 0; i < (window.localStorage.length || 0); i++) {
+      var k = window.localStorage.key(i);
+      if (k) keys.push(k);
+    }
+    keys.forEach(function(k) { origRem.call(window.localStorage, k); });
+  };
+  
+  // Start migration on load
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    migrateOnce();
+  } else {
+    document.addEventListener('DOMContentLoaded', migrateOnce);
+    // Also try after a short delay in case DOMContentLoaded already fired
+    setTimeout(migrateOnce, 500);
+  }
+  
+  // Also flush writes before page unload
+  window.addEventListener('beforeunload', function() {
+    if (writeTimer) {
+      clearTimeout(writeTimer);
+      flushWrites();
+    }
+  });
+})();
+</script>
+<script>
             try {
                 var s = JSON.parse(localStorage.getItem("infinite-canvas:theme_store") || "{}");
                 var t = s.state && s.state.theme === "light" ? "light" : "dark";
@@ -434,7 +636,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-      <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260911-07"></script>
+      <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260911-15"></script>
       <script type="module" src="./display-model-names.js?v=20260826-05"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
