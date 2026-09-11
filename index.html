@@ -434,7 +434,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-      <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260910-01"></script>
+      <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260911-07"></script>
       <script type="module" src="./display-model-names.js?v=20260826-05"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -1233,6 +1233,7 @@
           background: rgba(41, 37, 36, 0.96) !important;
         }
         .dark .canvas-generation-panel {
+          background: #1c1917 !important;
           box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34) !important;
         }
         .dark .canvas-generation-toolbar {
@@ -1773,6 +1774,132 @@
             will-change: transform;
         }
     </style>
+
+    <style>
+        /* ── 主题切换过渡动画优化 ── */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.3s;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        ::view-transition-old(root) {
+            animation-name: theme-fade-out;
+        }
+        ::view-transition-new(root) {
+            animation-name: theme-fade-in;
+        }
+        @keyframes theme-fade-out {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes theme-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ── 预览对话框：确保关闭按钮/底部工具栏在暗色模式下可见 ── */
+        .dark [class*="rc-image-preview-close"] {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        [class*="rc-image-preview-close"] {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border-radius: 50%;
+        }
+
+        /* ── 图片节点工具栏：暗色模式适配 ── */
+        .dark [class*="canvas-image-quick-tools"] button {
+            color: #d6d3d1 !important;
+        }
+    </style>
+
+<style>
+/* Dark mode settings modal */
+.dark .laowu-config-modal .ant-modal-content,
+.dark .laowu-config-modal .ant-modal-header {
+  background: #1c1917 !important;
+  border-color: #44403c !important;
+}
+.dark .laowu-config-modal .ant-modal-close {
+  color: #d6d3d1 !important;
+}
+.dark .settings-select-dropdown {
+  background: #1c1917 !important;
+}
+.dark .settings-select-dropdown .ant-select-item {
+  color: #d6d3d1 !important;
+}
+.dark .settings-select-dropdown .ant-select-item-option-selected {
+  background: #292524 !important;
+}
+.dark .settings-select-dropdown .ant-select-item-option-active {
+  background: #292524 !important;
+}
+
+/* Dark mode canvas site menu */
+.dark .canvas-site-menu {
+  background: rgba(31, 29, 26, 0.96) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .canvas-site-menu-item {
+  color: #d6d3d1 !important;
+}
+.dark .canvas-site-menu-item:hover,
+.dark .canvas-site-menu-item.is-active {
+  background: #292524 !important;
+  color: #f5f5f4 !important;
+}
+
+/* Dark mode antd general dropdowns */
+.dark .ant-select-dropdown {
+  background: #1c1917 !important;
+  border-color: #44403c !important;
+}
+.dark .ant-select-dropdown .ant-select-item {
+  color: #d6d3d1 !important;
+}
+.dark .ant-select-dropdown .ant-select-item-option-active {
+  background: #292524 !important;
+}
+.dark .ant-select-dropdown .ant-select-item-option-selected {
+  background: #292524 !important;
+}
+
+/* Dark mode: Radix/Ant popover & generic dialogs */
+.dark .ant-popover .ant-popover-inner,
+.dark .ant-popconfirm .ant-popover-inner {
+  background: #1c1917 !important;
+  color: #e7e5e4 !important;
+}
+.dark .ant-popover .ant-popover-arrow::before {
+  background: #1c1917 !important;
+}
+
+/* Dark mode: provider icons white */
+.dark img[src*="/openai.svg"],
+.dark img[src*="/gemini.svg"],
+.dark img[src*="/grok.svg"],
+.dark img[src*="/deepseek.svg"],
+.dark img[src*="/claude.svg"] {
+  filter: invert(1) !important;
+}
+
+/* Dark mode: generic Radix popover content */
+.dark [data-radix-content] {
+  background: #1c1917 !important;
+  border-color: #44403c !important;
+  color: #e7e5e4 !important;
+}
+
+/* Dark mode: canvas text reference strip */
+.dark .canvas-text-reference-strip {
+  border-color: rgba(244, 114, 182, 0.28) !important;
+  background: rgba(80, 7, 36, 0.24) !important;
+}
+
+</style>
 
 </head>
     <body class="bg-background text-foreground antialiased">
