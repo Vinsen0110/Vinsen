@@ -55,9 +55,12 @@ test("asset re-import restores storage-backed image content and dimensions", () 
     );
 });
 
-test("Alt-click duplication schedules the expensive canvas insertion as a transition", () => {
-    assert.match(
-        bundle,
-        /c\.startTransition\?c\.startTransition\(\(\)=>\{_\(Vt=>\[\.\.\.Vt,\.\.\.Rn\]\),nt\.length&&ee\(Vt=>\[\.\.\.Vt,\.\.\.nt\]\)\}\):\(_\(Vt=>\[\.\.\.Vt,\.\.\.Rn\]\),nt\.length&&ee\(Vt=>\[\.\.\.Vt,\.\.\.nt\]\)\)/,
-    );
+test("Alt-click duplication keeps insertion in the selection update batch", () => {
+    const start = bundle.indexOf("Dh=c.useCallback(");
+    const end = bundle.indexOf(",Nl=c.useCallback(", start);
+    assert.ok(start >= 0 && end > start);
+    const duplicate = bundle.slice(start, end);
+    assert.doesNotMatch(duplicate, /startTransition/);
+    assert.match(duplicate, /_\(Vt=>\[\.\.\.Vt,\.\.\.Rn\]\),nt\.length&&ee\(Vt=>\[\.\.\.Vt,\.\.\.nt\]\)/);
+    assert.match(duplicate, /vn\.current=Mt,ye\(gt\),oo\.current=gt/);
 });
