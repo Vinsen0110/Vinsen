@@ -5,211 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
-    <link rel="preload" href="./assets/index-DT58oPsm.css" as="style">
-    <link rel="preload" href="./assets/index-B2KJ37fm.js" as="script">
+        <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260912-reverse-dark-01" crossorigin>
         <title>老屋作坊</title>
-        <script>
-(function(){
-  // === Vinsen: localStorage → IndexedDB migration ===
-  var DB_NAME = 'vinsen-storage';
-  var STORE_NAME = 'kv';
-  var MEM = Object.create(null);
-  var MIGRATED = false;
-  
-  // Memory-only mode: get/set from MEM, persist to original localStorage sync
-  // IndexedDB writes happen async in background
-  var origGet = Storage.prototype.getItem;
-  var origSet = Storage.prototype.setItem;
-  var origRem = Storage.prototype.removeItem;
-  var origKey = Storage.prototype.key;
-  var origClear = Storage.prototype.clear;
-  
-  // Open IndexedDB asynchronously  
-  function openDB() {
-    return new Promise(function(resolve, reject) {
-      if (typeof indexedDB === 'undefined') return reject(new Error('no indexedDB'));
-      var req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = function() {
-        if (!req.result.objectStoreNames.contains(STORE_NAME)) {
-          req.result.createObjectStore(STORE_NAME);
-        }
-      };
-      req.onsuccess = function() { resolve(req.result); };
-      req.onerror = function() { reject(req.error); };
-    });
-  }
-  
-  function dbGet(db, key) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_NAME, 'readonly');
-      var store = tx.objectStore(STORE_NAME);
-      var req = store.get(key);
-      req.onsuccess = function() { resolve(req.result); };
-      req.onerror = function() { reject(req.error); };
-    });
-  }
-  
-  function dbPut(db, key, value) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_NAME, 'readwrite');
-      var store = tx.objectStore(STORE_NAME);
-      store.put(value, key);
-      tx.oncomplete = resolve;
-      tx.onerror = function() { reject(tx.error); };
-    });
-  }
-  
-  function dbDel(db, key) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_NAME, 'readwrite');
-      var store = tx.objectStore(STORE_NAME);
-      store.delete(key);
-      tx.oncomplete = resolve;
-      tx.onerror = function() { reject(tx.error); };
-    });
-  }
-  
-  function dbGetAll(db) {
-    return new Promise(function(resolve, reject) {
-      var tx = db.transaction(STORE_NAME, 'readonly');
-      var store = tx.objectStore(STORE_NAME);
-      var keysReq = store.getAllKeys();
-      var valsReq = store.getAll();
-      var keys, vals;
-      keysReq.onsuccess = function() { keys = keysReq.result; check(); };
-      valsReq.onsuccess = function() { vals = valsReq.result; check(); };
-      function check() {
-        if (keys !== undefined && vals !== undefined) {
-          var result = {};
-          for (var i = 0; i < keys.length; i++) result[keys[i]] = vals[i];
-          resolve(result);
-        }
-      }
-      keysReq.onerror = function() { reject(keysReq.error); };
-      valsReq.onerror = function() { reject(valsReq.error); };
-    });
-  }
-  
-  // Write queue to batch IndexedDB writes
-  var writeQueue = {};
-  var writeTimer = null;
-  
-  function queueWrite(key, value) {
-    if (value === undefined) {
-      delete writeQueue[key];
-    } else {
-      writeQueue[key] = value;
-    }
-    if (!writeTimer) {
-      writeTimer = setTimeout(flushWrites, 300);
-    }
-  }
-  
-  function flushWrites() {
-    writeTimer = null;
-    var snapshot = writeQueue;
-    writeQueue = {};
-    openDB().then(function(db) {
-      var tx = db.transaction(STORE_NAME, 'readwrite');
-      var store = tx.objectStore(STORE_NAME);
-      for (var key in snapshot) {
-        if (snapshot[key] === null) {
-          store.delete(key);
-        } else {
-          store.put(snapshot[key], key);
-        }
-      }
-      tx.oncomplete = function() { db.close(); };
-    }).catch(function(e) {
-      // Silently fail - original localStorage already has the data
-    });
-  }
-  
-  // Migration: copy localStorage → IndexedDB
-  function migrateOnce() {
-    if (MIGRATED) return;
-    MIGRATED = true;
-    openDB().then(function(db) {
-      // First, check if we already have data in IndexedDB
-      dbGetAll(db).then(function(idbData) {
-        var hasIdbData = Object.keys(idbData).length > 0;
-        
-        if (!hasIdbData) {
-          // First migration: copy everything from localStorage
-          var tx = db.transaction(STORE_NAME, 'readwrite');
-          var store = tx.objectStore(STORE_NAME);
-          for (var i = 0; i < window.localStorage.length; i++) {
-            var k = window.localStorage.key(i);
-            if (k) {
-              var v = origGet.call(window.localStorage, k);
-              if (v !== null) store.put(v, k);
-            }
-          }
-        } else {
-          // Restore from IndexedDB to localStorage (sync missing items)
-          for (var key in idbData) {
-            if (window.localStorage.getItem(key) === null) {
-              origSet.call(window.localStorage, key, idbData[key]);
-            }
-          }
-        }
-        db.close();
-      });
-    }).catch(function() {});
-  }
-  
 
-  // Override Storage.prototype
-  Storage.prototype.getItem = function(key) {
-    // Memory cache is fastest
-    if (key in MEM) return MEM[key];
-    var v = origGet.call(this, key);
-    MEM[key] = v;
-    return v;
-  };
-  
-  Storage.prototype.setItem = function(key, value) {
-    MEM[key] = value;
-    origSet.call(this, key, value);
-    queueWrite(key, value);
-  };
-  
-  Storage.prototype.removeItem = function(key) {
-    delete MEM[key];
-    origRem.call(this, key);
-    queueWrite(key, null);
-  };
-  
-  Storage.prototype.clear = function() {
-    MEM = Object.create(null);
-    // Don't clear IndexedDB - too destructive, user can do it manually
-    // Just clear original localStorage for compatibility
-    var keys = [];
-    for (var i = 0; i < (window.localStorage.length || 0); i++) {
-      var k = window.localStorage.key(i);
-      if (k) keys.push(k);
-    }
-    keys.forEach(function(k) { origRem.call(window.localStorage, k); });
-  };
-  
-  // Start migration on load
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    migrateOnce();
-  } else {
-    document.addEventListener('DOMContentLoaded', migrateOnce);
-    // Also try after a short delay in case DOMContentLoaded already fired
-    setTimeout(migrateOnce, 500);
-  }
-  
-  // Also flush writes before page unload
-  window.addEventListener('beforeunload', function() {
-    if (writeTimer) {
-      clearTimeout(writeTimer);
-      flushWrites();
-    }
-  });
-})();
-</script>
 <script>
             try {
                 var s = JSON.parse(localStorage.getItem("infinite-canvas:theme_store") || "{}");
@@ -377,6 +176,11 @@
                 var minHeight = 96;
                 var active = null;
                 var autoWidthFrame = null;
+                var knownPanels = new Map();
+                var pendingPanels = new Set();
+                var resizeOwners = new Map();
+                var viewportObservers = new Map();
+                var resizeObserver = null;
 
                 var getHorizontalExtras = function (element) {
                     if (!element) return 0;
@@ -422,11 +226,117 @@
                     }
                 };
 
-                var scheduleAutoWidths = function () {
+                var scheduleAutoWidths = function (panel) {
+                    if (panel instanceof Element) {
+                        if (knownPanels.has(panel)) pendingPanels.add(panel);
+                    } else {
+                        knownPanels.forEach(function (_, element) { pendingPanels.add(element); });
+                    }
+                    if (!pendingPanels.size) return;
                     if (autoWidthFrame !== null) return;
                     autoWidthFrame = requestAnimationFrame(function () {
                         autoWidthFrame = null;
-                        document.querySelectorAll(panelSelector).forEach(updateAutoWidth);
+                        var panels = Array.from(pendingPanels);
+                        pendingPanels.clear();
+                        panels.forEach(function (element) {
+                            if (!element.isConnected) return;
+                            syncPanelObservation(element);
+                            updateAutoWidth(element);
+                        });
+                    });
+                };
+
+                var viewportScale = function (layer) {
+                    if (typeof DOMMatrixReadOnly !== "function") return layer.style.transform;
+                    var matrix = new DOMMatrixReadOnly(layer.style.transform);
+                    return [matrix.a, matrix.b, matrix.c, matrix.d].join(",");
+                };
+
+                var releaseViewport = function (layer, panel) {
+                    var entry = viewportObservers.get(layer);
+                    if (!entry) return;
+                    entry.panels.delete(panel);
+                    if (!entry.panels.size) {
+                        entry.observer.disconnect();
+                        viewportObservers.delete(layer);
+                    }
+                };
+
+                var syncPanelObservation = function (panel) {
+                    var entry = knownPanels.get(panel);
+                    if (!entry) return;
+                    var toolbar = panel.querySelector(".canvas-generation-toolbar");
+                    if (entry.toolbar !== toolbar) {
+                        if (entry.toolbarObserver) entry.toolbarObserver.disconnect();
+                        entry.toolbar = toolbar;
+                        entry.toolbarObserver = null;
+                        if (toolbar) {
+                            entry.toolbarObserver = new MutationObserver(function () { scheduleAutoWidths(panel); });
+                            entry.toolbarObserver.observe(toolbar, {
+                                subtree: true,
+                                childList: true,
+                                characterData: true,
+                                attributes: true,
+                                attributeFilter: ["class", "title", "style", "hidden"]
+                            });
+                        }
+                    }
+                    var controls = toolbar && toolbar.firstElementChild;
+                    var elements = new Set([panel, toolbar, controls, toolbar && toolbar.lastElementChild].filter(Boolean));
+                    if (controls) Array.from(controls.children).forEach(function (element) { elements.add(element); });
+                    entry.elements.forEach(function (element) {
+                        if (elements.has(element)) return;
+                        if (resizeObserver) resizeObserver.unobserve(element);
+                        resizeOwners.delete(element);
+                    });
+                    elements.forEach(function (element) {
+                        if (entry.elements.has(element)) return;
+                        resizeOwners.set(element, panel);
+                        if (resizeObserver) resizeObserver.observe(element);
+                    });
+                    entry.elements = elements;
+                    var layer = panel.closest(".laowu-canvas-viewport > .origin-top-left");
+                    if (entry.layer === layer) return;
+                    releaseViewport(entry.layer, panel);
+                    entry.layer = layer;
+                    if (!layer) return;
+                    var viewportEntry = viewportObservers.get(layer);
+                    if (!viewportEntry) {
+                        viewportEntry = { panels: new Set(), scale: viewportScale(layer), observer: null };
+                        viewportEntry.observer = new MutationObserver(function () {
+                            var scale = viewportScale(layer);
+                            if (scale === viewportEntry.scale) return;
+                            viewportEntry.scale = scale;
+                            viewportEntry.panels.forEach(scheduleAutoWidths);
+                        });
+                        viewportEntry.observer.observe(layer, { attributes: true, attributeFilter: ["style"] });
+                        viewportObservers.set(layer, viewportEntry);
+                    }
+                    viewportEntry.panels.add(panel);
+                };
+
+                var registerPanels = function (root) {
+                    if (!(root instanceof Element)) return;
+                    var panels = root.matches(panelSelector) ? [root] : Array.from(root.querySelectorAll(panelSelector));
+                    panels.forEach(function (panel) {
+                        if (!panel.isConnected) return;
+                        if (!knownPanels.has(panel)) knownPanels.set(panel, { elements: new Set(), layer: null });
+                        syncPanelObservation(panel);
+                        scheduleAutoWidths(panel);
+                    });
+                };
+
+                var removeDetachedPanels = function () {
+                    knownPanels.forEach(function (entry, panel) {
+                        if (panel.isConnected) return;
+                        entry.elements.forEach(function (element) {
+                            if (resizeObserver) resizeObserver.unobserve(element);
+                            resizeOwners.delete(element);
+                        });
+                        releaseViewport(entry.layer, panel);
+                        if (entry.toolbarObserver) entry.toolbarObserver.disconnect();
+                        pendingPanels.delete(panel);
+                        knownPanels.delete(panel);
                     });
                 };
 
@@ -550,7 +460,7 @@
                     try { active.panel.releasePointerCapture(event.pointerId); } catch (error) {}
                     active.panel.dataset.canvasResizeActive = "false";
                     active.panel.style.cursor = "";
-                    if (!active.widthChanged) scheduleAutoWidths();
+                    if (!active.widthChanged) scheduleAutoWidths(active.panel);
                     active = null;
                 };
 
@@ -568,24 +478,34 @@
                 window.addEventListener("resize", scheduleAutoWidths);
 
                 var observeAutoWidth = function () {
-                    scheduleAutoWidths();
                     if (!document.body || typeof MutationObserver !== "function") return;
-                    var observer = new MutationObserver(scheduleAutoWidths);
-                    observer.observe(document.body, {
-                        subtree: true,
-                        childList: true,
-                        characterData: true,
-                        attributes: true,
-                        attributeFilter: ["class", "title"]
-                    });
                     if (typeof ResizeObserver === "function") {
-                        var resizeObserver = new ResizeObserver(scheduleAutoWidths);
-                        document.querySelectorAll(panelSelector).forEach(function (panel) {
-                            resizeObserver.observe(panel);
-                            var toolbar = panel.querySelector(".canvas-generation-toolbar");
-                            if (toolbar) resizeObserver.observe(toolbar);
+                        resizeObserver = new ResizeObserver(function (entries) {
+                            entries.forEach(function (entry) {
+                                var panel = resizeOwners.get(entry.target);
+                                if (panel) scheduleAutoWidths(panel);
+                            });
                         });
                     }
+                    registerPanels(document.body);
+                    var observer = new MutationObserver(function (records) {
+                        var removed = false;
+                        records.forEach(function (record) {
+                            var target = record.target instanceof Element ? record.target : record.target.parentElement;
+                            var panel = getPanel(target);
+                            if (panel && !target.closest("textarea, [contenteditable=\"true\"]")) {
+                                scheduleAutoWidths(panel);
+                            }
+                            record.addedNodes.forEach(registerPanels);
+                            if (Array.from(record.removedNodes).some(function (node) { return node instanceof Element; })) removed = true;
+                        });
+                        if (removed) removeDetachedPanels();
+                    });
+                    observer.observe(document.body, {
+                        subtree: true,
+                        childList: true
+                    });
+                    if (document.fonts) document.fonts.ready.then(function () { scheduleAutoWidths(); });
                 };
                 if (document.body) observeAutoWidth();
                 else document.addEventListener("DOMContentLoaded", observeAutoWidth, { once: true });
@@ -597,20 +517,14 @@
                 var editorSelector = "textarea, [contenteditable=\"true\"]";
                 var normalize = function (root) {
                     if (!(root instanceof Element)) return;
-                    var containingPanel = root.closest(panelSelector);
-                    var panels = root.matches(panelSelector)
-                        ? [root]
-                        : containingPanel
-                            ? [containingPanel]
-                            : Array.from(root.querySelectorAll(panelSelector));
-                    panels.forEach(function (panel) {
-                        panel.querySelectorAll(editorSelector).forEach(function (editor) {
+                    var editors = root.matches(editorSelector) ? [root] : Array.from(root.querySelectorAll(editorSelector));
+                    editors.forEach(function (editor) {
+                            if (!editor.closest(panelSelector)) return;
                             if (editor.dataset.canvasFluidEditor !== "true") editor.dataset.canvasFluidEditor = "true";
                             ["width", "height", "min-width", "min-height", "max-width", "max-height", "resize"]
                                 .forEach(function (property) {
                                     if (editor.style.getPropertyValue(property)) editor.style.removeProperty(property);
                                 });
-                        });
                     });
                 };
                 var observe = function () {
@@ -619,7 +533,7 @@
                     var observer = new MutationObserver(function (records) {
                         records.forEach(function (record) {
                             if (record.type === "attributes") {
-                                normalize(record.target);
+                                if (record.target.matches(editorSelector)) normalize(record.target);
                                 return;
                             }
                             record.addedNodes.forEach(normalize);
@@ -636,8 +550,8 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-      <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260911-15"></script>
-      <script type="module" src="./display-model-names.js?v=20260826-05"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260912-reverse-dark-01"></script>
+      <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
       <style>
@@ -646,6 +560,26 @@
         }
         [data-node-id] > .relative > .pointer-events-none.absolute.inset-x-0.bottom-0.h-12 {
           border-radius: inherit;
+        }
+        .canvas-reverse-shell {
+          --canvas-reverse-frame: rgba(255, 255, 255, .96);
+          --canvas-reverse-surface: #fff;
+          --canvas-reverse-text: #57534e;
+          --canvas-reverse-border: rgba(226, 232, 240, .95);
+        }
+        .dark .canvas-reverse-shell {
+          --canvas-reverse-frame: #292524;
+          --canvas-reverse-surface: #292524;
+          --canvas-reverse-text: #f5f5f4;
+          --canvas-reverse-border: #44403c;
+        }
+        .canvas-reverse-card,
+        .canvas-reverse-content {
+          color: var(--canvas-reverse-text);
+          background: var(--canvas-reverse-surface);
+        }
+        .canvas-reverse-shell button[aria-label="复制反推文字"] {
+          color: var(--canvas-reverse-text);
         }
         [data-node-id] div:has(> [aria-label="反推分析结果"]) > .border-b {
           position: absolute;

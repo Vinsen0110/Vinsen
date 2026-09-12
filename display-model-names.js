@@ -49,9 +49,10 @@ function ensureModelIcon(item, icon) {
 }
 
 function normalizeModelLabels(root = document) {
-  const containers = root.querySelectorAll?.(
-    MODEL_CONTAINER_SELECTOR,
-  ) || [];
+  const containers = [
+    ...(root.matches?.(MODEL_CONTAINER_SELECTOR) ? [root] : []),
+    ...(root.querySelectorAll?.(MODEL_CONTAINER_SELECTOR) || []),
+  ];
   for (const container of containers) {
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
     const nodes = [];
@@ -65,9 +66,10 @@ function normalizeModelLabels(root = document) {
     }
   }
 
-  const modelItems = root.querySelectorAll?.(
-    MODEL_ITEM_SELECTOR,
-  ) || [];
+  const modelItems = [
+    ...(root.matches?.(MODEL_ITEM_SELECTOR) ? [root] : []),
+    ...(root.querySelectorAll?.(MODEL_ITEM_SELECTOR) || []),
+  ];
   for (const item of modelItems) {
     const label = String(item.textContent || "").trim();
     const icon = iconForLabel(label);
@@ -76,8 +78,47 @@ function normalizeModelLabels(root = document) {
   }
 }
 
+const pendingModelRoots = new Set();
+let modelNormalizationFrame = null;
+
+function queueModelNormalization(root) {
+  if (!root.isConnected) return;
+  for (const pending of pendingModelRoots) {
+    if (pending.contains(root)) return;
+    if (root.contains(pending)) pendingModelRoots.delete(pending);
+  }
+  pendingModelRoots.add(root);
+  if (modelNormalizationFrame !== null) return;
+  modelNormalizationFrame = requestAnimationFrame(() => {
+    modelNormalizationFrame = null;
+    const roots = [...pendingModelRoots];
+    pendingModelRoots.clear();
+    for (const pending of roots) {
+      if (pending.isConnected) normalizeModelLabels(pending);
+    }
+  });
+}
+
 normalizeModelLabels();
-new MutationObserver(() => normalizeModelLabels()).observe(document.documentElement, {
+new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    const target = mutation.target.nodeType === Node.ELEMENT_NODE
+      ? mutation.target
+      : mutation.target.parentElement;
+    const container = target?.closest(MODEL_CONTAINER_SELECTOR);
+    if (container) {
+      queueModelNormalization(container);
+      continue;
+    }
+    if (mutation.type !== "childList") continue;
+    for (const node of mutation.addedNodes) {
+      if (node.nodeType !== Node.ELEMENT_NODE || !node.isConnected) continue;
+      if (node.matches(MODEL_CONTAINER_SELECTOR) || node.querySelector(MODEL_CONTAINER_SELECTOR)) {
+        queueModelNormalization(node);
+      }
+    }
+  }
+}).observe(document.documentElement, {
   subtree: true,
   childList: true,
   characterData: true,

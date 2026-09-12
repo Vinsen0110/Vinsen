@@ -28,12 +28,12 @@ test("generation panels resize from the outer frame in both axes", () => {
     assert.match(indexHtml, /var getMinimumWidth = function \(panel\)/);
     assert.match(indexHtml, /var updateAutoWidth = function \(panel\)/);
     assert.match(indexHtml, /panel\.dataset\.canvasWidthLocked === "true"/);
-    assert.match(indexHtml, /var observer = new MutationObserver\(scheduleAutoWidths\)/);
-    assert.match(indexHtml, /attributeFilter: \["class", "title"\]/);
+    assert.match(indexHtml, /entry\.toolbarObserver = new MutationObserver\(function \(\) \{ scheduleAutoWidths\(panel\); \}\)/);
+    assert.match(indexHtml, /attributeFilter: \["class", "title", "style", "hidden"\]/);
     assert.match(indexHtml, /minWidth: panelMinWidth/);
     assert.match(indexHtml, /Math\.max\(active\.minWidth, Math\.min\(active\.maxWidth, active\.width \+ deltaX\)\)/);
     assert.match(indexHtml, /active\.panel\.dataset\.canvasWidthLocked = "true"/);
-    assert.match(indexHtml, /if \(!active\.widthChanged\) scheduleAutoWidths\(\)/);
+    assert.match(indexHtml, /if \(!active\.widthChanged\) scheduleAutoWidths\(active\.panel\)/);
     assert.match(
         indexHtml,
         /\.canvas-generation-panel \{[^}]*width: min\(var\(--canvas-panel-auto-width, 660px\), calc\(100vw - 32px\)\) !important;/s,
