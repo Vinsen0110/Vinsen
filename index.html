@@ -6,13 +6,13 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260912-alt-copy-01" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260913-startup-01" crossorigin>
         <title>老屋作坊</title>
 
 <script>
             try {
                 var s = JSON.parse(localStorage.getItem("infinite-canvas:theme_store") || "{}");
-                var t = s.state && s.state.theme === "light" ? "light" : "dark";
+                var t = s.state && s.state.theme === "dark" ? "dark" : "light";
                 document.documentElement.classList.toggle("dark", t === "dark");
                 document.documentElement.style.colorScheme = t;
             } catch (e) {}
@@ -68,7 +68,10 @@
                     var button = event.target && event.target.closest ? event.target.closest("button") : null;
                     if (!button) return;
                     var label = String(button.textContent || "");
-                    pickerMode = label.indexOf("导入") !== -1 ? "import" : label.indexOf("新建") !== -1 ? "blank" : pickerMode;
+                    var projectAction = button.getAttribute("data-project-action");
+                    pickerMode = projectAction === "import" || projectAction === "blank"
+                        ? projectAction
+                        : label.indexOf("导入") !== -1 ? "import" : label.indexOf("新建") !== -1 ? "blank" : pickerMode;
                 }, true);
                 window.showDirectoryPicker = async function () {
                     if (pickerMode !== "import") return makeDirectory("浏览器工程");
@@ -550,10 +553,11 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260912-alt-copy-01"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260913-startup-01"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
+      <link rel="stylesheet" href="./startup-entry.css?v=20260913-startup-01">
       <style>
         .laowu-canvas-viewport {
           overflow: clip !important;
