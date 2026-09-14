@@ -21,7 +21,7 @@ test("Apollo GPT Image 2 keeps request model and resolution mapping isolated", (
 
 test("Apollo GPT Image 2 uses the RH quality and extended ratio controls", () => {
     assert.match(bundle, /isGptImageModel=\["gpt-image-2","gpt-image-2\.5"\]\.includes\(pr\(e\.model\)\)&&\(isApilioSite\(e\)\|\|isTudouSite\(e\)\|\|isRunningHubSite\(e\)/);
-    assert.match(bundle, /ratioPresets=orderRatioPresets\(isGptImageModel\?\[\.\.\.pg,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]/);
+    assert.match(bundle, /ratioPresets=orderRatioPresets\(isRunningHub25\?runningHub25RatioOptions\(e,\[\.\.\.pg,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]\):isGptImageModel\?\[\.\.\.pg,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]/);
     assert.match(bundle, /gptQualityOptions=GPT_IMAGE_QUALITY_OPTIONS/);
     assert.match(bundle, /children:gptQualityOptions\.map\(k=>y\.jsx\(GL/);
 });

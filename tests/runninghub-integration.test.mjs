@@ -49,8 +49,13 @@ test("RH Nano Banana Pro request mapping keeps 4K lowercase", () => {
 });
 
 test("RH exposes image and text models and maps Auto to the provider's legal 1K value", () => {
-    assert.deepEqual(RUNNINGHUB_SITE_MODELS, ["nano-banana-pro", "gpt-image-2", "google/gemini-3.7-flash"]);
-    assert.deepEqual(RUNNINGHUB_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2"]);
+    assert.deepEqual(RUNNINGHUB_SITE_MODELS, [
+        "nano-banana-pro",
+        "gpt-image-2",
+        "gpt-image-2.5",
+        "google/gemini-3.7-flash",
+    ]);
+    assert.deepEqual(RUNNINGHUB_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"]);
     assert.deepEqual(RUNNINGHUB_TEXT_MODELS, ["google/gemini-3.7-flash"]);
     assert.equal(RUNNINGHUB_LLM_ORIGIN, "https://llm.runninghub.ai");
     assert.equal(runningHubResolution({ quality: "auto" }), "1k");
@@ -61,6 +66,152 @@ test("RH exposes image and text models and maps Auto to the provider's legal 1K 
     );
     assert.equal(request.body.resolution, "1k");
     assert.equal(request.body.aspectRatio, undefined);
+});
+
+test("RH GPT Image 2.5 fixed mode routes Flare and Sunburst with only supported fields", () => {
+    const flare = runningHubImageRequestSpec(
+        {
+            model: "gpt-image-2.5",
+            runningHubGpt25Variant: "flare",
+            runningHubGpt25Mode: "fixed",
+            quality: "2k",
+            size: "9:16",
+            gptImageQuality: "max",
+            runningHubBackground: "transparent",
+            runningHubOutputFormat: "webp",
+        },
+        "draw a poster",
+    );
+    assert.equal(flare.endpoint, "/openapi/v2/rhart-image-g-2.5/flare/text-to-image");
+    assert.deepEqual(flare.body, {
+        prompt: "draw a poster",
+        aspectRatio: "9:16",
+        resolution: "2k",
+    });
+
+    const sunburst = runningHubImageRequestSpec(
+        {
+            model: "runninghub::gpt-image-2.5",
+            runningHubGpt25Variant: "sunburst",
+            runningHubGpt25Mode: "fixed",
+            quality: "4k",
+            size: "21:9",
+        },
+        "edit the composition",
+        ["https://example.com/reference.png"],
+    );
+    assert.equal(sunburst.endpoint, "/openapi/v2/rhart-image-g-2.5/sunburst/image-to-image");
+    assert.deepEqual(sunburst.body, {
+        imageUrls: ["https://example.com/reference.png"],
+        prompt: "edit the composition",
+        aspectRatio: "21:9",
+        resolution: "4k",
+    });
+});
+
+test("RH GPT Image 2.5 official mode sends RH quality, background and output format", () => {
+    const spec = runningHubImageRequestSpec(
+        {
+            model: "gpt-image-2.5",
+            runningHubGpt25Variant: "sunburst",
+            runningHubGpt25Mode: "official",
+            quality: "4k",
+            size: "16:9",
+            gptImageQuality: "high",
+            runningHubBackground: "transparent",
+            runningHubOutputFormat: "jpeg",
+        },
+        "separate the elements",
+        ["https://example.com/reference.png"],
+    );
+    assert.equal(spec.endpoint, "/openapi/v2/rhart-image-g-2.5-official-token/sunburst/edit");
+    assert.deepEqual(spec.body, {
+        imageUrls: ["https://example.com/reference.png"],
+        prompt: "separate the elements",
+        aspectRatio: "16:9",
+        resolution: "4k",
+        background: "transparent",
+        quality: "high",
+        outputFormat: "jpeg",
+    });
+});
+
+test("RH GPT Image 2.5 fixed price is visible and official price is delegated to RH", () => {
+    for (const resolution of ["auto", "1k", "2k", "4k"]) {
+        assert.equal(
+            runningHubImagePrice({
+                model: "gpt-image-2.5",
+                runningHubGpt25Mode: "fixed",
+                quality: resolution,
+            }, false),
+            0.03,
+        );
+        assert.equal(
+            runningHubImagePrice({
+                model: "gpt-image-2.5",
+                runningHubGpt25Mode: "fixed",
+                quality: resolution,
+            }, true),
+            0.03,
+        );
+        assert.equal(
+            runningHubImagePrice({
+                model: "gpt-image-2.5",
+                runningHubGpt25Mode: "official",
+                quality: resolution,
+            }, false),
+            null,
+        );
+    }
+});
+
+test("RH 2.5 routes each mode, variant and reference combination independently", () => {
+    for (const runningHubGpt25Mode of ["fixed", "official"]) {
+        for (const runningHubGpt25Variant of ["flare", "sunburst"]) {
+            for (const hasReferences of [false, true]) {
+                const spec = runningHubImageRequestSpec({
+                    model: "runninghub::gpt-image-2.5",
+                    runningHubGpt25Mode,
+                    runningHubGpt25Variant,
+                    quality: "2k",
+                    gptImageQuality: "xhigh",
+                }, "test", hasReferences ? ["https://example.com/reference.png"] : []);
+                const prefix = runningHubGpt25Mode === "official"
+                    ? "rhart-image-g-2.5-official-token"
+                    : "rhart-image-g-2.5";
+                const action = !hasReferences ? "text-to-image"
+                    : runningHubGpt25Mode === "official" ? "edit" : "image-to-image";
+                assert.equal(spec.endpoint, `/openapi/v2/${prefix}/${runningHubGpt25Variant}/${action}`);
+                assert.equal(spec.body.quality, runningHubGpt25Mode === "official" ? "xhigh" : undefined);
+            }
+        }
+    }
+});
+
+test("RH 2.5 official accepts sixteen references without changing old model limits", async () => {
+    const references = Array.from({ length: 16 }, (_, index) => `https://example.com/${index}.png`);
+    let calls = 0;
+    const options = {
+        fetchImpl: async (_url, init) => {
+            calls++;
+            assert.equal(JSON.parse(init.body).imageUrls.length, 16);
+            return jsonResponse({ status: "SUCCESS", results: [{ url: "https://example.com/result.png" }] });
+        },
+    };
+    await runRunningHubImageGeneration({
+        apiKey: "mock-key", model: "gpt-image-2.5", runningHubGpt25Mode: "official",
+    }, "test", references, options);
+    assert.equal(calls, 1);
+    for (const config of [
+        { model: "gpt-image-2.5", runningHubGpt25Mode: "fixed" },
+        { model: "gpt-image-2" },
+        { model: "nano-banana-pro" },
+    ]) {
+        await assert.rejects(runRunningHubImageGeneration(
+            { ...config, apiKey: "mock-key" }, "test", references, options,
+        ), /10/);
+    }
+    assert.equal(calls, 1, "invalid reference counts must not submit tasks");
 });
 
 test("RH Nano Banana Pro prices Auto, 1K and 2K at $0.06 and 4K at $0.07", () => {
