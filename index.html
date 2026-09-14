@@ -6,7 +6,7 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260913-startup-01" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260914-rh25-theme-01" crossorigin>
         <title>老屋作坊</title>
 
 <script>
@@ -553,7 +553,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260913-startup-01"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260914-rh25-theme-01"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -1916,25 +1916,26 @@
     </style>
 
     <style>
-        /* ── 主题切换过渡动画优化 ── */
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-            animation-duration: 0.3s;
-            animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        html.dark [data-connection-create-menu] button {
+            color: #f5f5f4 !important;
         }
-        ::view-transition-old(root) {
-            animation-name: theme-fade-out;
+        html.dark [data-connection-create-menu] button:hover,
+        html.dark [data-connection-create-menu] button:focus-visible {
+            background-color: #3a3631 !important;
+            color: #f5f5f4 !important;
         }
-        ::view-transition-new(root) {
-            animation-name: theme-fade-in;
+
+        /* Theme changes animate only the canvas background, not image snapshots. */
+        .laowu-canvas-viewport {
+            transition: background-color 160ms ease-out;
         }
-        @keyframes theme-fade-out {
-            from { opacity: 1; }
-            to { opacity: 0; }
+        [data-theme-toggle][aria-busy="true"] {
+            cursor: progress;
         }
-        @keyframes theme-fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @media (prefers-reduced-motion: reduce) {
+            .laowu-canvas-viewport {
+                transition: none;
+            }
         }
 
         /* ── 预览对话框：确保关闭按钮/底部工具栏在暗色模式下可见 ── */

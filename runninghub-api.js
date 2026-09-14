@@ -2,9 +2,12 @@ export const RUNNINGHUB_ORIGIN = "https://www.runninghub.ai";
 export const RUNNINGHUB_LLM_ORIGIN = "https://llm.runninghub.ai";
 export const RUNNINGHUB_SITE_ID = "runninghub";
 export const RUNNINGHUB_SITE_NAME = "RH";
-export const RUNNINGHUB_SITE_MODELS = ["nano-banana-pro", "gpt-image-2", "google/gemini-3.7-flash"];
-export const RUNNINGHUB_IMAGE_MODELS = ["nano-banana-pro", "gpt-image-2"];
+export const RUNNINGHUB_SITE_MODELS = ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5", "google/gemini-3.7-flash"];
+export const RUNNINGHUB_IMAGE_MODELS = ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"];
 export const RUNNINGHUB_TEXT_MODELS = ["google/gemini-3.7-flash"];
+
+export const RUNNINGHUB_GPT25_VARIANTS = ["flare", "sunburst"];
+export const RUNNINGHUB_GPT25_MODES = ["fixed", "official"];
 
 export const RUNNINGHUB_ASPECT_RATIOS = [
     "1:1",
@@ -51,7 +54,7 @@ const GPT_IMAGE_REFERENCE_PRICES = {
 
 const REFERENCE_TARGET_BYTES = 10 * 1024 * 1024;
 const REFERENCE_MAX_EDGE = 2048;
-const TASK_TIMEOUT_MS = 5 * 60 * 1000;
+const TASK_TIMEOUT_MS = 10 * 60 * 1000;
 const uploadedReferences = new WeakMap();
 
 export function isRunningHubSite(config) {
@@ -65,9 +68,9 @@ export function runningHubImageModel(config) {
         .toLowerCase()
         .split("::")
         .at(-1);
-    return value === "gpt-image-2" || value === "gpt-image-2-all"
-        ? "gpt-image-2"
-        : "nano-banana-pro";
+    if (value === "gpt-image-2" || value === "gpt-image-2-all") return "gpt-image-2";
+    if (value === "gpt-image-2.5" || value === "gpt-image-2-5") return "gpt-image-2.5";
+    return "nano-banana-pro";
 }
 
 export function runningHubResolution(config) {
@@ -81,22 +84,83 @@ export function runningHubResolution(config) {
 
 export function runningHubQuality(config) {
     const value = String(config?.gptImageQuality || "medium").trim().toLowerCase();
-    return ["low", "medium", "high"].includes(value) ? value : "medium";
+    const allowed = runningHubImageModel(config) === "gpt-image-2.5"
+        ? ["auto", "low", "medium", "high", "xhigh", "max"]
+        : ["low", "medium", "high"];
+    return allowed.includes(value) ? value : "medium";
+}
+
+export function runningHubGpt25Variant(config) {
+    const value = String(config?.runningHubGpt25Variant || "flare")
+        .trim()
+        .toLowerCase();
+    return RUNNINGHUB_GPT25_VARIANTS.includes(value) ? value : "flare";
+}
+
+export function runningHubGpt25Mode(config) {
+    const value = String(config?.runningHubGpt25Mode || "fixed").trim().toLowerCase();
+    return RUNNINGHUB_GPT25_MODES.includes(value) ? value : "fixed";
+}
+
+export function runningHubGpt25Background(config) {
+    const value = String(config?.runningHubBackground || "auto")
+        .trim()
+        .toLowerCase();
+    return ["auto", "opaque", "transparent"].includes(value) ? value : "auto";
+}
+
+export function runningHubGpt25OutputFormat(config) {
+    const value = String(config?.runningHubOutputFormat || "png")
+        .trim()
+        .toLowerCase();
+    return ["png", "jpeg", "webp"].includes(value) ? value : "png";
+}
+
+export function runningHubSupportedAspectRatios(config) {
+    const model = runningHubImageModel(config);
+    if (model === "gpt-image-2.5" && runningHubGpt25Mode(config) === "fixed") {
+        // Economy requests reject the five extra ratios despite the shared docs.
+        return RUNNINGHUB_ASPECT_RATIOS;
+    }
+    return ["gpt-image-2", "gpt-image-2.5"].includes(model)
+        ? RUNNINGHUB_GPT_IMAGE_ASPECT_RATIOS
+        : RUNNINGHUB_ASPECT_RATIOS;
 }
 
 export function runningHubAspectRatio(config) {
     const value = String(config?.size || "auto").trim().toLowerCase();
-    const ratios = runningHubImageModel(config) === "gpt-image-2"
-        ? RUNNINGHUB_GPT_IMAGE_ASPECT_RATIOS
-        : RUNNINGHUB_ASPECT_RATIOS;
+    const ratios = runningHubSupportedAspectRatios(config);
     if (ratios.includes(value)) return value;
     return undefined;
+}
+
+export function runningHubReferenceAspectRatio(config, width, height) {
+    if (runningHubImageModel(config) !== "gpt-image-2.5"
+        || String(config?.size || "auto").trim().toLowerCase() !== "auto") {
+        return config;
+    }
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+        throw new Error("RH 无法读取第一张参考图的比例，请重新载入图片或手动选择比例");
+    }
+    const ratio = width / height;
+    // Log distance treats portrait and landscape matches symmetrically.
+    const size = runningHubSupportedAspectRatios(config).reduce((best, candidate) => {
+        const distance = (value) => {
+            const [w, h] = value.split(":").map(Number);
+            return Math.abs(Math.log(ratio / (w / h)));
+        };
+        return distance(candidate) < distance(best) ? candidate : best;
+    });
+    return { ...config, size };
 }
 
 export function runningHubImagePrice(config, hasReferences = false) {
     const resolution = runningHubResolution(config);
     if (runningHubImageModel(config) === "nano-banana-pro") {
         return resolution === "4k" ? 0.07 : 0.06;
+    }
+    if (runningHubImageModel(config) === "gpt-image-2.5") {
+        return runningHubGpt25Mode(config) === "fixed" ? 0.03 : null;
     }
     const prices = hasReferences ? GPT_IMAGE_REFERENCE_PRICES : GPT_IMAGE_TEXT_PRICES;
     return prices[runningHubQuality(config)][resolution];
@@ -106,9 +170,20 @@ export function runningHubImageRequestSpec(config, prompt, imageUrls = []) {
     const hasReferences = imageUrls.length > 0;
     const aspectRatio = runningHubAspectRatio(config);
     const model = runningHubImageModel(config);
+    const isGptImage25 = model === "gpt-image-2.5";
     const isGptImage = model === "gpt-image-2";
+    const variant = runningHubGpt25Variant(config);
+    const isOfficial25 = isGptImage25 && runningHubGpt25Mode(config) === "official";
+    const apiModel = isOfficial25
+        ? "g-2.5-official-token"
+        : "g-2.5";
+    const variantPath = isGptImage25 ? `/${variant}` : "";
     return {
-        endpoint: isGptImage
+        endpoint: isGptImage25
+            ? hasReferences
+                ? `/openapi/v2/rhart-image-${apiModel}${variantPath}/${isOfficial25 ? "edit" : "image-to-image"}`
+                : `/openapi/v2/rhart-image-${apiModel}${variantPath}/text-to-image`
+            : isGptImage
             ? hasReferences
                 ? "/openapi/v2/rhart-image-g-2-official/image-to-image"
                 : "/openapi/v2/rhart-image-g-2-official/text-to-image"
@@ -120,7 +195,15 @@ export function runningHubImageRequestSpec(config, prompt, imageUrls = []) {
             prompt: String(prompt || "").trim(),
             ...(aspectRatio ? { aspectRatio } : {}),
             resolution: runningHubResolution(config),
-            ...(isGptImage ? { quality: runningHubQuality(config) } : {}),
+            ...(isGptImage
+                ? { quality: runningHubQuality(config) }
+                : isGptImage25 && isOfficial25
+                    ? {
+                        background: runningHubGpt25Background(config),
+                        quality: runningHubQuality(config),
+                        outputFormat: runningHubGpt25OutputFormat(config),
+                    }
+                    : {}),
         },
     };
 }
@@ -230,7 +313,10 @@ function retryableQueryError(error) {
 export async function runRunningHubImageGeneration(config, prompt, imageUrls = [], options = {}) {
     if (!String(config?.apiKey || "").trim()) throw new Error("请先填写 RH API Key");
     if (!String(prompt || "").trim()) throw new Error("请输入提示词");
-    if (imageUrls.length > 10) throw new Error("RH 最多支持 10 张参考图");
+    const maxReferences = runningHubImageModel(config) === "gpt-image-2.5" && runningHubGpt25Mode(config) === "official"
+        ? 16
+        : 10;
+    if (imageUrls.length > maxReferences) throw new Error(`RH 最多支持 ${maxReferences} 张参考图`);
 
     const fetchImpl = options.fetchImpl || fetch;
     const sleep = options.sleep || wait;

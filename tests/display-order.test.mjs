@@ -55,7 +55,7 @@ test("all site and ratio selectors use the shared display order", () => {
     assert.match(bundle, /orderSiteChannels\(siteConfig\.channels\|\|\[\]\)\.map/);
     assert.match(bundle, /orderModelReferences\(Array\.from\(new Set/);
     assert.match(bundle, /orderModelReferences\(CS\(e,"image"\)\.filter\(mke\)\)/);
-    assert.match(bundle, /options:orderRatioPresets\(isGptImageConfig\?/);
-    assert.match(bundle, /ratioPresets=orderRatioPresets\(isGptImageModel\?/);
-    assert.match(bundle, /items:orderRatioPresets\(v\?/);
+    assert.match(bundle, /options:orderRatioPresets\(isRunningHubGpt25\?runningHub25RatioOptions\(\{\.\.\.a,model:a\.imageModel\|\|a\.model\},\[\.\.\.J2e,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]\):isGptImageConfig\?/);
+    assert.match(bundle, /ratioPresets=orderRatioPresets\(isRunningHub25\?runningHub25RatioOptions\(e,\[\.\.\.pg,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]\):isGptImageModel\?/);
+    assert.match(bundle, /items:orderRatioPresets\(isRunningHub25\?runningHub25RatioOptions\(t,\[\.\.\.pX,\.\.\.GPT_IMAGE_EXTRA_RATIO_PRESETS\]\):v\?/);
 });
