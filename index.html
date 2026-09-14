@@ -6,7 +6,7 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260914-rh25-theme-01" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260914-menu-labels-01" crossorigin>
         <title>老屋作坊</title>
 
 <script>
@@ -553,7 +553,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260914-rh25-theme-01"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260914-menu-labels-01"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -1512,7 +1512,9 @@
           min-width: 0;
           flex-wrap: nowrap;
           justify-content: space-between;
-          overflow: visible;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: none;
         }
         .canvas-generation-toolbar.is-apimart-fixed > div:first-child {
           flex: 1 1 auto;
@@ -1524,6 +1526,22 @@
         .canvas-generation-toolbar .canvas-generation-select,
         .canvas-generation-toolbar .canvas-prompt-preset-select {
           flex: 0 0 auto;
+        }
+        .canvas-generation-select {
+          width: max-content !important;
+          min-width: max-content !important;
+        }
+        .canvas-generation-select > span {
+          flex: 0 0 auto;
+          overflow: visible;
+          text-overflow: clip;
+          white-space: nowrap;
+        }
+        .canvas-generation-select > svg {
+          flex-shrink: 0;
+        }
+        .canvas-generation-toolbar > div:first-child::-webkit-scrollbar {
+          display: none;
         }
         .canvas-generation-panel[data-canvas-width-locked="true"] .canvas-generation-toolbar > div:first-child {
           overflow-x: auto;
@@ -1578,7 +1596,9 @@
           min-width: 0;
           flex-wrap: nowrap;
           justify-content: space-between;
-          overflow: visible;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: none;
         }
         .canvas-generation-panel:has(.canvas-model-select[title^="gpt-image-2"]) .canvas-generation-toolbar > div:last-child {
           margin-left: 4px !important;
@@ -1608,6 +1628,17 @@
         .dark .canvas-model-menu > div,
         .dark .canvas-model-menu > div > div {
           background: #1c1917 !important;
+        }
+        .dark .canvas-model-menu > div > div > div:first-child {
+          background: #171717 !important;
+        }
+        .dark .canvas-model-menu > div > div > div:first-child > button {
+          color: #d6d3d1 !important;
+        }
+        .dark .canvas-model-menu > div > div > div:first-child > button:hover,
+        .dark .canvas-model-menu > div > div > div:first-child > button.bg-white {
+          background: #292524 !important;
+          color: #fafaf9 !important;
         }
         .dark .canvas-model-menu button {
           color: #d6d3d1 !important;
@@ -2018,9 +2049,22 @@
   background: #1c1917 !important;
 }
 
-/* Dark mode: provider icons white */
+/* Keep the multicolor Google mark unchanged in both themes. */
+img[src*="/gemini.svg"] {
+  filter: none !important;
+}
+.canvas-provider-icon,
+img[src*="/gemini.svg"],
+img[src*="/openai.svg"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* Dark mode: monochrome provider icons white */
 .dark img[src*="/openai.svg"],
-.dark img[src*="/gemini.svg"],
 .dark img[src*="/grok.svg"],
 .dark img[src*="/deepseek.svg"],
 .dark img[src*="/claude.svg"] {

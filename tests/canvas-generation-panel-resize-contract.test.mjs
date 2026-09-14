@@ -55,7 +55,7 @@ test("prompt editors no longer expose an inner resize handle", () => {
     );
 });
 
-test("parameter controls keep fixed widths and stay on one row", () => {
+test("parameter controls keep intrinsic widths and stay on one scrollable row", () => {
     assert.match(
         indexHtml,
         /\.canvas-generation-toolbar \{[^}]*height: 48px !important;[^}]*min-height: 48px;[^}]*width: 100%;[^}]*max-width: 100%;[^}]*flex-wrap: nowrap;[^}]*align-content: center;[^}]*overflow: visible;[^}]*box-sizing: border-box;/s,
@@ -66,7 +66,7 @@ test("parameter controls keep fixed widths and stay on one row", () => {
     );
     assert.match(
         indexHtml,
-        /\.canvas-generation-toolbar > div:first-child \{[^}]*overflow: visible;/s,
+        /\.canvas-generation-toolbar > div:first-child \{[^}]*overflow-x: auto;[^}]*overflow-y: hidden;/s,
     );
     assert.match(
         indexHtml,
