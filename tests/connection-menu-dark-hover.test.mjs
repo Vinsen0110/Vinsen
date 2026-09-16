@@ -42,6 +42,14 @@ function runtime() {
     const jsx = (type, props) => ({ type, props });
     const context = vm.createContext({
         y: { jsx, jsxs: jsx },
+        c: {
+            useRef: current => ({ current }),
+            useState: initial => [initial, () => {}],
+            useLayoutEffect: () => {},
+        },
+        Lo: { createPortal: element => element },
+        document: { body: {} },
+        window: { innerHeight: 900 },
         xr: { dark: { node: { stroke: "#44403c" } } },
         fr: selector => selector({ theme: "dark" }),
         g7: "ImageIcon",
