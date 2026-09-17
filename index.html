@@ -6,7 +6,7 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260917-personal-cloudinary-01" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260917-tudou-price-preview-01" crossorigin>
         <title>老屋作坊</title>
 
 <script>
@@ -553,7 +553,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260917-personal-cloudinary-01"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260917-tudou-price-preview-01"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -1827,7 +1827,55 @@
         .dark .laowu-config-modal input::placeholder {
           color: #78716c !important;
         }
+        .canvas-image-viewer {
+          --viewer-overlay: rgba(255, 255, 255, .78);
+          --viewer-panel: rgba(255, 255, 255, .88);
+          --viewer-hover: #fff;
+          --viewer-border: #e7e5e4;
+          --viewer-text: #44403c;
+          --viewer-muted: #57534e;
+          --viewer-title: #292524;
+          --viewer-shadow: rgba(15, 23, 42, .18);
+          background: var(--viewer-overlay);
+          color: var(--viewer-text);
+        }
+        .dark .canvas-image-viewer {
+          --viewer-overlay: rgba(15, 16, 18, .92);
+          --viewer-panel: rgba(32, 33, 37, .94);
+          --viewer-hover: #303238;
+          --viewer-border: #45474f;
+          --viewer-text: #f3f4f6;
+          --viewer-muted: #c3c5cc;
+          --viewer-title: #f9fafb;
+          --viewer-shadow: rgba(0, 0, 0, .55);
+        }
+        .canvas-image-viewer-control,
+        .canvas-image-viewer-info {
+          background: var(--viewer-panel);
+          border-color: var(--viewer-border);
+          color: var(--viewer-text);
+        }
+        .canvas-image-viewer-control:hover {
+          background: var(--viewer-hover);
+        }
+        .canvas-image-viewer-control:focus-visible {
+          outline: 2px solid #ec4899;
+          outline-offset: 3px;
+        }
+        .canvas-image-viewer-info {
+          color: var(--viewer-muted);
+        }
+        .canvas-image-viewer-title {
+          color: var(--viewer-title);
+        }
+        .canvas-image-viewer-image {
+          box-shadow: 0 20px 80px var(--viewer-shadow);
+        }
         @media (max-width: 767px) {
+          .canvas-image-viewer-info {
+            bottom: 72px;
+            left: 16px;
+          }
           .canvas-site-control {
             top: 8px;
             left: 8px;
