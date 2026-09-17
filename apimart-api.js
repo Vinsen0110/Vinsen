@@ -1,9 +1,9 @@
 export const APIMART_ORIGIN = "https://api.apimart.ai";
 export const APIMART_SITE_ID = "apimart";
 export const APIMART_SITE_NAME = "Mart";
-export const APIMART_SITE_MODELS = ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"];
-export const APIMART_IMAGE_MODELS = APIMART_SITE_MODELS;
-export const APIMART_TEXT_MODELS = [];
+export const APIMART_IMAGE_MODELS = ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"];
+export const APIMART_TEXT_MODELS = ["gemini-3.8-flash"];
+export const APIMART_SITE_MODELS = [...APIMART_IMAGE_MODELS, ...APIMART_TEXT_MODELS];
 export const APIMART_BACKEND_MODEL = "gemini-3-pro-image-preview";
 export const APIMART_GPT_FIXED_BACKEND_MODEL = "gpt-image-2";
 export const APIMART_GPT_OFFICIAL_BACKEND_MODEL = "gpt-image-2-official";

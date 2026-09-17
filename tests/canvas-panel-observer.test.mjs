@@ -149,6 +149,28 @@ test("manually locked width returns before any layout measurement", () => {
     assert.doesNotThrow(() => update(panel));
 });
 
+test("text panel width follows its controls while image panels retain their 660px floor", () => {
+    const controls = { children: [{ offsetWidth: 190 }, { offsetWidth: 100 }] };
+    const action = { offsetWidth: 84 };
+    const parent = {};
+    const toolbar = { firstElementChild: controls, lastElementChild: action, parentElement: parent };
+    const panel = isText => ({
+        querySelector: selector => selector === ".canvas-text-model-picker" ? isText : toolbar,
+    });
+    const context = vm.createContext({
+        minWidth: 660,
+        getComputedStyle: () => ({ columnGap: "8px", marginLeft: "0", marginRight: "0" }),
+        getHorizontalExtras: element => element === toolbar ? 18 : 24,
+    });
+    const minimum = vm.runInContext(`(${sourceFunction(panelScript, "getMinimumWidth")})`, context);
+    assert.equal(minimum(panel(true)), 432);
+    assert.equal(minimum(panel(false)), 660);
+    controls.children[0].offsetWidth = 550;
+    assert.equal(minimum(panel(true)), 792, "longer model names must not overlap the action");
+    assert.match(html, /\.canvas-generation-panel:has\(\.canvas-text-model-picker\)\s*\{[^}]*min-width:\s*min\(420px, calc\(100vw - 32px\)\)/);
+    assert.match(html, /\.canvas-generation-toolbar:has\(\.canvas-text-model-picker\) > div:first-child\s*\{[^}]*justify-content:\s*flex-start;[^}]*gap:\s*8px;/);
+});
+
 function editorHarness() {
     const queries = [];
     class EditorElement extends Element {

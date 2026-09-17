@@ -16,6 +16,37 @@ const shell = section("Bze=xe.memo(", "function Fze(");
 const text = section("function Gze(", "function Kze(");
 const result = section("function Kze(", "function Xze(");
 
+test("canvas text model controls fit the label without stretching the arrow gap", () => {
+    const rule = indexHtml.match(/\.canvas-generation-toolbar \.canvas-text-model-picker\s*\{([^}]+)\}/)?.[1];
+    assert.ok(rule);
+    assert.match(rule, /flex:\s*0 0 auto;/);
+    assert.match(rule, /width:\s*max-content !important;/);
+    assert.match(rule, /min-width:\s*0;/);
+    assert.match(rule, /gap:\s*8px;/);
+    assert.match(indexHtml, /\.canvas-generation-toolbar \.canvas-text-model-picker \.canvas-model-picker-text\s*\{[^}]*flex:\s*0 1 auto;/);
+});
+
+test("text generation action stays right-aligned when the panel grows", () => {
+    assert.match(indexHtml, /\.canvas-generation-toolbar:has\(\.canvas-text-model-picker\)\s*\{[^}]*justify-content:\s*space-between;/);
+    assert.match(indexHtml, /\.canvas-generation-toolbar:has\(\.canvas-text-model-picker\) > div:first-child\s*\{[^}]*flex:\s*0 0 auto;[^}]*justify-content:\s*flex-start;/);
+});
+
+test("text model trigger and portalled menu have explicit dark theme colors", () => {
+    const picker = section("function Td(", "function Y2e(");
+    assert.match(picker, /r==="text"&&"canvas-text-model-picker"/);
+    assert.match(picker, /r==="text"&&"canvas-text-model-menu"/);
+    assert.match(indexHtml, /@layer theme\s*\{\s*\.dark \.canvas-text-model-picker\s*\{/);
+    for (const selector of [".canvas-text-model-picker", ".canvas-text-model-menu"]) {
+        const rule = indexHtml.match(new RegExp(`\\.dark \\${selector}\\s*\\{([^}]+)\\}`))?.[1];
+        assert.ok(rule, selector);
+        assert.match(rule, /background:\s*#292524\s*!important/);
+        assert.match(rule, /color:\s*#e7e5e4\s*!important/);
+        assert.match(rule, /border-color:\s*#57534e\s*!important/);
+    }
+    assert.match(indexHtml, /\.dark \.canvas-text-model-picker:hover\s*\{[^}]*background:\s*#3a3634\s*!important/);
+    assert.match(indexHtml, /\.dark \.canvas-text-model-menu \[role="option"\]\[data-highlighted\]\s*\{[^}]*background:\s*#44403c\s*!important/);
+});
+
 test("reverse theme scope is applied only to reverse-prompt nodes", () => {
     assert.match(
         bundle,
