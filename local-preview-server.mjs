@@ -110,6 +110,8 @@ async function proxyTudouGeminiStream(request, response, target, headers, payloa
             redirect: "manual",
             signal: controller.signal,
         });
+        // Once upstream bytes start flowing, comments must never split an SSE frame.
+        clearInterval(heartbeat);
         if (!upstream.ok) {
             const raw = await upstream.text();
             let message = raw || `Tudou request failed (${upstream.status})`;
@@ -120,6 +122,16 @@ async function proxyTudouGeminiStream(request, response, target, headers, payloa
                 // Keep the upstream text when it is not JSON.
             }
             response.write(sseData({ error: { message } }));
+            return;
+        }
+
+        if (!String(upstream.headers.get("content-type") || "").includes("text/event-stream")) {
+            const raw = await upstream.text();
+            try {
+                response.write(sseData(JSON.parse(raw)));
+            } catch {
+                response.write(sseData({ error: { message: raw || "Tudou returned an empty response" } }));
+            }
             return;
         }
 

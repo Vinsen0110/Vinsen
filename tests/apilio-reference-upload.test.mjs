@@ -179,7 +179,7 @@ test("all Apilio reference branches use the Apilio file uploader", () => {
     assert.match(bundle, /submitApilioNanoImages\(a,l,d,i,o\?\.signal,o\?\.onProgress\)/);
     assert.match(bundle, /submitImageRequest\(e,"\/images\/generations",i,wA\(e,"application\/json"\),o,!0,a\)/);
     assert.match(bundle, /function apilioNanoImagePayload\(e,t,n=\[\]\).*model:"nano-banana-pro".*aspect_ratio:o.*image:n.*image_size:r.*prompt:Zq\(e,t\),response_format:"url"/);
-    assert.match(bundle, /f\.set\("key",a\),f\.set\("image",d,l\?"reference\.webp":t\.name\|\|"reference\.png"\)/, "Tudou must keep its ImgBB upload path");
+    assert.match(bundle, /f\.set\("key",a\),f\.set\("image",d,l\?"reference\.webp":t\.name\|\|"reference\.png"\)/, "explicit ImgBB fallback must remain available");
 });
 
 test("localhost keeps Chrome's native directory picker for real local projects", async () => {
