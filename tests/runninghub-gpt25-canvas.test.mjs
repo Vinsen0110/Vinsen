@@ -93,7 +93,7 @@ const ${source.slice(extraRatioStart, source.indexOf(";", extraRatioStart) + 1)}
     context,
 );
 for (const name of [
-    "ES", "$S", "pr", "vX", "gke", "runningHubUiParams", "RunningHub25Controls",
+    "ES", "$S", "pr", "imageNodeConfig", "vX", "gke", "runningHubUiParams", "RunningHub25Controls",
     "runningHub25RatioValue", "runningHub25RatioOptions", "runningHub25ModePatch",
     "apiMartGptMode", "apiMartGpt25Variant", "apiMartOfficialQuality",
     "defaultImageModelParams", "canonicalImageModel", "normalizeImageModelParams",

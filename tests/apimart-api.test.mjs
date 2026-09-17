@@ -291,7 +291,7 @@ test("compiled app keeps APIMart isolated from the four existing sites", () => {
     assert.match(bundle, /u=isApiMartSite\(e\)\|\|isApiMartSite\(r\).*u\?apiMartImagePrice\(e\)/);
     assert.match(bundle, /isApiMartSite\(K\).*fetchApiMartTokenBalance\(K\)/);
     assert.match(bundle, /isApiMartSite\(le\).*fetchApiMartUserBalance\(le\)/);
-    assert.deepEqual(APIMART_TEXT_MODELS, []);
+    assert.deepEqual(APIMART_TEXT_MODELS, ["gemini-3.8-flash"]);
 });
 
 test("APIMart settings share multi-key controls without a billing panel", () => {
@@ -317,10 +317,10 @@ test("APIMart settings share multi-key controls without a billing panel", () => 
 test("APIMart GPT Image 2 exposes isolated fixed and official controls", () => {
     assert.match(bundle, /APIMART_GPT_MODE_OPTIONS=\[\{value:"fixed",label:"固定"\},\{value:"official",label:"官方"\}\]/);
     assert.match(bundle, /APIMART_GPT25_VARIANT_OPTIONS=\[\{value:"flare",label:"Flare"\},\{value:"sunburst",label:"Sunburst"\}\]/);
-    assert.match(bundle, /APIMART_GPT_OFFICIAL_QUALITY_OPTIONS=\[\{value:"auto",label:"自动"\},\.\.\.GPT_IMAGE_QUALITY_OPTIONS\]/);
+    assert.match(bundle, /APIMART_GPT_OFFICIAL_QUALITY_OPTIONS=\[\{value:"auto",label:"Auto"\},\.\.\.GPT_IMAGE_QUALITY_OPTIONS\]/);
     assert.match(bundle, /APIMART_GPT_OUTPUT_FORMAT_OPTIONS=\[\{value:"png",label:"PNG"\},\{value:"jpeg",label:"JPEG"\},\{value:"webp",label:"WebP"\}\]/);
     assert.match(bundle, /APIMART_GPT_BACKGROUND_OPTIONS=\[\{value:"auto",label:"自动"\},\{value:"opaque",label:"不透明"\},\{value:"transparent",label:"透明"\}\]/);
-    assert.match(bundle, /\(pr\(e\?\.model\|\|e\?\.imageModel\)==="gpt-image-2\.5"\?\["fixed","auto","low","medium","high","xhigh","max"\]:\["fixed","low","medium","high"\]\)\.includes\(r\)/);
+    assert.match(bundle, /\(!e\?\.model&&!e\?\.imageModel\|\|pr\(e\?\.model\|\|e\?\.imageModel\)==="gpt-image-2\.5"\?\["fixed","auto","low","medium","high","xhigh","max"\]:\["fixed","low","medium","high"\]\)\.includes\(r\)/);
     assert.match(bundle, /isApiMartGptImageConfig\?y\.jsxs\(y\.Fragment/);
     assert.match(bundle, /\(apiMartModeValue==="official"\)\?y\.jsxs\(y\.Fragment/);
     assert.match(bundle, /options:APIMART_GPT_OUTPUT_FORMAT_OPTIONS\.map/);

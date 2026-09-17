@@ -10,12 +10,12 @@ const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta
 
 test("supported text models stay isolated by site", () => {
     assert.match(bundle, /APOLLO_TEXT_MODELS=\["gemini-3\.8-flash"\]/);
-    assert.match(bundle, /TUDOU_TEXT_MODELS=\["gpt-5\.5"\]/);
+    assert.match(bundle, /TUDOU_TEXT_MODELS=\[\]/);
     assert.match(
         bundle,
         /function siteTextModelNames\(e\)\{return e===RUNNINGHUB_SITE_ID\?RUNNINGHUB_TEXT_MODELS:e===TUDOU_SITE_ID\?TUDOU_TEXT_MODELS:e===GRSAI_SITE_ID\?GRSAI_TEXT_MODELS:e===APIMART_SITE_ID\?APIMART_TEXT_MODELS:APOLLO_TEXT_MODELS\}/,
     );
-    assert.deepEqual(APIMART_TEXT_MODELS, []);
+    assert.deepEqual(APIMART_TEXT_MODELS, ["gemini-3.8-flash"]);
     assert.match(bundle, /textModels:siteModelRefs\(t,siteTextModelNames\(t\)\)/);
     assert.match(
         bundle,
@@ -25,15 +25,9 @@ test("supported text models stay isolated by site", () => {
     assert.doesNotMatch(bundle, /filter\(g=>!pr\(g\)\.toLowerCase\(\)\.includes\("gemini"\)\)/);
 });
 
-test("text model labels are unified without changing site request IDs", () => {
-    assert.match(
-        bundle,
-        /const APILIO_TEXT_MODEL_NAME="gemini-3\.8-flash",UNIFIED_TEXT_MODEL_NAME="gemini-3\.7-flash";/,
-    );
-    assert.match(
-        bundle,
-        /return r===DP&&n===APILIO_TEXT_MODEL_NAME\?APILIO_TEXT_MODEL_NAME:n===UNIFIED_TEXT_MODEL_NAME\|\|siteTextModelNames\(r\)\.includes\(n\)\?UNIFIED_TEXT_MODEL_NAME:n/,
-    );
+test("text model labels keep model names with only the RH display prefix omitted", () => {
+    assert.match(bundle, /r===RUNNINGHUB_SITE_ID&&n\.startsWith\("google\/"\)\?n\.slice\(7\):n/);
+    assert.doesNotMatch(bundle, /UNIFIED_TEXT_MODEL_NAME|APILIO_TEXT_MODEL_NAME/);
     assert.match(bundle, /r==="text"\?displayTextModelName\(e,v\):pr\(v\)/);
     assert.match(bundle, /textValue:r==="text"\?displayTextModelName\(e,w\):pr\(w\)/);
     assert.match(bundle, /APOLLO_TEXT_MODELS=\["gemini-3\.8-flash"\]/);
@@ -42,7 +36,7 @@ test("text model labels are unified without changing site request IDs", () => {
     assert.match(bundle, /l7=\["default::gemini-3\.8-flash"\]/);
     assert.match(bundle, /textModel:"default::gemini-3\.8-flash"/);
     assert.doesNotMatch(bundle, /APOLLO_TEXT_MODELS=\["gemini-3\.6-flash"\]/);
-    assert.match(bundle, /TUDOU_TEXT_MODELS=\["gpt-5\.5"\]/);
+    assert.match(bundle, /TUDOU_TEXT_MODELS=\[\]/);
     assert.match(bundle, /RUNNINGHUB_TEXT_MODELS/);
 });
 
@@ -59,7 +53,7 @@ test("settings expose an independent global text site and model", () => {
     assert.match(bundle, /onChange:\$=>h\(\{textModel:\$\}\)/);
 });
 
-test("Apilio, Tudou, and RH text generation use Chat Completions messages", async () => {
+test("Apilio, Tudou, RH, and Mart text generation use Chat Completions messages", async () => {
     const start = bundle.indexOf("function chatCompletionMessages");
     const end = bundle.indexOf("function SA", start);
     assert.ok(start >= 0 && end > start, "Chat Completions adapter should exist");
@@ -162,6 +156,22 @@ test("Apilio, Tudou, and RH text generation use Chat Completions messages", asyn
     assert.equal(runningHubBody.model, "google/gemini-3.7-flash");
     assert.deepEqual(runningHubBody.messages, [{ role: "user", content: "生成一段文字" }]);
     assert.equal(runningHubBody.stream, false);
+
+    await request(
+        {
+            provider: "apimart",
+            baseUrl: "https://api.apimart.ai",
+            apiKey: "test-key",
+            model: "gemini-3.8-flash",
+        },
+        [{ role: "user", content: "生成一段文字" }],
+    );
+    assert.equal(requests.length, 4);
+    assert.equal(requests[3].url, "https://api.apimart.ai/v1/chat/completions");
+    const apiMartBody = JSON.parse(requests[3].init.body);
+    assert.equal(apiMartBody.model, "gemini-3.8-flash");
+    assert.deepEqual(apiMartBody.messages, [{ role: "user", content: "生成一段文字" }]);
+    assert.equal(apiMartBody.stream, false);
 });
 
 test("text routing has no Responses endpoint", () => {
@@ -177,7 +187,7 @@ test("text routing has no Responses endpoint", () => {
 test("large text reference images are compressed only in the request copy", async () => {
     const start = bundle.indexOf("const TEXT_REFERENCE_MAX_EDGE");
     assert.ok(start >= 0, "temporary text reference compressor should exist");
-    const compressor = bundle.slice(start, bundle.indexOf("assertTudouWebRequestSize=", start));
+    const compressor = bundle.slice(start, bundle.indexOf("function imageNodeConfig", start));
     let disposed = false;
     let fetchedBlob = new Blob([new Uint8Array(8 * 1024 * 1024)], { type: "image/png" });
     const encodeCalls = [];
@@ -193,6 +203,8 @@ test("large text reference images are compressed only in the request copy", asyn
         "isTudouSite",
         "isApilioSite",
         "isRunningHubSite",
+        "isApiMartSite",
+        "uploadApiMartReferenceBlob",
         "usesCloudinaryReferenceHost",
         "cloudinaryReferenceSource",
         `${compressor};return prepareTextChatMessages;`,
@@ -232,6 +244,8 @@ test("large text reference images are compressed only in the request copy", asyn
         (config) => config?.provider === "tudou",
         (config) => config?.provider === "apilio",
         (config) => config?.provider === "runninghub",
+        (config) => config?.provider === "apimart",
+        async () => "https://cdn.example/apimart-text-reference.png",
         usesCloudinaryReferenceHost,
         async () => "https://res.cloudinary.com/test/image/upload/v1/reference.webp",
     );
@@ -269,6 +283,15 @@ test("large text reference images are compressed only in the request copy", asyn
     });
     assert.equal(tudouHosted[0].content[1].image_url.url, "https://res.cloudinary.com/test/image/upload/v1/reference.webp");
     assert.equal(uploads.length, 1, "Tudou must not use ImgBB, including when old settings select it");
+
+    fetchedBlob = new Blob([new Uint8Array(256 * 1024)], { type: "image/png" });
+    const apiMartHosted = await compressMessages(source, {
+        provider: "apimart",
+        baseUrl: "https://api.apimart.ai",
+        apiKey: "test-apimart-key",
+    });
+    assert.equal(apiMartHosted[0].content[1].image_url.url, "https://cdn.example/apimart-text-reference.png");
+    assert.equal(source[0].content[1].image_url.url, originalUrl);
 });
 
 test("oversized Tudou text requests no longer tell web users to switch apps", () => {
@@ -322,7 +345,7 @@ test("text requests use the global text route independently of the active image 
     );
     assert.match(
         bundle,
-        /function ODe\(e,t,n\)\{if\(t==="text"\)return textRequestConfig\(e\)\.textModel\|\|"";const r=CS\(e,t\)\|\|\[\],o=yx\(n,e\.channels,e\.activeSiteId\)/,
+        /function ODe\(e,t,n\)\{if\(t==="text"\)return textRequestConfig\(e\)\.textModel\|\|"";/,
     );
     assert.doesNotMatch(
         bundle,
@@ -374,7 +397,11 @@ test("canvas content edits update the immediate copy snapshot before generation"
 test("Ctrl/Cmd+C inside an unselected canvas prompt copies the node, not browser text", () => {
     assert.match(
         bundle,
-        /if\(le&&!K\.altKey&&Q==="c"&&editable\)\{const targetText=K\.target instanceof HTMLInputElement\|\|K\.target instanceof HTMLTextAreaElement\?K\.target:null,hasSelection=!!targetText&&typeof targetText\.selectionStart==="number"&&targetText\.selectionStart!==targetText\.selectionEnd,nodeElement=Ee\?\.closest\("\[data-node-id\]"\),nodeId=nodeElement\?\.getAttribute\("data-node-id"\);if\(!hasSelection&&nodeId\)\{oo\.current=new Set\(\[nodeId\]\);Ih\(\)&&\(K\.preventDefault\(\),K\.stopPropagation\(\)\)\}return\}/,
+        /if\(le&&!K\.altKey&&Q==="c"&&editable\)\{const targetText=K\.target instanceof HTMLInputElement\|\|K\.target instanceof HTMLTextAreaElement\?K\.target:null,hasSelection=!!targetText&&typeof targetText\.selectionStart==="number"&&targetText\.selectionStart!==targetText\.selectionEnd/,
+    );
+    assert.match(
+        bundle,
+        /nodeElement=Ee\?\.closest\("\[data-node-id\]"\),nodeId=nodeElement\?\.getAttribute\("data-node-id"\);if\(!hasSelection&&nodeId\)\{oo\.current=new Set\(\[nodeId\]\);Ih\(\)&&\(K\.preventDefault\(\),K\.stopPropagation\(\)\)\}return\}/,
     );
 });
 
