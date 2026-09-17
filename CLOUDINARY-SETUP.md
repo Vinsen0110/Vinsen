@@ -1,85 +1,68 @@
-# Cloudinary reference uploads
+# Personal Cloudinary reference uploads
 
-This integration changes only Tudou and GRSAI reference uploads. Apilio, RH,
-APIMart, model parameters, project originals, and existing ImgBB links are retained.
-Tudou and GRSAI always use Cloudinary for new hosted uploads, even when old settings
-contain an ImgBB preference. There is no ImgBB selector, key input, or fallback for
-these two providers. Existing public ImgBB image links remain readable.
+Only Tudou and GRSAI use this integration. Each user registers their own Cloudinary
+account and enters their own Cloud Name, API Key and API Secret in API settings.
+There is no shared account, application access code, Vercel environment variable,
+server signing endpoint or image-host fallback to ImgBB.
 
-## Required server configuration
+## Account setup
 
-Create a dedicated **signed** Cloudinary upload preset for reference images.
-Restrict allowed formats to `jpg,png,webp` and keep incoming/eager transformations
-disabled. Verify account-side size and pixel limits through the usage API's
-`media_limits`; the browser's 10,000,000-byte threshold is not a security boundary.
-The preset API did not retain `max_file_size` during local setup, so do not assume
-that sending this parameter enforces a preset-level size limit. The tested account
-reported 10,485,760 bytes and 25,000,000 pixels on 2026-09-17.
-Do not enable public unsigned uploads for this preset.
-Leave folder/public-ID prefix rules unset so the fixed signed public ID is preserved.
+1. Register a Cloudinary account and open its API credentials settings.
+2. Copy that account's Cloud Name, API Key and API Secret into this app's
+   Cloudinary fields. API Key and API Secret are masked in the UI.
+3. Use an account/key authorized for signed image uploads. No unsigned preset or
+   dedicated signed preset is required by this integration.
+4. Check the account's default upload preset and remove any unwanted incoming
+   transformations if original dimensions and transparency must be retained.
 
-Configure these environment variables on the server, never in the bundle:
+The account owns its uploaded images, storage, bandwidth limits and any charges.
+This integration does not configure billing, quotas, automatic deletion or
+Cloudinary usage alerts. Do not share one account's credentials with other users.
 
-| Variable | Value |
-| --- | --- |
-| `CLOUDINARY_CLOUD_NAME` | Product environment cloud name |
-| `CLOUDINARY_API_KEY` | API key |
-| `CLOUDINARY_API_SECRET` | Secret used only for signing |
-| `CLOUDINARY_UPLOAD_PRESET` | Dedicated signed upload preset name |
-| `CLOUDINARY_UPLOAD_TOKEN_HASHES` | Comma-separated SHA-256 hashes of authorized upload credentials |
+## Credential boundary
 
-Generate a random upload credential (at least 32 characters), hash it with SHA-256,
-and configure only its hash on the server. Distribute the credential privately to
-each authorized user, who enters it in the Cloudinary upload credential field.
-The field is labelled `上传服务访问码`. This is an application-issued access code,
-not an API key, API secret, or upload preset supplied by the Cloudinary dashboard.
-Revoke a user by removing their hash. These credentials are distinct from provider
-API keys and the Cloudinary API Secret.
+This is a bring-your-own-key browser client. Credentials are retained in the
+user's existing local browser app settings, not in Vercel, the source bundle,
+project image files or model-provider request bodies.
 
-The signing endpoint fails with 503 until configuration exists and with 401 for
-unauthorized credentials. Signed parameters are fixed server-side, with unique
-asset identifiers and `overwrite=false`. Images upload directly to Cloudinary:
-neither image bodies nor Cloudinary secrets go through the front-end configuration.
+The browser creates a SHA-256 upload signature with Web Crypto. Only the API Key,
+signature, timestamp, unique public ID, overwrite=false and image are sent
+directly to Cloudinary. The API Secret is used locally and is not sent to a
+signing server, Cloudinary upload endpoint or model provider.
 
-The endpoint includes a 20-signature/minute/token **per-instance** burst limiter.
-It is not a distributed quota, billing cap, or single-use-signature guarantee.
-Before a public/shared-account rollout, configure platform-level distributed
-rate limits and Cloudinary usage alerts. Cloudinary signatures have their own
-validity period; removing a token stops new signatures, not already issued ones.
+Local browser storage is NOT an encrypted credential vault. Scripts running on
+the same origin, browser extensions with access, or another person using that
+browser profile may access saved credentials. Only enter your own credentials
+on a trusted installation; do not use this model to distribute an operator-owned
+secret. This personal-account mode is not equivalent security to a backend-held
+secret.
 
-## Local and desktop routing
-
-Web: `/api/cloudinary-signature` runs on the deployed server.
-GitHub Pages requests the canonical `https://www.vinsen.top` signing endpoint.
-The local Node server uses server environment credentials when configured.
-Otherwise it forwards credentialed signing requests to the canonical hosted
-endpoint. The local route does not accept arbitrary upstream URLs or signing
-parameters. Server environment credentials are for local development only:
-do not package a `.env` or secrets into a desktop installer.
-
-Start a local preview with `PORT=4174 node local-preview-server.mjs`.
-This source change does not update any existing Windows installer.
+Changing accounts applies to new uploads. An upload already in progress keeps
+the account snapshot it started with. Existing public Cloudinary and ImgBB URLs
+remain usable and are never moved to a different account automatically.
 
 ## Image behavior
 
-Static JPEG, PNG, and WebP are supported. Compliant originals are uploaded byte
-for byte. Over-limit copies target 9,500,000 bytes and at most 25,000,000 pixels:
-quality is reduced at the original dimensions first, unless pixel limits already
-require proportional resizing. WebP/PNG preserve alpha, never JPEG flattening.
-Processing failures stop before model submission. Unsupported formats fail
-explicitly; animations are not silently flattened.
+Static JPEG, PNG and WebP are supported. Compliant originals are uploaded byte
+for byte. Oversized request copies target 9,500,000 bytes and at most 25,000,000
+pixels. Quality is reduced at original dimensions first, unless pixel limits
+already require proportional resizing. WebP/PNG preserve alpha.
 
-Only request copies are encoded. No stored blob, canvas metadata, source file,
-or saved project image is replaced by the upload result. Old trusted ImgBB and
-Cloudinary links are reused. There is no persistent upload cache or cloud asset
-deletion policy in this change; local original data remains authoritative.
+The browser starts compressing above 10,000,000 bytes. Actual limits depend on
+each user's Cloudinary account; this check is not an account-side security or
+billing limit. Unsupported formats and failed compression stop before model
+submission. No original file, stored blob, canvas image or project metadata is
+replaced by the uploaded copy. There is no persistent upload cache.
 
-Reference images are third-party-hosted public delivery assets. Use nonsensitive
-images for initial testing. Account configuration and real-network model access
-must be verified before deployment; mock tests do not prove provider acceptance.
+RH, Apilio and APIMart retain their native upload implementations and model
+parameters. This source change does not build or update Windows installers.
 
-## Reference
+## Local preview
 
-- https://cloudinary.com/documentation/upload_images
-- https://cloudinary.com/documentation/upload_presets
+Run `PORT=4186 node local-preview-server.mjs` without Cloudinary environment
+variables. Browser signing requires HTTPS or a secure localhost context.
+
+## References
+
 - https://cloudinary.com/documentation/authentication_signatures
+- https://cloudinary.com/documentation/upload_images

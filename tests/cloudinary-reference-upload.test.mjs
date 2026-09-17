@@ -3,41 +3,26 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
-import { spawn } from "node:child_process";
-import { once } from "node:events";
-import { createServer } from "node:net";
-import { fileURLToPath } from "node:url";
 import {
     CLOUDINARY_MAX_BYTES, CLOUDINARY_TARGET_BYTES, CLOUDINARY_MAX_PIXELS,
     usesCloudinaryReferenceHost, isCloudinaryImageUrl, isLegacyImgBbImageUrl,
     prepareCloudinaryReferenceBlob, uploadCloudinaryReferenceBlob, cloudinaryReferenceSource,
+    cloudinaryCredentials, signCloudinaryUpload,
 } from "../cloudinary-reference-upload.js";
-import { createCloudinarySignatureHandler } from "../api/cloudinary-signature.js";
 import { inlineTudouGeminiReferences } from "../tudou-reference-images.js";
 
 const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
-const token = "test-upload-token-with-at-least-32-characters";
-const env = {
-    CLOUDINARY_CLOUD_NAME: "test-cloud", CLOUDINARY_API_KEY: "123456",
-    CLOUDINARY_API_SECRET: "server-secret-never-in-client", CLOUDINARY_UPLOAD_PRESET: "test_preset",
-    CLOUDINARY_UPLOAD_TOKEN_HASHES: createHash("sha256").update(token).digest("hex"),
+const config = {
+    provider: "tudou", cloudinaryCloudName: "test-cloud", cloudinaryApiKey: "123456",
+    cloudinaryApiSecret: "synthetic-user-secret",
 };
-const config = { provider: "tudou", cloudinaryUploadToken: token };
 const input = new Blob(["original-image"], { type: "image/png" });
 const decodeImage = async () => ({ image: {}, width: 4096, height: 4096, dispose() {} });
-const request = (key = token, init = {}) => new Request("https://www.vinsen.top/api/cloudinary-signature", {
-    method: "POST", headers: { Authorization: `Bearer ${key}` }, ...init,
-});
-function signer(options = {}) {
-    return createCloudinarySignatureHandler({ env, rateWindows: new Map(), uuid: () => "test-id", ...options });
-}
-async function signedBody() {
-    return (await signer()(request())).json();
-}
-function responseImage(signed) {
+function responseImage(body, cloudName = config.cloudinaryCloudName) {
+    const publicId = body.get("public_id");
     return {
-        public_id: signed.params.public_id,
-        secure_url: `https://res.cloudinary.com/${signed.cloudName}/image/upload/v1/${signed.params.public_id}.png`,
+        public_id: publicId,
+        secure_url: `https://res.cloudinary.com/${cloudName}/image/upload/v1/${publicId}.png`,
     };
 }
 
@@ -158,44 +143,45 @@ test("cancellation releases decoded pixels without uploading", async () => {
     assert.equal(disposed, true);
 });
 
-test("signed upload sends original bytes and only upload parameters, never provider or application secrets", async () => {
-    const signed = await signedBody();
+test("personal upload signs locally and sends one direct request without any API Secret", async () => {
     const calls = [], progress = [];
     const url = await uploadCloudinaryReferenceBlob({ ...config, apiKey: "provider-secret" }, input, {
         decodeImage, onProgress: value => progress.push(value),
         fetchImpl: async (url, init) => {
             calls.push({ url, init });
-            if (calls.length === 1) {
-                assert.equal(url, "/api/cloudinary-signature");
-                assert.equal(init.headers.Authorization, `Bearer ${token}`);
-                return Response.json(signed);
-            }
             assert.equal(url, "https://api.cloudinary.com/v1_1/test-cloud/image/upload");
             assert.equal(init.headers, undefined);
             assert.equal(init.credentials, "omit");
             const body = init.body;
             assert.equal(body.get("api_key"), "123456");
-            assert.equal(body.get("signature"), signed.signature);
+            const serialized = ["overwrite", "public_id", "timestamp"].map(key => `${key}=${body.get(key)}`).join("&");
+            assert.equal(body.get("signature"), createHash("sha256").update(serialized + config.cloudinaryApiSecret).digest("hex"));
             assert.equal(body.get("overwrite"), "false");
             assert.deepEqual(await body.get("file").arrayBuffer(), await input.arrayBuffer());
             assert.equal(body.get("file").name, "reference.png");
             assert.equal(body.has("api_secret"), false);
             assert.equal(body.has("Authorization"), false);
-            return Response.json(responseImage(signed));
+            assert.equal(body.has("upload_preset"), false);
+            assert.ok(!Array.from(body.values()).includes(config.cloudinaryApiSecret));
+            assert.ok(!Array.from(body.values()).includes("provider-secret"));
+            return Response.json(responseImage(body));
         },
     });
-    assert.equal(calls.length, 2);
-    assert.equal(url, responseImage(signed).secure_url);
+    assert.equal(calls.length, 1);
+    assert.equal(url, responseImage(calls[0].init.body).secure_url);
     assert.deepEqual(progress.map(value => value.stage), ["preparing", "uploading", "uploading"]);
 });
 
-test("missing upload credential stops before reading pixels or contacting any service", async () => {
-    await assert.rejects(uploadCloudinaryReferenceBlob({}, input, {
-        decodeImage: () => assert.fail("unexpected decode"), fetchImpl: () => assert.fail("unexpected request"),
-    }), /上传服务访问码/);
+test("each missing personal credential stops before reading pixels or contacting any service", async () => {
+    for (const key of ["cloudinaryCloudName", "cloudinaryApiKey", "cloudinaryApiSecret"]) {
+        await assert.rejects(uploadCloudinaryReferenceBlob({ ...config, [key]: "" }, input, {
+            decodeImage: () => assert.fail("unexpected decode"), fetchImpl: () => assert.fail("unexpected request"),
+        }), /你自己的 Cloudinary/);
+    }
+    await assert.rejects(uploadCloudinaryReferenceBlob({ cloudinaryUploadToken: "old-access-code" }, input), /你自己的 Cloudinary/);
 });
 
-test("signature failures do not fall back to ImgBB or submit a model request", async () => {
+test("Cloudinary failures do not fall back to ImgBB or submit a model request", async () => {
     let calls = 0;
     await assert.rejects(uploadCloudinaryReferenceBlob(config, input, {
         decodeImage, fetchImpl: async () => { calls++; return Response.json({ error: { message: "denied" } }, { status: 401 }); },
@@ -203,20 +189,15 @@ test("signature failures do not fall back to ImgBB or submit a model request", a
     assert.equal(calls, 1);
 });
 
-test("upload rejects expired signatures, bad destinations, and arbitrary signed fields", async () => {
-    for (const mutate of [
-        data => { data.cloudName = "evil/path"; },
-        data => { data.params.timestamp = 0; },
-        data => { data.params.overwrite = true; },
-        data => { data.params.transformation = "w_1"; },
-    ]) {
-        let calls = 0;
-        const signed = await signedBody();
-        mutate(signed);
-        await assert.rejects(uploadCloudinaryReferenceBlob(config, input, {
-            decodeImage, fetchImpl: async () => { calls++; return Response.json(signed); },
-        }), /签名/);
-        assert.equal(calls, 1);
+test("personal credentials are trimmed and invalid destinations rejected before any request", async () => {
+    assert.deepEqual(cloudinaryCredentials({
+        ...config, cloudinaryCloudName: " test-cloud ", cloudinaryApiKey: " 123456 ",
+    }), { cloudName: "test-cloud", apiKey: "123456", apiSecret: config.cloudinaryApiSecret });
+    for (const bad of [{ cloudinaryCloudName: "evil/path" }, { cloudinaryApiKey: "not-a-key" }]) {
+        await assert.rejects(uploadCloudinaryReferenceBlob({ ...config, ...bad }, input, {
+            decodeImage: () => assert.fail("unexpected decode"),
+            fetchImpl: () => assert.fail("unexpected request"),
+        }), /格式不正确/);
     }
 });
 
@@ -226,27 +207,26 @@ test("upload rejects insecure or unrelated result URLs and mismatched asset iden
         result => { result.secure_url = result.secure_url.replace("test-cloud", "other-cloud"); },
         result => { result.public_id = "different-asset"; },
     ]) {
-        const signed = await signedBody();
-        const result = responseImage(signed);
-        mutate(result);
-        let count = 0;
         await assert.rejects(uploadCloudinaryReferenceBlob(config, input, {
-            decodeImage, fetchImpl: async () => Response.json(++count === 1 ? signed : result),
+            decodeImage, fetchImpl: async (_url, init) => {
+                const result = responseImage(init.body);
+                mutate(result);
+                return Response.json(result);
+            },
         }), /有效的参考图链接/);
     }
 });
 
 test("stalled uploads time out without an automatic paid retry", async () => {
-    const signed = await signedBody();
     let calls = 0;
     await assert.rejects(uploadCloudinaryReferenceBlob(config, input, {
         decodeImage, timeoutMs: 20,
         fetchImpl: async (_url, init) => {
-            if (++calls === 1) return Response.json(signed);
+            calls++;
             return new Promise((_resolve, reject) => init.signal.addEventListener("abort", () => reject(init.signal.reason)));
         },
     }), /上传超时/);
-    assert.equal(calls, 2);
+    assert.equal(calls, 1);
 });
 
 test("old ImgBB and Cloudinary references remain usable with no upload or metadata mutation", async () => {
@@ -261,64 +241,41 @@ test("old ImgBB and Cloudinary references remain usable with no upload or metada
 });
 
 test("stored original is preferred and reference metadata never gets overwritten with the upload result", async () => {
-    const signed = await signedBody();
     const reference = Object.freeze({ dataUrl: "blob:preview", storageKey: "original-key" });
     let calls = 0;
     await cloudinaryReferenceSource(config, reference, {
         decodeImage, readStoredBlob: async key => { assert.equal(key, "original-key"); return input; },
-        fetchImpl: async () => Response.json(++calls === 1 ? signed : responseImage(signed)),
+        fetchImpl: async (_url, init) => { calls++; return Response.json(responseImage(init.body)); },
     });
     assert.equal(reference.dataUrl, "blob:preview");
     assert.equal(reference.storageKey, "original-key");
-    assert.equal(calls, 2);
+    assert.equal(calls, 1);
 });
 
-test("signer fails closed until credentials and authorized token hashes are configured", async () => {
-    const handler = signer({ env: {} });
-    const result = await handler(request());
-    assert.equal(result.status, 503);
-    assert.match((await result.json()).error.message, /未配置/);
-    assert.equal((await signer()(request("wrong-token-with-at-least-32-characters"))).status, 401);
-});
-
-test("signer signs only server-owned parameters using SHA-256 and exposes no secret", async () => {
-    const handler = signer({ now: () => 1_800_000_000_000 });
-    const result = await handler(request(token, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ public_id: "victim", overwrite: true, transformation: "w_1" }),
-    }));
-    const data = await result.json();
+test("browser signer uses SHA-256, unique non-overwriting IDs and no incoming transformations", async () => {
+    const data = await signCloudinaryUpload({ ...config, transformation: "w_1", public_id: "victim" });
     const serialized = Object.keys(data.params).sort().map(key => `${key}=${data.params[key]}`).join("&");
-    assert.equal(data.signature, createHash("sha256").update(serialized + env.CLOUDINARY_API_SECRET).digest("hex"));
+    assert.equal(data.signature, createHash("sha256").update(serialized + config.cloudinaryApiSecret).digest("hex"));
     assert.equal(data.params.overwrite, false);
-    assert.equal(data.params.public_id, "laowu-reference/test-id");
-    assert.equal(data.params.timestamp, 1_800_000_000);
+    assert.match(data.params.public_id, /^laowu-reference\/[0-9a-f-]{36}$/);
+    assert.ok(Math.abs(data.params.timestamp - Date.now() / 1000) < 5);
     assert.equal(data.params.transformation, undefined);
-    assert.equal(JSON.stringify(data).includes(env.CLOUDINARY_API_SECRET), false);
-    assert.equal(JSON.stringify(data).includes(token), false);
-    assert.equal(result.headers.get("cache-control"), "no-store");
+    assert.equal(JSON.stringify(data).includes(config.cloudinaryApiSecret), false);
+    assert.notEqual((await signCloudinaryUpload(config)).params.public_id, data.params.public_id);
 });
 
-test("signer restricts browser origins and preflight, while allowing credentialed server callers", async () => {
-    const handler = signer();
-    assert.equal((await handler(request(token, { method: "GET" }))).status, 405);
-    assert.equal((await handler(request(token, {
-        headers: { Authorization: `Bearer ${token}`, Origin: "https://evil.test" },
-    }))).status, 403);
-    const result = await handler(request(token, {
-        method: "OPTIONS", headers: { Origin: "https://vinsen0110.github.io" },
-    }));
-    assert.equal(result.status, 200);
-    assert.equal(result.headers.get("access-control-allow-origin"), "https://vinsen0110.github.io");
-});
-
-test("signer rate-limits authorized token bursts and resets the window", async () => {
-    let time = 1_800_000_000_000;
-    const handler = signer({ now: () => time });
-    for (let i = 0; i < 20; i++) assert.equal((await handler(request())).status, 200);
-    assert.equal((await handler(request())).status, 429);
-    time += 60_001;
-    assert.equal((await handler(request())).status, 200);
+test("switching accounts never reuses another user's key or destination", async () => {
+    for (const personal of [config, { ...config, cloudinaryCloudName: "second-cloud", cloudinaryApiKey: "7890", cloudinaryApiSecret: "second-secret" }]) {
+        await uploadCloudinaryReferenceBlob(personal, input, {
+            decodeImage, fetchImpl: async (url, init) => {
+                assert.equal(url, `https://api.cloudinary.com/v1_1/${personal.cloudinaryCloudName}/image/upload`);
+                assert.equal(init.body.get("api_key"), personal.cloudinaryApiKey);
+                const serialized = ["overwrite", "public_id", "timestamp"].map(key => `${key}=${init.body.get(key)}`).join("&");
+                assert.equal(init.body.get("signature"), createHash("sha256").update(serialized + personal.cloudinaryApiSecret).digest("hex"));
+                return Response.json(responseImage(init.body, personal.cloudinaryCloudName));
+            },
+        });
+    }
 });
 
 function between(start, end) {
@@ -348,10 +305,11 @@ test("actual bundle image uploader routes only the two target providers to Cloud
     assert.deepEqual(calls, [["cloudinary", "tudou"], ["cloudinary", "grsai"], ["apilio"], ["imgbb"], ["cloudinary", "tudou"]]);
 });
 
-test("settings expose only the application upload access code, not ImgBB or Cloudinary secrets", () => {
+test("settings accept personal Cloudinary credentials instead of shared application access codes", () => {
     const settings = between('className:"api-settings-page"', 'className:"api-site-tabs"');
-    assert.match(settings, /上传服务访问码/);
-    assert.doesNotMatch(settings, /ImgBB|imgbbApiKey|referenceImageHost|Cloudinary 上传凭证|cloudinaryApiSecret/);
+    for (const key of ["cloudinaryCloudName", "cloudinaryApiKey", "cloudinaryApiSecret"]) assert.ok(settings.includes(key));
+    assert.match(settings, /secret\?_o.Password:_o/);
+    assert.doesNotMatch(settings, /上传服务访问码|cloudinaryUploadToken|ImgBB|imgbbApiKey|referenceImageHost/);
 });
 
 test("actual text-reference branch changes only Tudou/GRSAI while keeping native uploaders", async () => {
@@ -413,40 +371,9 @@ test("Tudou proxy bounds streaming downloads even when Content-Length is absent"
     ), /14 MB limit/);
 });
 
-test("local/desktop signature route signs with server configuration and denies cross-origin requests", { timeout: 10_000 }, async () => {
-    const allocator = createServer();
-    allocator.listen(0, "127.0.0.1");
-    await once(allocator, "listening");
-    const { port } = allocator.address();
-    await new Promise(resolve => allocator.close(resolve));
-    const child = spawn(process.execPath, ["local-preview-server.mjs"], {
-        cwd: fileURLToPath(new URL("../", import.meta.url)),
-        env: { ...process.env, ...env, PORT: String(port), HOST: "127.0.0.1" },
-        stdio: ["ignore", "pipe", "pipe"],
-    });
-    const exit = once(child, "exit");
-    try {
-        await Promise.race([
-            once(child.stdout, "data"),
-            exit.then(() => { throw new Error("Local server exited before listening"); }),
-        ]);
-        const origin = `http://127.0.0.1:${port}`;
-        const result = await fetch(`${origin}/api/cloudinary-signature`, {
-            method: "POST", headers: { Origin: origin, Authorization: `Bearer ${token}` },
-        });
-        assert.equal(result.status, 200);
-        const payload = await result.json();
-        assert.equal(payload.cloudName, env.CLOUDINARY_CLOUD_NAME);
-        assert.equal(payload.params.overwrite, false);
-        assert.equal(JSON.stringify(payload).includes(env.CLOUDINARY_API_SECRET), false);
-        const denied = await fetch(`${origin}/api/cloudinary-signature`, {
-            method: "POST", headers: { Origin: "https://evil.test", Authorization: `Bearer ${token}` },
-        });
-        assert.equal(denied.status, 403);
-        assert.equal((await fetch(`${origin}/api/cloudinary-signature`)).status, 405);
-        assert.equal((await fetch(`${origin}/api/cloudinary-signature`, { method: "POST" })).status, 401);
-    } finally {
-        child.kill("SIGTERM");
-        await exit;
-    }
+test("neither client nor local server depends on a shared signing endpoint or server credentials", async () => {
+    const client = await readFile(new URL("../cloudinary-reference-upload.js", import.meta.url), "utf8");
+    const server = await readFile(new URL("../local-preview-server.mjs", import.meta.url), "utf8");
+    for (const source of [client, server]) assert.doesNotMatch(source, /cloudinary-signature|CLOUDINARY_API_SECRET|CLOUDINARY_UPLOAD_TOKEN_HASHES/);
+    await assert.rejects(readFile(new URL("../api/cloudinary-signature.js", import.meta.url)), { code: "ENOENT" });
 });

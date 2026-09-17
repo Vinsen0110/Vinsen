@@ -5,7 +5,6 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { fetchApiMartResultImage } from "./apimart-result-image.js";
 import { inlineTudouGeminiReferences, isTudouGeminiImageTarget } from "./tudou-reference-images.js";
-import cloudinarySignature from "./api/cloudinary-signature.js";
 
 const root = resolve(process.cwd());
 const host = process.env.HOST || "127.0.0.1";
@@ -293,26 +292,7 @@ async function serveStatic(request, response, requestUrl) {
 const server = createServer(async (request, response) => {
     const requestUrl = new URL(request.url || "/", `http://${request.headers.host || `${host}:${port}`}`);
     try {
-        if (requestUrl.pathname === "/api/cloudinary-signature") {
-            const origin = request.headers.origin;
-            if (origin && origin !== `http://${host}:${port}` && origin !== `http://localhost:${port}`) {
-                sendJson(response, 403, "Unsupported upload origin");
-                return;
-            }
-            if (request.method !== "POST") {
-                sendJson(response, 405, "Method Not Allowed");
-                return;
-            }
-            const headers = new Headers();
-            if (request.headers.authorization) headers.set("Authorization", request.headers.authorization);
-            const target = "https://www.vinsen.top/api/cloudinary-signature";
-            const upstream = process.env.CLOUDINARY_API_SECRET
-                ? await cloudinarySignature.fetch(new Request(target, { method: "POST", headers }))
-                : await fetch(target, {
-                    method: "POST", headers, redirect: "error", signal: AbortSignal.timeout(15_000),
-                });
-            await pipeFetchResponse(upstream, response);
-        } else if (requestUrl.pathname.startsWith("/api/tudou/")) {
+        if (requestUrl.pathname.startsWith("/api/tudou/")) {
             await proxyTudouApi(request, response, requestUrl);
         } else if (requestUrl.pathname === "/api/tudou-image") {
             await proxyTudouImage(response, requestUrl);

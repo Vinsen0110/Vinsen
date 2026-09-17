@@ -119,14 +119,43 @@ export async function prepareCloudinaryReferenceBlob(original, options = {}) {
     }
 }
 
-function signatureEndpoint() {
-    return (typeof location !== "undefined" && location.hostname === "vinsen0110.github.io"
-        ? "https://www.vinsen.top" : "") + "/api/cloudinary-signature";
+export function cloudinaryCredentials(config) {
+    const cloudName = String(config?.cloudinaryCloudName || "").trim();
+    const apiKey = String(config?.cloudinaryApiKey || "").trim();
+    const apiSecret = String(config?.cloudinaryApiSecret || "").trim();
+    if (!cloudName || !apiKey || !apiSecret) {
+        throw new Error("请先在 API 设置中填写你自己的 Cloudinary Cloud Name、API Key 和 API Secret");
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(cloudName) || !/^\d+$/.test(apiKey)) {
+        throw new Error("Cloudinary Cloud Name 或 API Key 格式不正确");
+    }
+    return { cloudName, apiKey, apiSecret };
+}
+
+export async function signCloudinaryUpload(config) {
+    const { cloudName, apiKey, apiSecret } = cloudinaryCredentials(config);
+    if (!globalThis.crypto?.subtle || !globalThis.crypto?.randomUUID) {
+        throw new Error("当前浏览器无法安全签名，请使用 HTTPS 网站或本地预览");
+    }
+    const params = {
+        overwrite: false,
+        public_id: `laowu-reference/${crypto.randomUUID()}`,
+        timestamp: Math.floor(Date.now() / 1000),
+    };
+    const serialized = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join("&");
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(serialized + apiSecret));
+    const signature = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+    // Only the signature leaves this browser; never send the user's API Secret.
+    return { cloudName, apiKey, params, signature };
 }
 
 export async function uploadCloudinaryReferenceBlob(config, original, options = {}) {
-    const token = String(config?.cloudinaryUploadToken || "").trim();
-    if (!token) throw new Error("请先配置上传服务，并在 API 设置中填写上传服务访问码");
+    const credentials = cloudinaryCredentials(config);
+    const uploadConfig = {
+        cloudinaryCloudName: credentials.cloudName,
+        cloudinaryApiKey: credentials.apiKey,
+        cloudinaryApiSecret: credentials.apiSecret,
+    };
     checkAbort(options.signal);
     const controller = new AbortController();
     const abort = () => controller.abort(options.signal.reason);
@@ -138,30 +167,11 @@ export async function uploadCloudinaryReferenceBlob(config, original, options = 
         const signal = controller.signal;
         const blob = await prepareCloudinaryReferenceBlob(original, { ...options, signal });
         const fetchImpl = options.fetchImpl || fetch;
-        const signedResponse = await fetchImpl(signatureEndpoint(), {
-            method: "POST", headers: { Authorization: `Bearer ${token}` },
-            credentials: "omit", cache: "no-store", redirect: "error", signal,
-        });
-        const signed = await signedResponse.json().catch(() => ({}));
-        if (!signedResponse.ok) throw new Error(
-            signed?.error?.message || "Cloudinary 签名服务尚未配置或不可用",
-        );
+        const signed = await signCloudinaryUpload(uploadConfig);
+        checkAbort(signal);
         const params = signed.params;
-        if (!/^[a-zA-Z0-9_-]+$/.test(signed.cloudName || "")
-            || !/^\d+$/.test(String(signed.apiKey || ""))
-            || !/^[a-f0-9]{40,64}$/.test(signed.signature || "")
-            || !params || typeof params !== "object" || Array.isArray(params)
-            || !params.upload_preset || !params.public_id || String(params.overwrite) !== "false"
-            || Math.abs(Date.now() / 1000 - Number(params.timestamp)) > 300
-            || !Number.isFinite(Number(params.timestamp))) {
-            throw new Error("Cloudinary 签名响应无效");
-        }
-        const allowed = new Set(["timestamp", "upload_preset", "public_id", "overwrite", "tags"]);
         const body = new FormData();
         for (const [key, value] of Object.entries(params)) {
-            if (!allowed.has(key) || !["string", "number", "boolean"].includes(typeof value)) {
-                throw new Error("Cloudinary 签名包含不支持的参数");
-            }
             body.set(key, String(value));
         }
         const extension = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[blob.type];
@@ -169,7 +179,7 @@ export async function uploadCloudinaryReferenceBlob(config, original, options = 
         body.set("api_key", String(signed.apiKey));
         body.set("signature", signed.signature);
         options.onProgress?.({ stage: "uploading", progress: 3 });
-        // Never forward the application upload credential or provider API key to the image host.
+        // Upload directly into this user's account, with no application signing service.
         const response = await fetchImpl(
             `https://api.cloudinary.com/v1_1/${signed.cloudName}/image/upload`,
             { method: "POST", body, signal, credentials: "omit", redirect: "error" },

@@ -1,5 +1,5 @@
 import{appStateStorage,createDeferredStateWriter,showStorageError}from"../app-state-storage.js?v=20260912-01";
-import{usesCloudinaryReferenceHost,cloudinaryReferenceSource,uploadCloudinaryReferenceBlob}from"../cloudinary-reference-upload.js?v=20260917-02";
+import{usesCloudinaryReferenceHost,cloudinaryReferenceSource,uploadCloudinaryReferenceBlob}from"../cloudinary-reference-upload.js?v=20260917-personal-01";
 await appStateStorage.ready;
 
 import{RUNNINGHUB_ORIGIN,RUNNINGHUB_LLM_ORIGIN,RUNNINGHUB_SITE_ID,RUNNINGHUB_SITE_NAME,RUNNINGHUB_SITE_MODELS,RUNNINGHUB_IMAGE_MODELS,RUNNINGHUB_TEXT_MODELS,isRunningHubSite,runRunningHubImageGeneration,runningHubImagePrice,runningHubReferenceAspectRatio,runningHubSupportedAspectRatios,runningHubGpt25Mode,runningHubGpt25Variant,runningHubQuality,uploadRunningHubReferenceBlob,fetchRunningHubAccount}from"../runninghub-api.js";
@@ -454,10 +454,14 @@ E=typeof window<"u"&&!!window.oldHouseDesktop,P=async()=>{if(!(!E||r)){o(!0);try
             t==="api"?y.jsxs("div",{className:"api-settings-page",children:[
               y.jsxs("section",{className:"api-settings-section",children:[
                 y.jsx("div",{className:"api-section-heading",children:y.jsx("h3",{children:"Cloudinary（土豆 / GRSAI）"})}),
-                y.jsx("div",{className:"api-key-row reference-host-row",children:y.jsxs("label",{className:"api-field",children:[
-                  y.jsx("span",{className:"api-field-label",children:"上传服务访问码"}),
-                  y.jsx(_o.Password,{className:"api-key-input",size:"large",value:a.cloudinaryUploadToken||"",placeholder:"上传服务访问码",autoComplete:"off",onChange:$=>i("cloudinaryUploadToken",$.target.value)})
-                ]})})
+                y.jsx("div",{className:"api-key-row reference-host-row",children:[
+                  ["cloudinaryCloudName","Cloud Name",!1],
+                  ["cloudinaryApiKey","API Key",!0],
+                  ["cloudinaryApiSecret","API Secret",!0]
+                ].map(([key,label,secret])=>y.jsxs("label",{className:"api-field",children:[
+                  y.jsx("span",{className:"api-field-label",children:label}),
+                  y.jsx(secret?_o.Password:_o,{className:"api-key-input",size:"large",value:a[key]||"",placeholder:label,autoComplete:"off",spellCheck:!1,onChange:$=>i(key,$.target.value)})
+                ]},key))})
               ]}),
               y.jsx("div",{className:"api-site-tabs",role:"tablist","aria-label":"\u7AD9\u70B9",children:orderSiteChannels(a.channels).map($=>y.jsx("button",{
                 type:"button",
