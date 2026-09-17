@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { APIMART_TEXT_MODELS } from "../apimart-api.js";
 import tudouProxy from "../api/tudou-proxy.js";
+import { usesCloudinaryReferenceHost } from "../cloudinary-reference-upload.js";
 
 const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
 
@@ -192,6 +193,8 @@ test("large text reference images are compressed only in the request copy", asyn
         "isTudouSite",
         "isApilioSite",
         "isRunningHubSite",
+        "usesCloudinaryReferenceHost",
+        "cloudinaryReferenceSource",
         `${compressor};return prepareTextChatMessages;`,
     );
     const compressMessages = makeCompressor(
@@ -229,6 +232,8 @@ test("large text reference images are compressed only in the request copy", asyn
         (config) => config?.provider === "tudou",
         (config) => config?.provider === "apilio",
         (config) => config?.provider === "runninghub",
+        usesCloudinaryReferenceHost,
+        async () => "https://res.cloudinary.com/test/image/upload/v1/reference.webp",
     );
     const originalUrl = `data:application/octet-stream;base64,${"A".repeat(8 * 1024 * 1024)}`;
     const source = [{
@@ -259,11 +264,11 @@ test("large text reference images are compressed only in the request copy", asyn
     fetchedBlob = new Blob([new Uint8Array(512 * 1024)], { type: "image/webp" });
     const tudouHosted = await compressMessages(source, {
         provider: "tudou",
+        referenceImageHost: "imgbb",
         imgbbApiKey: "test-imgbb-key",
     });
-    assert.equal(tudouHosted[0].content[1].image_url.url, "https://i.ibb.co/example/text-reference.webp");
-    assert.equal(uploads.length, 2, "Tudou should host local references even when the temporary copy is small");
-    assert.equal(uploads[1].form.get("image").size, 512 * 1024);
+    assert.equal(tudouHosted[0].content[1].image_url.url, "https://res.cloudinary.com/test/image/upload/v1/reference.webp");
+    assert.equal(uploads.length, 1, "Tudou must not use ImgBB, including when old settings select it");
 });
 
 test("oversized Tudou text requests no longer tell web users to switch apps", () => {

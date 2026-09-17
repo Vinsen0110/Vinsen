@@ -14,7 +14,7 @@ const target = new URL(
 );
 const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
 
-test("Tudou uploads temporary 2048px WebP references without changing output resolution", () => {
+test("explicit ImgBB fallback retains its temporary 2048px WebP references and output resolution", () => {
     assert.match(bundle, /TUDOU_REFERENCE_MAX_EDGE=2048/);
     assert.match(bundle, /TUDOU_REFERENCE_INITIAL_QUALITY=\.85/);
     assert.match(bundle, /TUDOU_REFERENCE_TARGET_BYTES=10\*1024\*1024/);

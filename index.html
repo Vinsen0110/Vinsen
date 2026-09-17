@@ -6,7 +6,7 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260916-canvas-menus-world-scale-07" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260917-canvas-stream-03" crossorigin>
         <title>老屋作坊</title>
 
 <script>
@@ -553,7 +553,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260916-canvas-menus-world-scale-07"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260917-canvas-stream-03"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -991,9 +991,10 @@
           font-size: 12px;
           line-height: 18px;
         }
-        .imgbb-key-row {
+        .api-key-row.reference-host-row {
           max-width: 540px;
           grid-template-columns: minmax(0, 1fr);
+          margin-bottom: 16px;
         }
         .api-balance-grid {
           display: grid;
@@ -1931,6 +1932,20 @@
         /* 2. 节点隔离：限制每个节点的布局/绘制影响范围 */
         [data-node-id] {
             contain: layout style;
+        }
+
+        .canvas-node-layer {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            z-index: 1;
+            isolation: isolate;
+        }
+
+        .canvas-connection-layer {
+            isolation: isolate;
         }
 
         /* 3. 图片异步解码 + 渲染优化 */

@@ -74,6 +74,46 @@ test("actual bundle combines later image chunks and sends one POST", async () =>
     assert.deepEqual(result, [{ id: "image-id", dataUrl: "data:image/png;base64,AQID" }]);
 });
 
+test("actual bundle accepts adjacent complete data lines without blank separators", async () => {
+    const { requests, result } = await runBundleStream(new Response(
+        ': keepalive\r\ndata: {"candidates":[{"content":{"parts":[{"text":"working"}]}}]}\r\n'
+        + 'data: {"candidates":[{"content":{"parts":[{"inlineData":{"mimeType":"image/png","data":"AQID"}}]}}]}\r\n'
+        + 'data: [DONE]\r\n',
+        { headers: { "Content-Type": "text/event-stream" } },
+    ));
+    assert.equal(requests, 1);
+    assert.equal(result[0].dataUrl, "data:image/png;base64,AQID");
+});
+
+test("actual bundle retains standard multiline SSE JSON and comments", async () => {
+    const { result } = await runBundleStream(sseResponse([
+        ': heartbeat\ndata: {\ndata: "candidates":[{"content":{"parts":[{"inlineData":{"data":"AQID","mimeType":"image/png"}}]}}]\ndata: }',
+    ]));
+    assert.equal(result[0].dataUrl, "data:image/png;base64,AQID");
+});
+
+test("actual bundle assembles fragmented UTF-8 and large inline images without replay", async () => {
+    const data = "AQID".repeat(100000);
+    const raw = new TextEncoder().encode(
+        `data: ${JSON.stringify({ candidates: [{ content: { parts: [{ text: "测试" }, { inlineData: { data, mimeType: "image/png" } }] } }] })}\n\n`,
+    );
+    const response = new Response(new ReadableStream({
+        start(controller) {
+            for (let offset = 0; offset < raw.length; offset += 997) controller.enqueue(raw.slice(offset, offset + 997));
+            controller.close();
+        },
+    }), { headers: { "Content-Type": "text/event-stream" } });
+    const { requests, result } = await runBundleStream(response);
+    assert.equal(requests, 1);
+    assert.equal(result[0].dataUrl, `data:image/png;base64,${data}`);
+});
+
+test("malformed JSON is not silently discarded beside a valid event", async () => {
+    await assert.rejects(runBundleStream(sseResponse([
+        'data: {broken}\ndata: {"candidates":[{"content":{"parts":[{"inlineData":{"data":"AQID"}}]}}]}',
+    ])), /Tudou 流式响应格式异常/);
+});
+
 test("actual bundle explains an N/A stream with upstream diagnostics", async () => {
     await assert.rejects(
         runBundleStream(sseResponse([
