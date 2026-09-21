@@ -305,7 +305,7 @@ test("APIMart settings share multi-key controls without a billing panel", () => 
         /g\?\.provider==="apilio"\?y\.jsxs\("div",\{className:"api-billing-panel"/,
         "Apilio keeps its billing-group controls",
     );
-    assert.match(bundle, /children:"GPT Image 2 \u8BA1\u8D39\u7EC4"/);
+    assert.match(bundle, /children:"密钥计费组"/);
     assert.match(bundle, /children:"\u91CD\u65B0\u68C0\u6D4B"/);
     assert.doesNotMatch(
         bundle,
