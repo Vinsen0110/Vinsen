@@ -1,7 +1,7 @@
 export const GRSAI_ORIGIN = "https://grsaiapi.com";
 export const GRSAI_SITE_ID = "grsai";
 export const GRSAI_SITE_NAME = "Grsai";
-export const GRSAI_SITE_MODELS = ["nano-banana-pro", "gpt-image-2-vip"];
+export const GRSAI_SITE_MODELS = ["nano-banana-pro"];
 export const GRSAI_IMAGE_MODELS = GRSAI_SITE_MODELS;
 export const GRSAI_TEXT_MODELS = [];
 

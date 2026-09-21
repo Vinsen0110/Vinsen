@@ -51,11 +51,10 @@ test("RH Nano Banana Pro request mapping keeps 4K lowercase", () => {
 test("RH exposes image and text models and maps Auto to the provider's legal 1K value", () => {
     assert.deepEqual(RUNNINGHUB_SITE_MODELS, [
         "nano-banana-pro",
-        "gpt-image-2",
         "gpt-image-2.5",
         "google/gemini-3.7-flash",
     ]);
-    assert.deepEqual(RUNNINGHUB_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"]);
+    assert.deepEqual(RUNNINGHUB_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2.5"]);
     assert.deepEqual(RUNNINGHUB_TEXT_MODELS, ["google/gemini-3.7-flash"]);
     assert.equal(RUNNINGHUB_LLM_ORIGIN, "https://llm.runninghub.ai");
     assert.equal(runningHubResolution({ quality: "auto" }), "1k");

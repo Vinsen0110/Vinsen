@@ -15,6 +15,7 @@ import {
     apiMartGptBackground,
     apiMartGptImageQuality,
     apiMartGptOutputFormat,
+    apiMartImageRequestSpec,
 } from "../apimart-api.js";
 
 const source = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
@@ -77,6 +78,9 @@ const context = vm.createContext({
     v5: value => value,
     DP: "apilio",
     an: {},
+    Ne: { Image: "image", Config: "config" },
+    activeSiteChannel: config => config.channels.find(channel => channel.id === config.activeSiteId),
+    normalizeSiteApiKeys: channel => ({ apiKey: channel.apiKey }),
     ODe: (_config, _kind, model) => model,
     siteImageModelNames: () => ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"],
 });
@@ -93,13 +97,13 @@ const ${source.slice(extraRatioStart, source.indexOf(";", extraRatioStart) + 1)}
     context,
 );
 for (const name of [
-    "ES", "$S", "pr", "imageNodeConfig", "vX", "gke", "runningHubUiParams", "RunningHub25Controls",
+    "ES", "$S", "pr", "Nxe", "siteModelRefs", "yx", "imageNodeConfig", "switchImageNodeSite", "vX", "gke", "runningHubUiParams", "RunningHub25Controls",
     "runningHub25RatioValue", "runningHub25RatioOptions", "runningHub25ModePatch",
     "apiMartGptMode", "apiMartGpt25Variant", "apiMartOfficialQuality",
     "defaultImageModelParams", "canonicalImageModel", "normalizeImageModelParams",
     "imageModelParamsFromConfig", "projectImageModelParams", "imageGenerationDefaultsKey",
     "imageGenerationDefaultsFor", "updateImageGenerationDefaults", "applyImageGenerationDefaults",
-    "cke", "gX", "vke",
+    "cke", "gX", "vke", "Q0",
 ]) {
     vm.runInContext(functionSource(name), context);
 }
@@ -274,7 +278,7 @@ test("reopening a generated node restores its RH settings instead of the current
         gptImageQuality: "xhigh",
         quality: "4k",
     };
-    const restored = context.vke(rh, { metadata }, "image");
+    const restored = context.vke(rh, { metadata: { ...metadata, content: "blob:generated" } }, "image");
     for (const [key, value] of Object.entries(metadata)) assert.equal(restored[key], value, key);
     const view = render(restored);
     assert.equal(view.select(modes).props.value, "official");
@@ -294,6 +298,40 @@ test("Mart and Apilio variant callbacks remain on their preexisting independent 
         view.select(variants).props.onChange("sunburst");
         assert.deepEqual(view.changes[0].patch, { apimartGpt25Variant: "sunburst" });
         if (provider === "apilio") assert.equal(view.select(modes), undefined);
+    }
+});
+
+test("existing GPT2.5 panel, rendered mode controls and request route all switch together", () => {
+    const channels = [
+        { id: "default", provider: "apilio", apiKey: "apilio-test", models: ["gpt-image-2.5"] },
+        { id: "apimart", provider: "apimart", apiKey: "mart-test", models: ["gpt-image-2.5"] },
+    ];
+    const original = {
+        id: "existing", type: "image",
+        metadata: { content: "blob:original", model: "apimart::gpt-image-2.5", quality: "2k", size: "1:1", gptImageQuality: "max" },
+    };
+    let node = original;
+    for (const id of ["default", "apimart", "default"]) {
+        const defaults = {
+            ...channels.find(channel => channel.id === id), channels, activeSiteId: id,
+            model: `${id}::gpt-image-2.5`, imageModel: `${id}::gpt-image-2.5`,
+        };
+        node = context.switchImageNodeSite(node, defaults);
+        const panel = context.vke(defaults, node, "image");
+        const request = context.Q0(defaults, node, "image");
+        const view = render(panel);
+        assert.equal(Boolean(view.select(modes)), id === "apimart");
+        assert.equal(Boolean(view.select(formats)), id === "apimart");
+        assert.equal(request.model, `${id}::gpt-image-2.5`);
+        assert.equal(request.apiKey, defaults.apiKey);
+        assert.equal(request.provider, defaults.provider);
+        assert.equal(request.gptImageQuality, panel.gptImageQuality);
+        if (id === "apimart") {
+            const spec = apiMartImageRequestSpec(request, "test");
+            assert.match(JSON.stringify(spec), /gpt-image-2\.5/);
+        }
+        assert.equal(node.metadata.model, original.metadata.model);
+        assert.equal(node.metadata.gptImageQuality, "max");
     }
 });
 

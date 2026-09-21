@@ -67,7 +67,7 @@ function runtime() {
 test("Apilio, RH, and Mart offer text models; Tudou retains image models", () => {
     const scope = runtime();
     assert.deepEqual(channels.filter(site => scope.siteTextModelNames(site.id).length).map(site => site.id), ["default", "runninghub", "apimart"]);
-    assert.deepEqual(constants.TUDOU_SITE_MODELS, ["nano-banana-pro", "gpt-image-2"]);
+    assert.deepEqual(constants.TUDOU_SITE_MODELS, ["nano-banana-pro"]);
 });
 
 test("Mart text generation passes the real model and credential preflight on every image site", () => {
@@ -90,7 +90,7 @@ test("Mart text generation passes the real model and credential preflight on eve
         assert.equal(scope.xxe(defaults, "apimart::unsupported-model"), false);
         assert.equal(JSON.stringify(defaults), before);
     }
-    assert.deepEqual(APIMART_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2", "gpt-image-2.5"]);
+    assert.deepEqual(APIMART_IMAGE_MODELS, ["nano-banana-pro", "gpt-image-2.5"]);
     assert.deepEqual(APIMART_SITE_MODELS, [...APIMART_IMAGE_MODELS, ...APIMART_TEXT_MODELS]);
 });
 

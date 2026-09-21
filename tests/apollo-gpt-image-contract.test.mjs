@@ -4,9 +4,9 @@ import test from "node:test";
 
 const bundle = fs.readFileSync(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
 
-test("Apollo exposes GPT Image 2 as an image model", () => {
-    assert.match(bundle, /APOLLO_IMAGE_MODELS=\["nano-banana-pro","gpt-image-2","gpt-image-2\.5"\]/);
-    assert.match(bundle, /APOLLO_SITE_MODELS=\["nano-banana-pro-2k","nano-banana-pro-4k","nano-banana-pro","gpt-image-2"/);
+test("Apollo removes GPT Image 2 from the catalog but retains GPT Image 2.5", () => {
+    assert.match(bundle, /APOLLO_IMAGE_MODELS=\["nano-banana-pro","gpt-image-2\.5"\]/);
+    assert.match(bundle, /APOLLO_SITE_MODELS=\["nano-banana-pro-2k","nano-banana-pro-4k","nano-banana-pro","gpt-image-2\.5"/);
     assert.match(bundle, /"gpt-image-2\.5","gemini-3\.8-flash"\]/);
 });
 
@@ -58,7 +58,7 @@ test("Apollo keeps billing metadata per key and never changes the request model"
     assert.match(bundle, /detectedBillingGroup:normalizeApolloDetectedBillingGroup\(n\?\.detectedBillingGroup\)/);
     assert.match(bundle, /apolloBillingKey:activeSiteApiKey\(n\)/);
     assert.match(bundle, /i&&n==="gpt-image-2"\?apolloGptImagePrice/);
-    assert.match(bundle, /children:"GPT Image 2 \u8BA1\u8D39\u7EC4"/);
+    assert.match(bundle, /children:"密钥计费组"/);
     assert.match(bundle, /children:"\u91CD\u65B0\u68C0\u6D4B"/);
     assert.match(bundle, /children:"\u5F85\u786E\u8BA4"/);
     assert.match(bundle, /\(\?:\u666E\u901A\|default\).*\(\?:\u4F18\u8D28\|premium\|official\).*\?"label"/);
@@ -73,4 +73,17 @@ test("Apollo exposes GPT Image 2.5 with variant mapping and billing-group pricin
     assert.match(bundle, /function apolloGptImageRequestModel\(e\)\{const t=pr\(e\?\.model\|\|e\?\.imageModel\|\|"gpt-image-2"\);return t==="gpt-image-2\.5"/);
     assert.match(bundle, /i&&n==="gpt-image-2\.5"\?apolloGptImage25Price/);
     assert.match(bundle, /isApilioGpt25\?y\.jsx\(n\$,\{value:apiMart25VariantValue/);
+});
+
+test("API settings remove retired GPT2 pricing while preserving shared key controls", () => {
+    const settings = bundle.slice(bundle.indexOf("function t$e("), bundle.indexOf('function nL('));
+    assert.ok(settings.length > 0);
+    assert.doesNotMatch(settings, /GPT Image 2 计费组|billingPrice|apolloGptImagePrice\(|api-billing-price/);
+    assert.match(settings, /children:"密钥计费组"/);
+    assert.match(settings, /onChange:setActiveKeyBillingGroup/);
+    assert.match(settings, /onClick:\(\)=>detectActiveKeyBilling\(!0\)/);
+    assert.match(settings, /onClick:addSiteKey/);
+    assert.match(settings, /onClick:deleteSiteKey/);
+    assert.match(settings, /value:a\.totalBalanceUserId/);
+    assert.match(settings, /value:a\.totalBalanceToken/);
 });
