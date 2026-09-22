@@ -1,0 +1,117 @@
+.canvas-reference-strip {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-height: 66px;
+    align-items: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #a8a29e transparent;
+    overscroll-behavior: contain;
+}
+.canvas-reference-item {
+    position: relative;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+}
+.canvas-reference-thumb {
+    width: 48px;
+    height: 48px;
+    transition: border-color 120ms, opacity 120ms;
+    touch-action: pan-x;
+}
+.canvas-reference-remove {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+    border: 1px solid #d6d3d1;
+    border-radius: 50%;
+    background: #fff;
+    color: #be123c;
+    opacity: 0;
+    pointer-events: none;
+}
+.canvas-reference-item:hover .canvas-reference-remove,
+.canvas-reference-item:focus-within .canvas-reference-remove {
+    opacity: 1;
+    pointer-events: auto;
+}
+.dark .canvas-reference-remove {
+    background: #292524;
+    border-color: #78716c;
+    color: #fda4af;
+}
+@media (hover: none) {
+    .canvas-reference-remove { opacity: 1; pointer-events: auto; }
+}
+.canvas-mention-menu {
+    position: fixed;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    visibility: hidden;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #d6d3d1;
+    border-radius: 8px;
+    background: #fff;
+    color: #44403c;
+    box-shadow: 0 8px 24px #0002;
+}
+.canvas-mention-header {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border-bottom: 1px solid #e7e5e4;
+    font-size: 11px;
+    color: #78716c;
+}
+.canvas-mention-list {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+.canvas-mention-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 40px;
+    padding: 6px 12px;
+    text-align: left;
+    font-size: 12px;
+}
+.canvas-mention-option[aria-selected="true"],
+.canvas-mention-option:hover { background: #eff6ff; color: #1d4ed8; }
+.dark .canvas-mention-menu { background: #292524; color: #e7e5e4; border-color: #57534e; }
+.dark .canvas-mention-header { color: #a8a29e; border-color: #57534e; }
+.dark .canvas-mention-option[aria-selected="true"],
+.dark .canvas-mention-option:hover { background: #164e63; color: #cffafe; }
+
+/* Keep the flow cue without blurring every moving dash three times per frame. */
+.canvas-flow-line {
+    filter: none;
+    shape-rendering: auto;
+    will-change: auto;
+    animation: cfx 1.2s linear infinite;
+}
+.canvas-connection-static { filter: none !important; }
+html[data-canvas-page-hidden="true"] .canvas-flow-line,
+.canvas-flow-line[data-canvas-flow-visible="false"],
+.laowu-canvas-viewport[data-canvas-interacting="true"] .canvas-flow-line {
+    animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+    .canvas-flow-line { animation: none; }
+}

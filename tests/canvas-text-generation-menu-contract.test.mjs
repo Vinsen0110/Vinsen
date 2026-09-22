@@ -115,7 +115,8 @@ test("connected image and text references are visible in generation panels", () 
         /T=\(v==="image"\|\|v==="text"\)\?i\.filter\(z=>z\.active&&z\.kind==="image"&&z\.previewUrl\):\[\]/,
         "text panels should keep active image references for their thumbnail strip",
     );
-    assert.match(panel, /references:T,nodeId:e\.id,onReferenceOrderChange:l/);
+    assert.match(panel, /references:T,nodeId:e\.id,\s*onReferenceOrderChange:handleReferenceOrder/);
+    assert.match(panel, /handleReferenceOrder=\(nodeId,ids\)=>\{\$\(remapImageMentions\(P,T\.map\(item=>item\.nodeId\),ids\)\);l\?\.\(nodeId,ids\)\}/);
     assert.match(panel, /referenceImages\.length\?y\.jsx\(dke,\{nodeId:referenceNodeId/);
     assert.match(
         panel,
