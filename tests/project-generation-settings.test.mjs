@@ -156,6 +156,33 @@ test("ungenerated image panels follow the active site and preserve compatible mo
     }
 });
 
+test("duplicated generated image panels follow the active site while originals keep history", () => {
+    const scope = runtime();
+    const original = {
+        ...node,
+        metadata: { ...metadata, model: "default::gpt-image-2.5", content: "blob:apilio-history" },
+    };
+    const duplicate = {
+        ...original,
+        metadata: { ...original.metadata, followActiveImageSite: true },
+    };
+
+    for (const active of ["apimart", "runninghub", "default"]) {
+        const routedDuplicate = scope.Q0(config(active), duplicate, "image");
+        assert.equal(routedDuplicate.activeSiteId, active);
+        assert.equal(routedDuplicate.provider, channels.find(site => site.id === active).provider);
+        assert.equal(routedDuplicate.apiKey, channels.find(site => site.id === active).apiKey);
+        assert.equal(routedDuplicate.model, `${active}::gpt-image-2.5`);
+    }
+
+    const routedOriginal = scope.Q0(config("apimart"), original, "image");
+    assert.equal(routedOriginal.activeSiteId, "default");
+    assert.equal(routedOriginal.provider, "apilio");
+    assert.equal(routedOriginal.apiKey, "apilio-latest");
+    assert.equal(routedOriginal.model, "default::gpt-image-2.5");
+    assert.equal(original.metadata.followActiveImageSite, undefined);
+});
+
 test("ungenerated Mart image panels switch to Apilio controls with the active site", () => {
     const scope = runtime();
     const ungenerated = { ...node, metadata: { ...metadata, model: "apimart::gpt-image-2.5", generationStartedAt: "2026-09-20T13:00:00Z" } };

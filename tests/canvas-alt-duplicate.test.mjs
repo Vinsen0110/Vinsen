@@ -136,7 +136,10 @@ for (const selected of [["first"], ["first", "second"]]) {
             assert.notEqual(clone.id, source.id);
             assert.notEqual(clone.position, source.position);
             assert.notEqual(clone.metadata, source.metadata);
-            assert.deepEqual(plain({ ...clone, id: source.id }), plain(source));
+            assert.equal(clone.metadata.followActiveImageSite, true);
+            const comparableClone = plain({ ...clone, id: source.id });
+            delete comparableClone.metadata.followActiveImageSite;
+            assert.deepEqual(comparableClone, plain(source));
         }
         const copiedEdges = app.state.connections.slice(data.connections.length);
         const incidentEdges = data.connections.filter(edge =>
