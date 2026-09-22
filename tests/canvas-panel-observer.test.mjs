@@ -139,9 +139,10 @@ test("zoom identity ignores translation while retaining scale changes", () => {
     assert.notEqual(value(matrix), value({ ...matrix, a: 2, d: 2 }));
 });
 
-test("manually locked width returns before any layout measurement", () => {
+test("manually locked text-panel width returns before any layout measurement", () => {
     const panel = new Element("locked");
     panel.dataset.canvasWidthLocked = "true";
+    panel.querySelector = () => null;
     const context = vm.createContext({
         getMetrics: () => { throw new Error("A locked panel must not be measured"); },
     });
@@ -149,8 +150,83 @@ test("manually locked width returns before any layout measurement", () => {
     assert.doesNotThrow(() => update(panel));
 });
 
+function widthHarness({ savedWidth = 660, scale = 1, viewport = 1600 } = {}) {
+    const panel = new Element("image");
+    panel.dataset.canvasWidthLocked = "true";
+    panel.querySelector = selector => selector === ".canvas-generation-toolbar .canvas-model-select" ? {} : null;
+    const properties = new Map([
+        ["--canvas-panel-resize-width", savedWidth + "px"],
+        ["--canvas-panel-resize-height", "300px"],
+    ]);
+    let writes = 0;
+    panel.style = {
+        getPropertyValue: key => properties.get(key) || "",
+        setProperty: (key, value) => { properties.set(key, value); writes++; },
+    };
+    let minimum = 660;
+    const context = vm.createContext({
+        window: { innerWidth: viewport }, minWidth: 660,
+        getMinimumWidth: () => minimum,
+        getMetrics: () => ({ scaleX: scale }),
+    });
+    const update = vm.runInContext(`(${sourceFunction(panelScript, "updateAutoWidth")})`, context);
+    return {
+        panel, properties, context,
+        update: width => { minimum = width; update(panel); },
+        writes: () => writes,
+        renderedWidth: () => Math.max(
+            parseFloat(properties.get("--canvas-panel-resize-width")),
+            parseFloat(properties.get("--canvas-panel-auto-width")),
+        ),
+    };
+}
+
+test("saved Nano Banana panel grows for GPT controls without changing saved width or height", () => {
+    const app = widthHarness();
+    app.update(660);
+    assert.equal(app.renderedWidth(), 660);
+    app.update(1020);
+    assert.equal(app.renderedWidth(), 1020);
+    assert.equal(app.properties.get("--canvas-panel-resize-width"), "660px");
+    assert.equal(app.properties.get("--canvas-panel-resize-height"), "300px");
+    assert.equal(app.panel.dataset.canvasWidthLocked, "true");
+    const writes = app.writes();
+    app.update(1020);
+    assert.equal(app.writes(), writes, "stable measurements do not start an observer write loop");
+});
+
+test("a wider manual size is preserved across model and channel changes", () => {
+    const app = widthHarness({ savedWidth: 1250 });
+    for (const width of [660, 800, 1020, 1100, 660]) {
+        app.update(width);
+        assert.equal(app.renderedWidth(), 1250);
+    }
+    assert.equal(app.properties.get("--canvas-panel-resize-height"), "300px");
+});
+
+test("reopened narrow saved panels remeasure current controls and auto width respects canvas zoom", () => {
+    const reopened = widthHarness({ savedWidth: 700 });
+    reopened.update(1020);
+    assert.equal(reopened.renderedWidth(), 1020);
+    const zoomed = widthHarness({ scale: 1.5, viewport: 1400 });
+    zoomed.update(1200);
+    assert.equal(zoomed.properties.get("--canvas-panel-auto-width"), "912px");
+});
+
+test("active resizing is not overridden by automatic layout", () => {
+    const app = widthHarness();
+    app.panel.dataset.canvasResizeActive = "true";
+    app.context.getMetrics = () => { throw new Error("active resize must not be remeasured"); };
+    app.update(1100);
+    assert.equal(app.writes(), 0);
+});
+
+test("only image panels combine the saved width and current parameter minimum", () => {
+    assert.match(html, /\.canvas-generation-panel\[data-canvas-width-locked="true"\]:has\(\.canvas-generation-toolbar \.canvas-model-select\)\s*\{[^}]*width:\s*max\(var\(--canvas-panel-resize-width\), var\(--canvas-panel-auto-width, 660px\)\) !important;/);
+});
+
 test("text panel width follows its controls while image panels retain their 660px floor", () => {
-    const controls = { children: [{ offsetWidth: 190 }, { offsetWidth: 100 }] };
+    const controls = { children: [{ offsetWidth: 190, scrollWidth: 190 }, { offsetWidth: 100, scrollWidth: 100 }] };
     const action = { offsetWidth: 84 };
     const parent = {};
     const toolbar = { firstElementChild: controls, lastElementChild: action, parentElement: parent };
@@ -163,10 +239,12 @@ test("text panel width follows its controls while image panels retain their 660p
         getHorizontalExtras: element => element === toolbar ? 18 : 24,
     });
     const minimum = vm.runInContext(`(${sourceFunction(panelScript, "getMinimumWidth")})`, context);
-    assert.equal(minimum(panel(true)), 432);
+    assert.equal(minimum(panel(true)), 458);
     assert.equal(minimum(panel(false)), 660);
     controls.children[0].offsetWidth = 550;
-    assert.equal(minimum(panel(true)), 792, "longer model names must not overlap the action");
+    assert.equal(minimum(panel(true)), 818, "longer model names must not overlap the action");
+    controls.children[0].scrollWidth = 580;
+    assert.equal(minimum(panel(false)), 848, "image controls include their gap, padding and unclipped label width");
     assert.match(html, /\.canvas-generation-panel:has\(\.canvas-text-model-picker\)\s*\{[^}]*min-width:\s*min\(420px, calc\(100vw - 32px\)\)/);
     assert.match(html, /\.canvas-generation-toolbar:has\(\.canvas-text-model-picker\) > div:first-child\s*\{[^}]*justify-content:\s*flex-start;[^}]*gap:\s*8px;/);
 });

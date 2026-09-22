@@ -6,7 +6,7 @@
         <meta name="description" content="老屋作坊创作工具" />
         <link rel="icon" type="image/png" href="./kitty.png" />
         <link rel="preload" href="./assets/index-DT58oPsm.css" as="style" crossorigin>
-        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260922-cache-bust-01" crossorigin>
+        <link rel="modulepreload" href="./assets/index-B2KJ37fm.js?v=20260922-reference-release-01" crossorigin>
         <title>老屋作坊</title>
 
 <script>
@@ -205,7 +205,7 @@
                     var controlsStyle = getComputedStyle(controls);
                     var gap = parseFloat(controlsStyle.columnGap || controlsStyle.gap) || 4;
                     var controlsWidth = items.reduce(function (total, item) {
-                        return total + item.offsetWidth;
+                        return total + Math.max(item.offsetWidth, item.scrollWidth);
                     }, 0) + Math.max(0, items.length - 1) * gap;
                     var actionStyle = getComputedStyle(action);
                     var actionWidth = action.offsetWidth +
@@ -213,17 +213,25 @@
                         (parseFloat(actionStyle.marginRight) || 0);
                     var parent = toolbar.parentElement;
                     var toolbarStyle = getComputedStyle(toolbar);
-                    var toolbarGap = panelMinWidth === minWidth ? 0 : parseFloat(toolbarStyle.columnGap || toolbarStyle.gap) || 0;
+                    var toolbarGap = parseFloat(toolbarStyle.columnGap || toolbarStyle.gap) || 0;
+                    var outerExtras = 0;
+                    for (var ancestor = parent; ancestor; ancestor = ancestor.parentElement) {
+                        outerExtras += getHorizontalExtras(ancestor);
+                        if (ancestor === panel) break;
+                    }
                     return Math.max(panelMinWidth, Math.ceil(
                         controlsWidth + actionWidth +
                         toolbarGap +
                         getHorizontalExtras(toolbar) +
-                        getHorizontalExtras(parent)
-                    ));
+                        getHorizontalExtras(controls) + outerExtras
+                    ) + 2);
                 };
 
                 var updateAutoWidth = function (panel) {
-                    if (!panel || panel.dataset.canvasWidthLocked === "true") return;
+                    if (!panel || panel.dataset.canvasResizeActive === "true") return;
+                    // Saved image-panel widths are a floor, not a cap on newly added model controls.
+                    if (panel.dataset.canvasWidthLocked === "true" &&
+                        !panel.querySelector(".canvas-generation-toolbar .canvas-model-select")) return;
                     var metrics = getMetrics(panel);
                     var viewportWidth = Math.max(minWidth, (window.innerWidth - 32) / metrics.scaleX);
                     var width = Math.min(getMinimumWidth(panel), viewportWidth);
@@ -467,7 +475,7 @@
                     try { active.panel.releasePointerCapture(event.pointerId); } catch (error) {}
                     active.panel.dataset.canvasResizeActive = "false";
                     active.panel.style.cursor = "";
-                    if (!active.widthChanged) scheduleAutoWidths(active.panel);
+                    scheduleAutoWidths(active.panel);
                     var panel = active.panel;
                     var dimensions = {};
                     if (active.widthChanged) dimensions.width = parseFloat(panel.style.getPropertyValue("--canvas-panel-resize-width"));
@@ -567,7 +575,7 @@
                 else document.addEventListener("DOMContentLoaded", observe, { once: true });
             })();
         </script>
-        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260922-cache-bust-01"></script>
+        <script type="module" crossorigin src="./assets/index-B2KJ37fm.js?v=20260922-reference-release-01"></script>
       <script type="module" src="./display-model-names.js?v=20260912-observer-01"></script>
       <script src="./prevent-canvas-drag-download.js?v=20260827-01"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-DT58oPsm.css">
@@ -1532,13 +1540,14 @@
           justify-content: space-between;
           overflow-x: auto;
           overflow-y: hidden;
-          scrollbar-width: none;
+          scrollbar-width: thin;
         }
         .canvas-generation-toolbar.is-apimart-fixed > div:first-child {
           flex: 1 1 auto;
         }
         .canvas-generation-toolbar > div:last-child {
           margin-left: 4px !important;
+          flex: 0 0 auto;
         }
         .canvas-generation-toolbar .canvas-model-select,
         .canvas-generation-toolbar .canvas-generation-select,
@@ -1584,15 +1593,19 @@
           flex-shrink: 0;
         }
         .canvas-generation-toolbar > div:first-child::-webkit-scrollbar {
-          display: none;
+          height: 5px;
+        }
+        .canvas-generation-toolbar > div:first-child::-webkit-scrollbar-thumb {
+          background: #a8a29e;
+          border-radius: 4px;
         }
         .canvas-generation-panel[data-canvas-width-locked="true"] .canvas-generation-toolbar > div:first-child {
           overflow-x: auto;
           overflow-y: hidden;
-          scrollbar-width: none;
+          scrollbar-width: thin;
         }
         .canvas-generation-panel[data-canvas-width-locked="true"] .canvas-generation-toolbar > div:first-child::-webkit-scrollbar {
-          display: none;
+          height: 5px;
         }
         .canvas-model-menu > div > div > div:first-child {
           background: #f5f5f4 !important;
@@ -1623,6 +1636,9 @@
         .canvas-generation-panel[data-canvas-width-locked="true"] {
           width: var(--canvas-panel-resize-width) !important;
         }
+        .canvas-generation-panel[data-canvas-width-locked="true"]:has(.canvas-generation-toolbar .canvas-model-select) {
+          width: max(var(--canvas-panel-resize-width), var(--canvas-panel-auto-width, 660px)) !important;
+        }
         .canvas-generation-panel[data-canvas-resize-height-ready="true"] {
           height: var(--canvas-panel-resize-height) !important;
         }
@@ -1641,7 +1657,7 @@
           justify-content: space-between;
           overflow-x: auto;
           overflow-y: hidden;
-          scrollbar-width: none;
+          scrollbar-width: thin;
         }
         .canvas-generation-panel:has(.canvas-model-select[title^="gpt-image-2"]) .canvas-generation-toolbar > div:last-child {
           margin-left: 4px !important;
@@ -2213,6 +2229,7 @@ img[src*="/openai.svg"] {
 
 </style>
 
+<link rel="stylesheet" href="./canvas-interaction.css?v=20260922-01">
 </head>
     <body class="bg-background text-foreground antialiased">
         <div id="root"></div>

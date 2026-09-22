@@ -87,12 +87,14 @@ test("pointer release saves only moved axes in unscaled CSS units", () => {
         element.style.setProperty("--canvas-panel-resize-width", "800.5px");
         element.style.setProperty("--canvas-panel-resize-height", "310px");
         if (heightChanged) element.dataset.canvasResizeHeightReady = "true";
+        let scheduled = 0;
         const scope = vm.createContext({
             active: { panel: element, widthChanged, heightChanged },
-            CustomEvent, scheduleAutoWidths() {},
+            CustomEvent, scheduleAutoWidths(value) { assert.equal(value, element); scheduled++; },
         });
         vm.runInContext(`(${source})({pointerId:1})`, scope);
         assert.equal(scope.active, null);
+        assert.equal(scheduled, 1, "reconcile required model width after every completed resize");
         const expected = {};
         if (widthChanged) expected.generationPanelWidth = 800.5;
         if (heightChanged) expected.generationPanelHeight = 310;
