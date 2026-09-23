@@ -1,0 +1,147 @@
+.canvas-group-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.canvas-group-frame {
+    position: absolute;
+    pointer-events: auto;
+    cursor: grab;
+    touch-action: none;
+    box-sizing: border-box;
+    border: 1px solid color-mix(in srgb, var(--group-color) 45%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--group-color) 9%, transparent);
+}
+.canvas-group-frame:active { cursor: grabbing; }
+.canvas-group-frame.is-selected {
+    border-color: var(--group-color);
+}
+.canvas-group-resize {
+    position: absolute;
+    touch-action: none;
+    pointer-events: auto;
+    z-index: 2;
+}
+.canvas-group-resize-n, .canvas-group-resize-s { left: 12px; right: 12px; height: 10px; cursor: ns-resize; }
+.canvas-group-resize-e, .canvas-group-resize-w { top: 12px; bottom: 12px; width: 10px; cursor: ew-resize; }
+.canvas-group-resize-n { top: -5px; }
+.canvas-group-resize-s { bottom: -5px; }
+.canvas-group-resize-e { right: -5px; }
+.canvas-group-resize-w { left: -5px; }
+.canvas-group-resize-ne, .canvas-group-resize-se, .canvas-group-resize-sw, .canvas-group-resize-nw {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+.canvas-group-resize-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.canvas-group-resize-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.canvas-group-resize-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.canvas-group-resize-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.canvas-group-frame:is(.is-selected, :hover, [data-group-resizing]) > :is(
+    .canvas-group-resize-ne, .canvas-group-resize-se, .canvas-group-resize-sw, .canvas-group-resize-nw
+) {
+    border: 1px solid var(--group-color);
+    background: var(--background);
+}
+.canvas-group-heading {
+    position: absolute;
+    top: 10px;
+    left: 16px;
+    right: 16px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--foreground);
+    pointer-events: auto;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    font-size: 14px;
+    letter-spacing: 0;
+}
+.canvas-group-heading:active { cursor: grabbing; }
+.canvas-group-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.canvas-group-count { font-size: 12px; opacity: .55; flex-shrink: 0; }
+.canvas-group-tools {
+    display: flex;
+    flex-shrink: 0;
+    margin-left: auto;
+    gap: 4px;
+}
+.canvas-group-tools button {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--background);
+    color: var(--foreground);
+}
+.canvas-group-tools button:hover { outline: 1px solid var(--group-color); }
+.canvas-group-color-button span { width: 14px; height: 14px; border-radius: 3px; }
+.canvas-group-heading input {
+    min-width: 40px;
+    width: 100%;
+    height: 28px;
+    border: 1px solid var(--group-color);
+    border-radius: 4px;
+    padding: 2px 6px;
+    background: var(--background);
+    color: var(--foreground);
+    outline: none;
+    font: inherit;
+}
+.canvas-group-menu {
+    position: fixed;
+    z-index: 150;
+    width: 240px;
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: 0 6px 20px #0002;
+    font-size: 13px;
+}
+.canvas-group-menu > button {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+.canvas-group-menu > button:hover { background: color-mix(in srgb, var(--foreground) 8%, transparent); }
+.canvas-group-menu > button:disabled { opacity: .4; cursor: default; }
+.canvas-group-swatches { display: flex; align-items: center; gap: 7px; padding: 8px 4px; }
+.canvas-group-swatches button, .canvas-group-swatches input {
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.canvas-group-swatches button[aria-pressed="true"] { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.dark .canvas-group-frame { background: color-mix(in srgb, var(--group-color) 13%, transparent); }

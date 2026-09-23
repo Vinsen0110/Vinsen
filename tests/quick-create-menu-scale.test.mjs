@@ -128,7 +128,7 @@ test("outside click closes quick create while inside clicks stay open and listen
 });
 
 test("the actual canvas supplies its viewport and container to blank-canvas quick create", () => {
-    const invocation = bundle.match(/y\.jsx\(kke,\{[^]*?\}\):null/)?.[0];
+    const invocation = bundle.match(/y\.jsx\(kke,\s*\{[^]*?\}\):null/)?.[0];
     assert.ok(invocation);
     assert.match(invocation, /viewport:oe/);
     assert.match(invocation, /containerRef:i/);

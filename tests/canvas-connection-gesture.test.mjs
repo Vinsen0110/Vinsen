@@ -138,6 +138,7 @@ function gestureScope() {
         it: value => { state.marquee = value; },
         _e: value => { state.menu = value; },
         Nl: () => { state.dragEnded = true; },
+        es: () => {},
         window: { getSelection: () => ({ removeAllRanges: () => { state.selection = ""; } }) },
         Ds: () => ({ nodeId: null, isNearNode: false }),
         dv: (from, to) => { state.completed = { from, to }; },

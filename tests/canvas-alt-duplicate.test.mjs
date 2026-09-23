@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
+import { remapClonedCanvasGroups } from "../canvas-groups.js";
 
 const bundle = await readFile(new URL("../assets/index-B2KJ37fm.js", import.meta.url), "utf8");
 
@@ -59,6 +60,7 @@ function harness(selected, data = fixture(), source = duplicateSource) {
     });
     const ref = current => ({ current });
     const scope = {
+        remapClonedCanvasGroups,
         c: {
             useCallback: fn => fn,
             startTransition: fn => {
@@ -106,6 +108,20 @@ function harness(selected, data = fixture(), source = duplicateSource) {
 
     return { state, queue, commits, scope, click, get transitions() { return transitions; } };
 }
+
+test("Alt duplication keeps a copied group independent without changing request or image metadata", () => {
+    const data = fixture();
+    for (const node of data.nodes.filter(node => ["first", "second"].includes(node.id)))
+        node.canvasGroup = { id: "original-group", name: "References", color: "#22a06b" };
+    const app = harness(["first", "second"], data);
+    app.click();
+    const copies = app.state.nodes.filter(node => app.state.selected.has(node.id));
+    assert.equal(copies.length, 2);
+    assert.equal(copies[0].canvasGroup.id, copies[1].canvasGroup.id);
+    assert.notEqual(copies[0].canvasGroup.id, "original-group");
+    assert.equal(copies[0].metadata.model, "test-image-model");
+    assert.equal(app.state.nodes.find(node => node.id === "first").canvasGroup.id, "original-group");
+});
 
 for (const selected of [["first"], ["first", "second"]]) {
     test(`Alt duplication atomically commits ${selected.length} selected nodes and their connections`, () => {
