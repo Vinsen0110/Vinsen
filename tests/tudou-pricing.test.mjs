@@ -40,12 +40,12 @@ for (const name of [
     vm.runInContext(functionSource(name), context);
 }
 
-test("Tudou Nano Banana Pro uses the supplied 2026-09-17 default-group prices", () => {
+test("Tudou Nano Banana Pro uses the supplied 2026-09-24 default-group prices", () => {
     for (const model of [
         "nano-banana-pro", "tudou::nano-banana-pro", "nano-banana-pro-2k",
         "nano-banana-pro-4k", "gemini-3-pro-image-preview",
     ]) {
-        for (const [quality, price] of [["auto", 0.115], ["1k", 0.115], ["2k", 0.115], ["4k", 0.16]]) {
+        for (const [quality, price] of [["auto", 0.1], ["1k", 0.1], ["2k", 0.1], ["4k", 0.14]]) {
             assert.equal(context.tudouImagePrice({ model, quality }), price, `${model} ${quality}`);
             assert.equal(context.tudouImagePrice({ imageModel: model, quality }), price);
         }
@@ -54,15 +54,15 @@ test("Tudou Nano Banana Pro uses the supplied 2026-09-17 default-group prices", 
 
 test("Tudou resolution normalization preserves new prices for saved legacy settings", () => {
     for (const quality of ["low", "standard", "medium", "hd", " 2K ", "auto", undefined]) {
-        assert.equal(context.tudouImagePrice({ model: "nano-banana-pro", quality }), 0.115);
+        assert.equal(context.tudouImagePrice({ model: "nano-banana-pro", quality }), 0.1);
     }
     for (const quality of ["high", "4K"]) {
-        assert.equal(context.tudouImagePrice({ model: "nano-banana-pro", quality }), 0.16);
+        assert.equal(context.tudouImagePrice({ model: "nano-banana-pro", quality }), 0.14);
     }
 });
 
-test("canvas estimates preserve three-decimal unit prices and multiply batch counts correctly", () => {
-    for (const [quality, price] of [["auto", 0.115], ["1k", 0.115], ["2k", 0.115], ["4k", 0.16]]) {
+test("canvas estimates use updated unit prices and multiply batch counts correctly", () => {
+    for (const [quality, price] of [["auto", 0.1], ["1k", 0.1], ["2k", 0.1], ["4k", 0.14]]) {
         for (const count of [1, 2, 3, 10, 15]) {
             const config = { provider: "tudou", model: "tudou::nano-banana-pro", quality, count };
             assert.equal(context.pke(config), Number((price * count).toFixed(4)));
